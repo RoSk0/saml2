@@ -27,9 +27,9 @@ final class EntityAttributes extends AbstractMdattrElement
     /**
      * Array with child elements.
      *
-     * The elements can be \SimpleSAML\SAML2\XML\saml\Attribute or \SimpleSAML\XML\Chunk elements.
+     * The elements can be \SimpleSAML\SAML2\XML\saml\Attribute or \SimpleSAML\SAML2\XML\saml\Assertion elements.
      *
-     * @var (\SimpleSAML\SAML2\XML\saml\Attribute|\SimpleSAML\XML\Chunk)[]
+     * @var (\SimpleSAML\SAML2\XML\saml\Assertion|\SimpleSAML\SAML2\XML\saml\Attribute)[]
      */
     protected array $children = [];
 
@@ -37,7 +37,7 @@ final class EntityAttributes extends AbstractMdattrElement
     /**
      * Create a EntityAttributes element.
      *
-     * @param (\SimpleSAML\XML\Chunk|\SimpleSAML\SAML2\XML\saml\Attribute)[] $children
+     * @param (\SimpleSAML\SAML2\XML\saml\Assertion|\SimpleSAML\SAML2\XML\saml\Attribute)[] $children
      */
     public function __construct(array $children)
     {
@@ -48,7 +48,7 @@ final class EntityAttributes extends AbstractMdattrElement
     /**
      * Collect the value of the children-property
      *
-     * @return (\SimpleSAML\XML\Chunk|\SimpleSAML\SAML2\XML\saml\Attribute)[]
+     * @return (\SimpleSAML\SAML2\XML\saml\Assertion|\SimpleSAML\SAML2\XML\saml\Attribute)[]
      */
     public function getChildren(): array
     {
@@ -59,7 +59,8 @@ final class EntityAttributes extends AbstractMdattrElement
     /**
      * Set the value of the childen-property
      *
-     * @param (\SimpleSAML\XML\Chunk|\SimpleSAML\SAML2\XML\saml\Attribute)[] $children
+     * @param (\SimpleSAML\SAML2\XML\saml\Assertion|\SimpleSAML\SAML2\XML\saml\Attribute)[] $children
+     * @return void
      * @throws \SimpleSAML\Assert\AssertionFailedException
      */
     private function setChildren(array $children): void
@@ -98,7 +99,8 @@ final class EntityAttributes extends AbstractMdattrElement
     /**
      * Add the value to the children-property
      *
-     * @param \SimpleSAML\XML\Chunk|\SimpleSAML\SAML2\XML\saml\Attribute $child
+     * @param \SiimpleSAML\SAML2\XML\saml\Assertion|\SAML2\XML\saml\Attribute $child
+     * @return void
      * @throws \SimpleSAML\Assert\AssertionFailedException
      */
     public function addChild($child): void
