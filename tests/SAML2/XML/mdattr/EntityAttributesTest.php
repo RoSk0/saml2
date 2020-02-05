@@ -47,7 +47,11 @@ final class EntityAttributesTest extends TestCase
             'attrib1',
             Constants::NAMEFORMAT_URI,
             null,
-            []
+            [
+                new AttributeValue('is'),
+                new AttributeValue('really'),
+                new AttributeValue('cool'),
+            ]
         );
 
         $attribute2 = new Attribute(
@@ -64,21 +68,7 @@ final class EntityAttributesTest extends TestCase
         $entityAttributes = new EntityAttributes([$attribute1]);
         $entityAttributes->addChild($attribute2);
 
-        $document = DOMDocumentFactory::fromString('<root />');
-        $xml = $entityAttributes->toXML($document->firstChild);
-
-        $entityAttributesElements = XMLUtils::xpQuery(
-            $xml,
-            '/root/*[local-name()=\'EntityAttributes\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:attribute\']'
-        );
-        $this->assertCount(1, $entityAttributesElements);
-        $entityAttributesElement = $entityAttributesElements[0];
-
-        $attributeElements = XMLUtils::xpQuery(
-            $entityAttributesElement,
-            './*[local-name()=\'Attribute\' and namespace-uri()=\'urn:oasis:names:tc:SAML:2.0:assertion\']'
-        );
-        $this->assertCount(2, $attributeElements);
+        $this->assertEquals($this->document->saveXML($this->document->documentElement), strval($entityAttributes));
     }
 
 
@@ -90,7 +80,7 @@ final class EntityAttributesTest extends TestCase
         $entityAttributes = EntityAttributes::fromXML($this->document->firstChild);
         $this->assertCount(4, $entityAttributes->getChildren());
 
-        $this->assertInstanceOf(Chunk::class, $entityAttributes->getChildren()[0]);
+        $this->assertInstanceOf(Attribute::class, $entityAttributes->getChildren()[0]);
         $this->assertInstanceOf(Attribute::class, $entityAttributes->getChildren()[1]);
         $this->assertInstanceOf(Chunk::class, $entityAttributes->getChildren()[2]);
         $this->assertInstanceOf(Attribute::class, $entityAttributes->getChildren()[3]);
@@ -117,6 +107,18 @@ final class EntityAttributesTest extends TestCase
         $this->assertEquals(
             $this->document->saveXML($this->document->documentElement),
             strval(unserialize(serialize($ea)))
+        );
+    }
+
+
+    /**
+     * Test serialization / unserialization
+     */
+    public function testSerialization(): void
+    {
+        $this->assertEquals(
+            $this->document->saveXML($this->document->documentElement),
+            strval(unserialize(serialize(EntityAttributes::fromXML($this->document->documentElement))))
         );
     }
 }
