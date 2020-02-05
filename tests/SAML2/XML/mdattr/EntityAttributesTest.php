@@ -107,4 +107,16 @@ final class EntityAttributesTest extends TestCase
             strval(unserialize(serialize(EntityAttributes::fromXML($this->document->documentElement))))
         );
     }
+
+
+    /**
+     * Test serialization / unserialization
+     */
+    public function testSerialization(): void
+    {
+        $this->assertEquals(
+            $this->document->saveXML($this->document->documentElement),
+            strval(unserialize(serialize(EntityAttributes::fromXML($this->document->documentElement))))
+        );
+    }
 }
