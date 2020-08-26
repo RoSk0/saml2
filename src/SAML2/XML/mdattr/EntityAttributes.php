@@ -6,9 +6,11 @@ namespace SAML2\XML\mdattr;
 
 use DOMElement;
 use SAML2\Exception\InvalidDOMElementException;
+use SAML2\Exception\ProtocolViolationException;
 use SAML2\Utils;
-use SAML2\XML\Assertion;
+use SAML2\XML\saml\Assertion;
 use SAML2\XML\saml\Attribute;
+use SAML2\XML\saml\AttributeStatement;
 use SimpleSAML\Assert\Assert;
 
 /**
@@ -62,6 +64,20 @@ final class EntityAttributes extends AbstractMdattrElement
     {
         Assert::allIsInstanceOfAny($children, [Assertion::class, Attribute::class]);
 
+        $assertions = array_filter($children, function ($child) {
+            return $child instanceof Assertion;
+        });
+
+        foreach ($assertions as $assertion) {
+            $statements = $assertion->getStatements();
+            Assert::allIsInstanceOf(
+                $statements,
+                AttributeStatement::class,
+                '<saml:Asssertion> elements in an <mdattr:EntityAttributes> may only contain AttributeStatements',
+                ProtocolViolationException::class
+            );
+        }
+
         $this->children = $children;
     }
 
@@ -75,9 +91,7 @@ final class EntityAttributes extends AbstractMdattrElement
      */
     public function addChild($child): void
     {
-        Assert::isInstanceOfAny($child, [Assertion::class, Attribute::class]);
-
-        $this->children[] = $child;
+        $this->setChildren(array_merge($this->children, [$child]));
     }
 
 
@@ -101,7 +115,7 @@ final class EntityAttributes extends AbstractMdattrElement
             if ($node->localName === 'Attribute') {
                 $children[] = Attribute::fromXML($node);
             } elseif ($node->localName === 'Assertion') {
-                $children[] = new Assertion($node);
+                $children[] = Assertion::fromXML($node);
             } else {
                 throw new \InvalidArgumentException('Illegal content in mdattr:EntityAttributes message.');
             }
