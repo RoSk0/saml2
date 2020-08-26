@@ -82,6 +82,11 @@ final class EntityAttributes extends AbstractMdattrElement
                 'One (and only one) <saml:AttributeStatement> MUST be included in a <saml:Assertion> inside a <mdattr:EntityAttribute>',
                 ProtocolViolationException::class
             );
+            Assert::notNull(
+                $assertion->getSignature(),
+                'Every <saml:Assertion> inside a <mdattr::EntityAttribute> must be individually signed',
+                ProtocolViolationException::class
+            );
         }
 
         $this->children = $children;
