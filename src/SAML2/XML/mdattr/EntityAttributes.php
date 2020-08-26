@@ -76,6 +76,12 @@ final class EntityAttributes extends AbstractMdattrElement
                 '<saml:Asssertion> elements in an <mdattr:EntityAttributes> may only contain AttributeStatements',
                 ProtocolViolationException::class
             );
+            Assert::count(
+                1,
+                $statements,
+                'One (and only one) <saml:AttributeStatement> MUST be included in a <saml:Assertion> inside a <mdattr:EntityAttribute>',
+                ProtocolViolationException::class
+            );
         }
 
         $this->children = $children;
