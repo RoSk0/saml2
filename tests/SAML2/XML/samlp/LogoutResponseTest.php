@@ -10,8 +10,11 @@ use SAML2\XML\samlp\LogoutResponse;
 
 /**
  * Class \SAML2\XML\samlp\LogoutResponseTest
+ *
+ * @covers \SAML2\XML\samlp\LogoutResponse
+ * @package simplesamlphp/saml2
  */
-class LogoutResponseTest extends TestCase
+final class LogoutResponseTest extends TestCase
 {
     /** @var \DOMDocument */
     private $document;

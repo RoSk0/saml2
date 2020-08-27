@@ -14,8 +14,11 @@ use SAML2\XML\saml\Assertion;
 /**
  * Because we're mocking a static call, we have to run it in separate processes so as to no contaminate the other
  * tests.
+ *
+ * @covers \SAML2\Assertion\Validation\ConstraintValidator\SpIsValidAudience
+ * @package simplesamlphp/saml2
  */
-class SpIsValidAudienceTest extends MockeryTestCase
+final class SpIsValidAudienceTest extends MockeryTestCase
 {
     /**
      * @var \Mockery\MockInterface

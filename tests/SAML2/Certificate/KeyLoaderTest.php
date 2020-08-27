@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SAML2\Certificate;
 
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use SAML2\Utilities\Certificate;
 use SAML2\Certificate\Key;
 use SAML2\Certificate\KeyLoader;
@@ -11,7 +12,11 @@ use SAML2\Certificate\Exception\InvalidCertificateStructureException;
 use SAML2\Certificate\Exception\NoKeysFoundException;
 use SAML2\Configuration\CertificateProvider;
 
-class KeyLoaderTest extends \Mockery\Adapter\Phpunit\MockeryTestCase
+/**
+ * @covers \SAML2\Certificate\KeyLoader
+ * @package simplesamlphp/saml2
+ */
+final class KeyLoaderTest extends MockeryTestCase
 {
     /**
      * @var \SAML2\Certificate\KeyLoader

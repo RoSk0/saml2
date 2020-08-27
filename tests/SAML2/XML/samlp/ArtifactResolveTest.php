@@ -9,7 +9,11 @@ use SAML2\XML\saml\Issuer;
 use SAML2\DOMDocumentFactory;
 use SAML2\Utils;
 
-class ArtifactResolveTest extends TestCase
+/**
+ * @covers \SAML2\XML\samlp\ArtifactResolve
+ * @package simplesamlphp/saml2
+ */
+final class ArtifactResolveTest extends TestCase
 {
     /** @var \DOMDocument $document */
     private $document;

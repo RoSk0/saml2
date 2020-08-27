@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace SAML2\Configuration;
 
+use PHPUnit\Framework\TestCase;
 use SAML2\Configuration\ArrayAdapter;
 
-class ArrayAdapterTest extends \PHPUnit\Framework\TestCase
+/**
+ * @covers \SAML2\Configuration\ArrayAdapter
+ * @package simplesamlphp/saml2
+ */
+final class ArrayAdapterTest extends TestCase
 {
     /**
      * @group configuration

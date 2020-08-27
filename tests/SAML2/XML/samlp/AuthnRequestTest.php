@@ -24,8 +24,11 @@ use SimpleSAML\TestUtils\PEMCertificatesMock;
 
 /**
  * Class \SAML2\XML\samlp\AuthnRequestTest
+ *
+ * @covers \SAML2\XML\samlp\AuthnRequest
+ * @package simplesamlphp/saml2
  */
-class AuthnRequestTest extends TestCase
+final class AuthnRequestTest extends TestCase
 {
     public function testMarshalling(): void
     {

@@ -15,8 +15,11 @@ use SAML2\XML\saml\SubjectConfirmationData;
 /**
  * Because we're mocking a static call, we have to run it in separate processes so as to not contaminate the other
  * tests.
+ *
+ * @covers \SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotOnOrAfter
+ * @package simplesamlphp/saml2
  */
-class SubjectConfirmationNotOnOrAfterTest extends ControlledTimeTest
+final class SubjectConfirmationNotOnOrAfterTest extends ControlledTimeTest
 {
     /**
      * @group assertion-validation

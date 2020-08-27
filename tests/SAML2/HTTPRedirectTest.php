@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SAML2;
 
 use Exception;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use PHPUnit\Framework\Error\Warning;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 use SAML2\DOMDocumentFactory;
@@ -17,7 +18,11 @@ use SAML2\XML\samlp\Status;
 use SAML2\XML\samlp\StatusCode;
 use SimpleSAML\TestUtils\PEMCertificatesMock;
 
-class HTTPRedirectTest extends \Mockery\Adapter\Phpunit\MockeryTestCase
+/**
+ * @covers \SAML2\HTTPRedirect
+ * @package simplesamlphp\saml2
+ */
+final class HTTPRedirectTest extends MockeryTestCase
 {
     /**
      * test parsing of basic query string with authnrequest and

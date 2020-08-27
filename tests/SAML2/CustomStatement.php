@@ -6,6 +6,10 @@ use DOMElement;
 use SAML2\XML\saml\Statement;
 use SimpleSAML\Assert\Assert;
 
+/**
+ * @covers \SAML2\CustomStatement
+ * @package simplesamlphp\saml2
+ */
 final class CustomStatement extends Statement
 {
     protected const XSI_TYPE = 'CustomStatement';

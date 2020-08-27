@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace SAML2;
 
+use PHPUnit\Framework\TestCase;
 use SAML2\DOMDocumentFactory;
 use SAML2\Exception\UnparseableXmlException;
 use SAML2\Exception\InvalidArgumentException;
 use SAML2\Exception\RuntimeException;
 
-class DOMDocumentFactoryTest extends \PHPUnit\Framework\TestCase
+/**
+ * @covers \SAML2\DOMDocumentFactory
+ * @package simplesamlphp\saml2
+ */
+final class DOMDocumentFactoryTest extends TestCase
 {
     /**
      * @group domdocument

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SAML2\Response\Validation\ConstraintValidator;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use SAML2\Constants;
 use SAML2\Response\Validation\Result;
 use SAML2\Response\Validation\ConstraintValidator\IsSuccessful;
@@ -12,7 +13,11 @@ use SAML2\XML\samlp\Status;
 use SAML2\XML\samlp\StatusCode;
 use SAML2\XML\samlp\StatusMessage;
 
-class IsSuccessfulTest extends \Mockery\Adapter\Phpunit\MockeryTestCase
+/**
+ * @covers \SAML2\Response\Validation\ConstraintValidator\IsSuccessful
+ * @package simplesamlphp/saml2
+ */
+final class IsSuccessfulTest extends MockeryTestCase
 {
     /**
      * @var \Mockery\MockInterface

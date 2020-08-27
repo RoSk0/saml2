@@ -26,8 +26,11 @@ use SimpleSAML\TestUtils\PEMCertificatesMock;
 
 /**
  * Class \SAML2\XML\samlp\LogoutRequestTest
+ *
+ * @covers \SAML2\XML\samlp\LogoutRequest
+ * @package simplesamlphp/saml2
  */
-class LogoutRequestTest extends MockeryTestCase
+final class LogoutRequestTest extends MockeryTestCase
 {
     /** @var \DOMDocument $document */
     private $document;

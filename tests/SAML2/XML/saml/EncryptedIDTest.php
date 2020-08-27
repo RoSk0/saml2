@@ -28,9 +28,10 @@ use SimpleSAML\TestUtils\PEMCertificatesMock;
 /**
  * Class EncryptedIDTest
  *
+ * @covers \SAML2\XML\saml\EncryptedID
  * @package simplesamlphp/saml2
  */
-class EncryptedIDTest extends TestCase
+final class EncryptedIDTest extends TestCase
 {
     /** @var \DOMDocument $document */
     private $document;

@@ -14,9 +14,12 @@ use SAML2\XML\saml\Assertion;
  * Because we're mocking a static call, we have to run it in separate processes so as to no contaminate the other
  * tests.
  *
+ * @covers \SAML2\Assertion\Validation\ConstraintValidator\NotOnOrAfter
+ * @package simplesamlphp/saml2
+ *
  * @runTestsInSeparateProcesses
  */
-class NotOnOrAfterTest extends ControlledTimeTest
+final class NotOnOrAfterTest extends ControlledTimeTest
 {
     /**
      * @var \Mockery\MockInterface

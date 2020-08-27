@@ -13,6 +13,9 @@ use SimpleSAML\Assert\AssertionFailedException;
 
 /**
  * Class \SAML2\XML\md\EndpointType
+ *
+ * @covers \SAML2\XML\md\EndpointType
+ * @package simplesamlphp/saml2
  */
 final class EndpointTypeTest extends TestCase
 {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SAML2;
 
 use Exception;
+use PHPUnit\Framework\TestCase;
 use SAML2\Binding;
 use SAML2\Constants;
 use SAML2\HTTPArtifact;
@@ -12,7 +13,11 @@ use SAML2\HTTPPost;
 use SAML2\HTTPRedirect;
 use SAML2\SOAP;
 
-class BindingTest extends \PHPUnit\Framework\TestCase
+/**
+ * @covers \SAML2\Binding
+ * @package simplesamlphp\saml2
+ */
+final class BindingTest extends TestCase
 {
     /**
      * Test getting binding objects from string.

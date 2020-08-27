@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace SAML2;
 
+use Mockery\Adapter\Phpunit\MockeryTestCase;
+
 /**
  * Because we're mocking a static call, we have to run it in separate processes so as to no contaminate the other
  * tests.
  *
  * @runTestsInSeparateProcesses
+ * @package simplesamlphp\saml2
  */
-abstract class ControlledTimeTest extends \Mockery\Adapter\Phpunit\MockeryTestCase
+abstract class ControlledTimeTest extends MockeryTestCase
 {
     /** @var int */
     protected $currentTime = 1;

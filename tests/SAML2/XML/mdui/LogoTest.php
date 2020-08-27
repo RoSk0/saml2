@@ -13,8 +13,11 @@ use SimpleSAML\Assert\AssertionFailedException;
 
 /**
  * Class \SAML2\XML\mdui\LogoTest
+ *
+ * @covers \SAML2\XML\mdui\Logo
+ * @package simplesamlphp/saml2
  */
-class LogoTest extends TestCase
+final class LogoTest extends TestCase
 {
     /** @var \DOMDocument */
     private $document;

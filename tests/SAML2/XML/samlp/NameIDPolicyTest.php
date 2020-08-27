@@ -11,10 +11,12 @@ use SAML2\DOMDocumentFactory;
 /**
  * Class \SAML2\XML\md\NameIDPolicyTest
  *
+ * @covers \SAML2\XML\samlp\NameIDPolicy
+ *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
  */
-class NameIDPolicyTest extends TestCase
+final class NameIDPolicyTest extends TestCase
 {
     /** @var \DOMDocument */
     private $document;

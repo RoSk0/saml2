@@ -19,9 +19,11 @@ use SAML2\Assertion\Exception\InvalidAssertionException;
 use stdClass;
 
 /**
+ * @covers \SAML2\Assertion\Processor
+ * @package simplesamlphp/saml2
  * @runTestsInSeparateProcesses
  */
-class ProcessorTest extends MockeryTestCase
+final class ProcessorTest extends MockeryTestCase
 {
     /**
      * @var Processor

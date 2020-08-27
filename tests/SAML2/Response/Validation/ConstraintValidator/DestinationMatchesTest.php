@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace SAML2\Response\Validation\ConstraintValidator;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use SAML2\Configuration\Destination;
 use SAML2\Response\Validation\Result;
 use SAML2\Response\Validation\ConstraintValidator\DestinationMatches;
 
-class DestinationMatchesTest extends \Mockery\Adapter\Phpunit\MockeryTestCase
+/**
+ * @covers \SAML2\Response\Validation\ConstraintValidator\DestinationMatches
+ * @package simplesamlphp/saml2
+ */
+final class DestinationMatchesTest extends MockeryTestCase
 {
     /**
      * @var \Mockery\MockInterface

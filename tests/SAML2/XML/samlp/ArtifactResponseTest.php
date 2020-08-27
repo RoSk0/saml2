@@ -12,7 +12,11 @@ use SAML2\XML\samlp\StatusCode;
 use SAML2\DOMDocumentFactory;
 use SAML2\Utils;
 
-class ArtifactResponseTest extends TestCase
+/**
+ * @covers \SAML2\XML\samlp\ArtifactResponse
+ * @package simplesamlphp/saml2
+ */
+final class ArtifactResponseTest extends TestCase
 {
     /** @var \DOMDocument */
     private $document;

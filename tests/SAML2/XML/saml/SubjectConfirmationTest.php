@@ -17,6 +17,9 @@ use SAML2\Utils;
 
 /**
  * Class \SAML2\XML\saml\SubjectConfirmationTest
+ *
+ * @covers \SAML2\XML\saml\SubjectConfirmation
+ * @package simplesamlphp/saml2
  */
 final class SubjectConfirmationTest extends TestCase
 {

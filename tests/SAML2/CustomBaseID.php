@@ -7,6 +7,10 @@ use SAML2\XML\saml\BaseID;
 use SAML2\XML\saml\CustomIdentifierInterface;
 use SimpleSAML\Assert\Assert;
 
+/**
+ * @covers \SAML2\CustomBaseID
+ * @package simplesamlphp\saml2
+ */
 final class CustomBaseID extends BaseID implements CustomIdentifierInterface
 {
     protected const XSI_TYPE = 'CustomBaseID';

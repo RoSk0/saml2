@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SAML2\XML\samlp;
 
+use PHPUnit\Framework\TestCase;
 use SAML2\Constants;
 use SAML2\DOMDocumentFactory;
 use SAML2\Utils;
@@ -11,10 +12,12 @@ use SAML2\Utils;
 /**
  * Class \SAML2\XML\samlp\StatusCodeTest
  *
+ * @covers \SAML2\XML\samlp\StatusCode
+ *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
  */
-class StatusCodeTest extends \PHPUnit\Framework\TestCase
+final class StatusCodeTest extends TestCase
 {
     /** @var \DOMDocument */
     private $document;

@@ -7,13 +7,18 @@ namespace SAML2\XML\ecp;
 use DOMDocument;
 use DOMElement;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 use SAML2\Constants;
 use SAML2\DOMDocumentFactory;
 use SAML2\Exception\MissingAttributeException;
 use SAML2\XML\ecp\Response;
 use SimpleSAML\Assert\AssertionFailedException;
 
-final class ResponseTest extends \PHPUnit\Framework\TestCase
+/**
+ * @covers \SAML2\XML\ecp\Response
+ * @package simplesamlphp/saml2
+ */
+final class ResponseTest extends TestCase
 {
     /** @var \DOMDocument */
     private $document;
