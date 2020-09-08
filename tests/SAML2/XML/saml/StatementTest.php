@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use DOMElement;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\CustomStatement;
-use SAML2\DOMDocumentFactory;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\CustomStatement;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\saml\StatementTest
  *
- * @covers \SAML2\XML\saml\Statement
+ * @covers \SimpleSAML\SAML2\XML\saml\Statement
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class StatementTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -28,15 +30,8 @@ final class StatementTest extends TestCase
      */
     protected function setUp(): void
     {
-        $samlNamespace = Statement::NS;
-        $xsiNamespace = Constants::NS_XSI;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:Statement
-    xmlns:saml="{$samlNamespace}"
-    xmlns:xsi="{$xsiNamespace}"
-    xsi:type="CustomStatement">SomeStatement</saml:Statement>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_Statement.xml'
         );
     }
 

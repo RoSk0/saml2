@@ -2,57 +2,58 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Response;
+namespace SimpleSAML\SAML2\Response;
 
 use DOMDocument;
 use Mockery;
+use Mockery\MockInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\NullLogger;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Assertion\Processor as AssertionProcessor;
-use SAML2\Configuration\Destination;
-use SAML2\Configuration\IdentityProvider;
-use SAML2\Configuration\ServiceProvider;
-use SAML2\Response\Exception\UnsignedResponseException;
-use SAML2\Response\Processor as ResponseProcessor;
-use SAML2\Utilities\ArrayCollection;
-use SAML2\Utilities\Certificate;
-use SAML2\XML\saml\Assertion;
-use SAML2\XML\samlp\Response;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Assertion\Processor as AssertionProcessor;
+use SimpleSAML\SAML2\Configuration\Destination;
+use SimpleSAML\SAML2\Configuration\IdentityProvider;
+use SimpleSAML\SAML2\Configuration\ServiceProvider;
+use SimpleSAML\SAML2\Response\Exception\UnsignedResponseException;
+use SimpleSAML\SAML2\Response\Processor as ResponseProcessor;
+use SimpleSAML\SAML2\Utilities\ArrayCollection;
+use SimpleSAML\SAML2\Utilities\Certificate;
+use SimpleSAML\SAML2\XML\saml\Assertion;
+use SimpleSAML\SAML2\XML\samlp\Response;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Test that ensures that either the response or the assertion(s) or both must be signed.
  *
- * @covers \SAML2\Response\SignatureValidation
+ * @covers \SimpleSAML\SAML2\Response\SignatureValidation
  * @package simplesamlphp/saml2
  */
 final class SignatureValidationTest extends MockeryTestCase
 {
     /**
-     * @var \SAML2\Configuration\IdentityProvider
+     * @var \SimpleSAML\SAML2\Configuration\IdentityProvider
      */
-    private $identityProviderConfiguration;
+    private IdentityProvider $identityProviderConfiguration;
 
     /**
-     * @var \SAML2\Configuration\ServiceProvider
+     * @var \SimpleSAML\SAML2\Configuration\ServiceProvider
      */
-    private $serviceProviderConfiguration;
+    private ServiceProvider $serviceProviderConfiguration;
 
     /**
      * @var \Mockery\MockInterface Mock of \SAML2\Assertion\ProcessorBuilder
      */
-    private $assertionProcessorBuilder;
+    private MockInterface $assertionProcessorBuilder;
 
     /**
      * @var \Mockery\MockInterface Mock of \SAML2\Assertion\Processor
      */
-    private $assertionProcessor;
+    private MockInterface $assertionProcessor;
 
     /**
      * @var string
      */
-    private $currentDestination = 'http://moodle.bridge.feide.no/simplesaml/saml2/sp/AssertionConsumerService.php';
+    private string $currentDestination = 'http://moodle.bridge.feide.no/simplesaml/saml2/sp/AssertionConsumerService.php';
 
 
     /**
@@ -62,7 +63,7 @@ final class SignatureValidationTest extends MockeryTestCase
      */
     public function setUp(): void
     {
-        $this->assertionProcessorBuilder = Mockery::mock('alias:SAML2\Assertion\ProcessorBuilder');
+        $this->assertionProcessorBuilder = Mockery::mock('alias:SimpleSAML\SAML2\Assertion\ProcessorBuilder');
         $this->assertionProcessor = Mockery::mock(AssertionProcessor::class);
         $this->assertionProcessorBuilder
             ->shouldReceive('build')
@@ -182,14 +183,16 @@ final class SignatureValidationTest extends MockeryTestCase
 
 
     /**
-     * @return \SAML2\XML\samlp\Response
+     * @return \SimpleSAML\SAML2\XML\samlp\Response
      */
     private function getSignedResponseWithUnsignedAssertion(): Response
     {
         $doc = new DOMDocument();
         $doc->load(__DIR__ . '/response.xml');
         $response = Response::fromXML($doc->documentElement);
-        $response->setSigningKey(PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_SHA256, PEMCertificatesMock::PRIVATE_KEY));
+        $response->setSigningKey(
+            PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_SHA256, PEMCertificatesMock::PRIVATE_KEY)
+        );
         $response->setCertificates([PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY)]);
 
         // convert to signed response
@@ -198,7 +201,7 @@ final class SignatureValidationTest extends MockeryTestCase
 
 
     /**
-     * @return \SAML2\XML\samlp\Response
+     * @return \SimpleSAML\SAML2\XML\samlp\Response
      */
     private function getUnsignedResponseWithSignedAssertion(): Response
     {
@@ -209,14 +212,16 @@ final class SignatureValidationTest extends MockeryTestCase
 
 
     /**
-     * @return \SAML2\XML\samlp\Response
+     * @return \SimpleSAML\SAML2\XML\samlp\Response
      */
     private function getSignedResponseWithSignedAssertion(): Response
     {
         $doc = new DOMDocument();
         $doc->load(__DIR__ . '/unsignedResponseWithSignedAssertion.xml');
         $response = Response::fromXML($doc->documentElement);
-        $response->setSigningKey(PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_SHA256, PEMCertificatesMock::PRIVATE_KEY));
+        $response->setSigningKey(
+            PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_SHA256, PEMCertificatesMock::PRIVATE_KEY)
+        );
         $response->setCertificates([PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY)]);
 
         return Response::fromXML($response->toXML());
@@ -224,7 +229,7 @@ final class SignatureValidationTest extends MockeryTestCase
 
 
     /**
-     * @return \SAML2\XML\samlp\Response
+     * @return \SimpleSAML\SAML2\XML\samlp\Response
      */
     private function getUnsignedResponseWithUnsignedAssertion(): Response
     {

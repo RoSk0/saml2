@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use SimpleSAML\Assert\Assert;
 
@@ -18,14 +18,14 @@ trait IndexedElementTrait
      *
      * @var int
      */
-    protected $index;
+    protected int $index;
 
     /**
      * Whether this endpoint is the default.
      *
      * @var bool|null
      */
-    protected $isDefault = null;
+    protected ?bool $isDefault = null;
 
 
     /**

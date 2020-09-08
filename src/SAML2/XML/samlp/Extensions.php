@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
 use DOMElement;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Utils;
-use SAML2\XML\Chunk;
-use SAML2\XML\ExtensionsTrait;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\XML\ExtensionsTrait;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class for handling SAML2 extensions.
@@ -24,12 +24,12 @@ final class Extensions extends AbstractSamlpElement
      * Create an Extensions object from its md:Extensions XML representation.
      *
      * For those supported extensions, an object of the corresponding class will be created. The rest will be added
-     * as a \SAML2\XML\Chunk object.
+     * as a \SimpleSAML\XML\Chunk object.
      *
      * @param \DOMElement $xml
-     * @return \SAML2\XML\samlp\Extensions
+     * @return \SimpleSAML\SAML2\XML\samlp\Extensions
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -48,7 +48,7 @@ final class Extensions extends AbstractSamlpElement
         $ret = [];
 
         /** @var \DOMElement $node */
-        foreach (Utils::xpQuery($xml, './*') as $node) {
+        foreach (XMLUtils::xpQuery($xml, './*') as $node) {
             $ret[] = new Chunk($node);
         }
 

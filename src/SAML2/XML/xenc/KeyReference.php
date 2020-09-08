@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\xenc;
+namespace SimpleSAML\SAML2\XML\xenc;
 
 /**
  * Class representing the <xenc:KeyReference> element.
@@ -11,4 +11,14 @@ namespace SAML2\XML\xenc;
  */
 class KeyReference extends AbstractReference
 {
+    /**
+     * KeyReference constructor.
+     *
+     * @param string $uri
+     * @param \SimpleSAML\XML\Chunk[] $references
+     */
+    public function __construct(string $uri, array $references = [])
+    {
+        parent::__construct($uri, $references);
+    }
 }

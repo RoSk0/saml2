@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ds;
+namespace SimpleSAML\SAML2\XML\ds;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
 use SimpleSAML\Assert\AssertionFailedException;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityDSig;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Class \SAML2\XML\ds\X509CertificateTest
  *
- * @covers \SAML2\XML\ds\X509Certificate
+ * @covers \SimpleSAML\SAML2\XML\ds\AbstractDsElement
+ * @covers \SimpleSAML\SAML2\XML\ds\X509Certificate
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -23,10 +25,10 @@ use SimpleSAML\TestUtils\PEMCertificatesMock;
 final class X509CertificateTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
     /** @var string */
-    private $certificate;
+    private string $certificate;
 
 
     /**
@@ -34,10 +36,10 @@ final class X509CertificateTest extends TestCase
      */
     public function setUp(): void
     {
-        $ns = X509Certificate::NS;
-
         $this->certificate = str_replace(
             [
+                '-----BEGIN CERTIFICATE-----',
+                '-----END CERTIFICATE-----',
                 '-----BEGIN RSA PUBLIC KEY-----',
                 '-----END RSA PUBLIC KEY-----',
                 "\r\n",
@@ -46,15 +48,16 @@ final class X509CertificateTest extends TestCase
             [
                 '',
                 '',
+                '',
+                '',
                 "\n",
                 ''
             ],
-            PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::SELFSIGNED_PUBLIC_KEY, XMLSecurityKey::RSA_SHA256)
+            PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::SELFSIGNED_PUBLIC_KEY)
         );
 
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<ds:X509Certificate xmlns:ds="{$ns}">{$this->certificate}</ds:X509Certificate>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/ds_X509Certificate.xml'
         );
     }
 

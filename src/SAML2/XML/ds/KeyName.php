@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ds;
+namespace SimpleSAML\SAML2\XML\ds;
 
 use DOMElement;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Utils;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\SAML2\Utils;
 
 /**
  * Class representing a ds:KeyName element.
@@ -21,7 +21,7 @@ final class KeyName extends AbstractDsElement
      *
      * @var string
      */
-    protected $name;
+    protected string $name;
 
 
     /**
@@ -64,7 +64,7 @@ final class KeyName extends AbstractDsElement
      * @param \DOMElement $xml The XML element we should load
      * @return self
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {

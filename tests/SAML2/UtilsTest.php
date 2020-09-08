@@ -2,22 +2,24 @@
 
 declare(strict_types=1);
 
-namespace SAML2;
+namespace SimpleSAML\SAML2;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\ds\X509Data;
-use SAML2\XML\saml\NameID;
-use SAML2\XML\saml\Subject;
-use SAML2\XML\samlp\AttributeQuery;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\SAML2\XML\ds\X509Data;
+use SimpleSAML\SAML2\XML\saml\NameID;
+use SimpleSAML\SAML2\XML\saml\Subject;
+use SimpleSAML\SAML2\XML\samlp\AttributeQuery;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Utils as XMLUtils;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
 
 /**
  * Class \SAML2\UtilsTest
  *
- * @covers \SAML2\Utils
+ * @covers \SimpleSAML\SAML2\Utils
  * @package simplesamlphp\saml2
  */
 final class UtilsTest extends TestCase
@@ -40,7 +42,7 @@ final class UtilsTest extends TestCase
 
         $xml = $aq->toXML();
 
-        $nameId_after = Utils::xpQuery($xml, './saml_assertion:Subject/saml_assertion:NameID');
+        $nameId_after = XMLUtils::xpQuery($xml, './saml_assertion:Subject/saml_assertion:NameID');
         $this->assertTrue(count($nameId_after) === 1);
         $this->assertEquals('NameIDValue', $nameId_after[0]->textContent);
         $this->assertEquals('SomeNameIDFormat', $nameId_after[0]->getAttribute("Format"));
@@ -57,7 +59,7 @@ final class UtilsTest extends TestCase
     {
         $document = DOMDocumentFactory::fromString('<root/>');
 
-        Utils::addString(
+        XMLUtils::addString(
             $document->firstChild,
             'testns',
             'ns:somenode',
@@ -69,7 +71,7 @@ final class UtilsTest extends TestCase
         );
 
         $document->loadXML('<ns:root xmlns:ns="testns"/>');
-        Utils::addString(
+        XMLUtils::addString(
             $document->firstChild,
             'testns',
             'ns:somenode',
@@ -89,7 +91,7 @@ final class UtilsTest extends TestCase
     public function testGetAddStrings(): void
     {
         $document = DOMDocumentFactory::fromString('<root/>');
-        Utils::addStrings(
+        XMLUtils::addStrings(
             $document->firstChild,
             'testns',
             'ns:somenode',
@@ -105,7 +107,7 @@ final class UtilsTest extends TestCase
         );
 
         $document->loadXML('<ns:root xmlns:ns="testns"/>');
-        Utils::addStrings(
+        XMLUtils::addStrings(
             $document->firstChild,
             'testns',
             'ns:somenode',
@@ -121,7 +123,7 @@ final class UtilsTest extends TestCase
         );
 
         $document->loadXML('<root/>');
-        Utils::addStrings(
+        XMLUtils::addStrings(
             $document->firstChild,
             'testns',
             'ns:somenode',
@@ -137,7 +139,7 @@ final class UtilsTest extends TestCase
         );
 
         $document->loadXML('<ns:root xmlns:ns="testns"/>');
-        Utils::addStrings(
+        XMLUtils::addStrings(
             $document->firstChild,
             'testns',
             'ns:somenode',
@@ -167,7 +169,7 @@ final class UtilsTest extends TestCase
             '</root>'
         );
 
-        $stringValues = Utils::extractStrings(
+        $stringValues = XMLUtils::extractStrings(
             $document->firstChild,
             Constants::NS_MD,
             'somenode'
@@ -192,7 +194,7 @@ final class UtilsTest extends TestCase
             '</root>'
         );
 
-        $localizedStringValues = Utils::extractLocalizedStrings(
+        $localizedStringValues = XMLUtils::extractLocalizedStrings(
             $document->firstChild,
             Constants::NS_MD,
             'somenode'
@@ -213,7 +215,7 @@ final class UtilsTest extends TestCase
     public function testXsDateTimeToTimestamp($shouldPass, $time, $expectedTs = null): void
     {
         try {
-            $ts = Utils::xsDateTimeToTimestamp($time);
+            $ts = XMLUtils::xsDateTimeToTimestamp($time);
             $this->assertTrue($shouldPass);
             $this->assertEquals($expectedTs, $ts);
         } catch (\Exception $e) {
@@ -251,7 +253,7 @@ final class UtilsTest extends TestCase
      */
     public function testCreateKeyDescriptor(): void
     {
-        $X509Data = "MIICgTCCAeoCCQCbOlrWDdX7FTANBgkqhkiG9w0BAQUFADCBhDELMAkGA1UEBhMCTk8xGDAWBgNVBAgTD0FuZHJlYXMgU29sYmVyZzEMMAoGA1UEBxMDRm9vMRAwDgYDVQQKEwdVTklORVRUMRgwFgYDVQQDEw9mZWlkZS5lcmxhbmcubm8xITAfBgkqhkiG9w0BCQEWEmFuZHJlYXNAdW5pbmV0dC5ubzAeFw0wNzA2MTUxMjAxMzVaFw0wNzA4MTQxMjAxMzVaMIGEMQswCQYDVQQGEwJOTzEYMBYGA1UECBMPQW5kcmVhcyBTb2xiZXJnMQwwCgYDVQQHEwNGb28xEDAOBgNVBAoTB1VOSU5FVFQxGDAWBgNVBAMTD2ZlaWRlLmVybGFuZy5ubzEhMB8GCSqGSIb3DQEJARYSYW5kcmVhc0B1bmluZXR0Lm5vMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDivbhR7P516x/S3BqKxupQe0LONoliupiBOesCO3SHbDrl3+q9IbfnfmE04rNuMcPsIxB161TdDpIesLCn7c8aPHISKOtPlAeTZSnb8QAu7aRjZq3+PbrP5uW3TcfCGPtKTytHOge/OlJbo078dVhXQ14d1EDwXJW1rRXuUt4C8QIDAQABMA0GCSqGSIb3DQEBBQUAA4GBACDVfp86HObqY+e8BUoWQ9+VMQx1ASDohBjwOsg2WykUqRXF+dLfcUH9dWR63CtZIKFDbStNomPnQz7nbK+onygwBspVEbnHuUihZq3ZUdmumQqCw4Uvs/1Uvq3orOo/WJVhTyvLgFVK2QarQ4/67OZfHd7R+POBXhophSMv1ZOo";
+        $X509Data = PEMCertificatesMock::getPlainPrivateKeyContents();
         $keyDescriptor = Utils::createKeyDescriptor($X509Data);
 
         $this->assertInstanceOf(X509Data::class, $keyDescriptor->getKeyInfo()->getInfo()[0]);

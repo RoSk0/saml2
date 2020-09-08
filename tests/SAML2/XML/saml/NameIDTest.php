@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\saml\NameIDTest
  *
- * @covers \SAML2\XML\saml\NameID
+ * @covers \SimpleSAML\SAML2\XML\saml\NameID
+ * @covers \SimpleSAML\SAML2\XML\saml\NameIDType
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -18,23 +21,15 @@ use SAML2\DOMDocumentFactory;
 final class NameIDTest extends TestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
 
     /**
      * @return void
      */
     public function setup(): void
     {
-        $samlNamespace = Issuer::NS;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:NameID
-  xmlns:saml="{$samlNamespace}"
-  NameQualifier="TheNameQualifier"
-  SPNameQualifier="TheSPNameQualifier"
-  Format="TheFormat"
-  SPProvidedID="TheSPProvidedID">TheNameIDValue</saml:NameID>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_NameID.xml'
         );
     }
 

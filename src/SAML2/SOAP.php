@@ -2,24 +2,28 @@
 
 declare(strict_types=1);
 
-namespace SAML2;
+namespace SimpleSAML\SAML2;
 
 use DOMDocument;
 use Exception;
-use SAML2\XML\ecp\Response as ECPResponse;
-use SAML2\XML\samlp\AbstractMessage;
-use SAML2\XML\samlp\MessageFactory;
-use SAML2\XML\samlp\Response;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\SAML2\XML\ecp\Response as ECPResponse;
+use SimpleSAML\SAML2\XML\ecp\RequestAuthenticated;
+use SimpleSAML\SAML2\XML\samlp\AbstractMessage;
+use SimpleSAML\SAML2\XML\samlp\MessageFactory;
+use SimpleSAML\SAML2\XML\samlp\Response;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class which implements the SOAP binding.
  *
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 class SOAP extends Binding
 {
     /**
-     * @param \SAML2\XML\samlp\AbstractMessage $message
+     * @param \SimpleSAML\SAML2\XML\samlp\AbstractMessage $message
      * @throws \Exception
      * @return string|false The XML or false on error
      */
@@ -44,21 +48,15 @@ SOAP;
             /** @var \DOMElement $header */
             $header = $doc->getElementsByTagNameNS(Constants::NS_SOAP, 'Header')->item(0);
 
+            $requestAuthenticated = new RequestAuthenticated();
+            $header->appendChild($header->ownerDocument->importNode($requestAuthenticated->toXML(), true));
+
             $destination = $this->destination ?: $message->getDestination();
             if ($destination === null) {
                 throw new Exception('No destination available for SOAP message.');
             }
             $response = new ECPResponse($destination);
-
             $response->toXML($header);
-
-            // TODO We SHOULD add ecp:RequestAuthenticated SOAP header if we
-            // authenticated the AuthnRequest. It may make sense to have a
-            // standardized way for Message objects to contain (optional) SOAP
-            // headers for use with the SOAP binding.
-            //
-            // https://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/cs01/saml-ecp-v2.0-cs01.html#_Toc366664733
-            // See Section 2.3.6.1
         }
 
         /** @var \DOMElement $body */
@@ -75,7 +73,7 @@ SOAP;
      *
      * Note: This function never returns.
      *
-     * @param \SAML2\XML\samlp\AbstractMessage $message The message we should send.
+     * @param \SimpleSAML\SAML2\XML\samlp\AbstractMessage $message The message we should send.
      * @return void
      */
     public function send(AbstractMessage $message): void
@@ -97,7 +95,7 @@ SOAP;
      * Receive a SAML 2 message sent using the HTTP-POST binding.
      *
      * @throws \Exception If unable to receive the message
-     * @return \SAML2\XML\samlp\AbstractMessage The received message.
+     * @return \SimpleSAML\SAML2\XML\samlp\AbstractMessage The received message.
      */
     public function receive(): AbstractMessage
     {
@@ -112,7 +110,7 @@ SOAP;
         $xml = $document->firstChild;
         Utils::getContainer()->debugMessage($document->documentElement, 'in');
         /** @var \DOMElement[] $results */
-        $results = Utils::xpQuery($xml, '/soap-env:Envelope/soap-env:Body/*[1]');
+        $results = XMLUtils::xpQuery($xml, '/soap-env:Envelope/soap-env:Body/*[1]');
 
         return MessageFactory::fromXML($results[0]);
     }

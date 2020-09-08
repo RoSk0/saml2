@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\shibmd;
+namespace SimpleSAML\SAML2\XML\shibmd;
 
 use DOMElement;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Utils;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\SAML2\Utils;
 
 /**
  * Class which represents the Scope element found in Shibboleth metadata.
@@ -22,14 +22,14 @@ final class Scope extends AbstractShibmdElement
      *
      * @var string
      */
-    protected $scope;
+    protected string $scope;
 
     /**
      * Whether this is a regexp scope.
      *
      * @var bool
      */
-    protected $regexp;
+    protected bool $regexp;
 
 
     /**
@@ -97,7 +97,7 @@ final class Scope extends AbstractShibmdElement
      * @param \DOMElement $xml The XML element we should load
      * @return self
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {

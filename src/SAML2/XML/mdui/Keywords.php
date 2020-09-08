@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\mdui;
+namespace SimpleSAML\SAML2\XML\mdui;
 
 use DOMElement;
-use SAML2\Exception\InvalidDOMElementException;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
 
 /**
  * Class for handling the Keywords metadata extensions for login and discovery user interface
@@ -23,14 +23,14 @@ final class Keywords extends AbstractMduiElement
      *
      * @var string[]
      */
-    protected $Keywords = [];
+    protected array $Keywords = [];
 
     /**
      * The language of this item.
      *
      * @var string
      */
-    protected $lang;
+    protected string $lang;
 
 
     /**
@@ -116,8 +116,8 @@ final class Keywords extends AbstractMduiElement
      * @param \DOMElement $xml The XML element we should load
      * @return self
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
-     * @throws \SAML2\Exception\MissingAttributeException if the supplied element is missing one of the mandatory attributes
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\MissingAttributeException if the supplied element is missing one of the mandatory attributes
      */
     public static function fromXML(DOMElement $xml): object
     {

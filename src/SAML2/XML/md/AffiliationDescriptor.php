@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use DOMElement;
 use Exception;
-use SAML2\Constants;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Exception\TooManyElementsException;
-use SAML2\Utils;
-use SAML2\XML\ds\Signature;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\ds\Signature;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Exception\TooManyElementsException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class representing SAML 2 AffiliationDescriptor element.
@@ -25,7 +25,7 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
      *
      * @var string
      */
-    public $affiliationOwnerID;
+    public string $affiliationOwnerID;
 
     /**
      * The AffiliateMember(s).
@@ -34,16 +34,16 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
      *
      * @var string[]
      */
-    protected $AffiliateMembers = [];
+    protected array $AffiliateMembers = [];
 
     /**
      * KeyDescriptor elements.
      *
-     * Array of \SAML2\XML\md\KeyDescriptor elements.
+     * Array of \SimpleSAML\SAML2\XML\md\KeyDescriptor elements.
      *
-     * @var \SAML2\XML\md\KeyDescriptor[]
+     * @var \SimpleSAML\SAML2\XML\md\KeyDescriptor[]
      */
-    protected $KeyDescriptors = [];
+    protected array $KeyDescriptors = [];
 
 
     /**
@@ -54,8 +54,8 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
      * @param string|null $ID The ID for this document. Defaults to null.
      * @param int|null $validUntil Unix time of validity for this document. Defaults to null.
      * @param string|null $cacheDuration Maximum time this document can be cached. Defaults to null.
-     * @param \SAML2\XML\md\Extensions|null An array of extensions. Defaults to an empty array.
-     * @param \SAML2\XML\md\KeyDescriptor[] $keyDescriptors An optional array of KeyDescriptors. Defaults to an empty array.
+     * @param \SimpleSAML\SAML2\XML\md\Extensions|null $extensions An array of extensions. Defaults to an empty array.
+     * @param \SimpleSAML\SAML2\XML\md\KeyDescriptor[] $keyDescriptors An optional array of KeyDescriptors. Defaults to an empty array.
      */
     public function __construct(
         string $ownerID,
@@ -77,11 +77,11 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
      * Initialize a AffiliationDescriptor.
      *
      * @param \DOMElement $xml The XML element we should load.
-     * @return \SAML2\XML\md\AffiliationDescriptor
+     * @return \SimpleSAML\SAML2\XML\md\AffiliationDescriptor
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
-     * @throws \SAML2\Exception\MissingAttributeException if the supplied element is missing one of the mandatory attributes
-     * @throws \SAML2\Exception\TooManyElementsException if too many child-elements of a type are specified
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\MissingAttributeException if the supplied element is missing one of the mandatory attributes
+     * @throws \SimpleSAML\XML\Exception\TooManyElementsException if too many child-elements of a type are specified
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -89,7 +89,7 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
         Assert::same($xml->namespaceURI, AffiliationDescriptor::NS, InvalidDOMElementException::class);
 
         $owner = self::getAttribute($xml, 'affiliationOwnerID');
-        $members = Utils::extractStrings($xml, Constants::NS_MD, 'AffiliateMember');
+        $members = XMLUtils::extractStrings($xml, Constants::NS_MD, 'AffiliateMember');
         $keyDescriptors = KeyDescriptor::getChildrenOfClass($xml);
 
         $validUntil = self::getAttribute($xml, 'validUntil', null);
@@ -106,7 +106,7 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
             $owner,
             $members,
             self::getAttribute($xml, 'ID', null),
-            $validUntil !== null ? Utils::xsDateTimeToTimestamp($validUntil) : null,
+            $validUntil !== null ? XMLUtils::xsDateTimeToTimestamp($validUntil) : null,
             self::getAttribute($xml, 'cacheDuration', null),
             !empty($extensions) ? $extensions[0] : null,
             $keyDescriptors
@@ -174,7 +174,7 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
     /**
      * Collect the value of the KeyDescriptor-property
      *
-     * @return \SAML2\XML\md\KeyDescriptor[]
+     * @return \SimpleSAML\SAML2\XML\md\KeyDescriptor[]
      */
     public function getKeyDescriptors(): array
     {
@@ -185,7 +185,7 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
     /**
      * Set the value of the KeyDescriptor-property
      *
-     * @param \SAML2\XML\md\KeyDescriptor[] $keyDescriptors
+     * @param \SimpleSAML\SAML2\XML\md\KeyDescriptor[] $keyDescriptors
      * @return void
      */
     protected function setKeyDescriptors(array $keyDescriptors): void
@@ -207,7 +207,7 @@ final class AffiliationDescriptor extends AbstractMetadataDocument
         $e = parent::toXML($parent);
 
         $e->setAttribute('affiliationOwnerID', $this->affiliationOwnerID);
-        Utils::addStrings($e, Constants::NS_MD, 'md:AffiliateMember', false, $this->AffiliateMembers);
+        XMLUtils::addStrings($e, Constants::NS_MD, 'md:AffiliateMember', false, $this->AffiliateMembers);
 
         foreach ($this->KeyDescriptors as $kd) {
             $kd->toXML($e);

@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2;
+namespace SimpleSAML\SAML2;
 
 use Exception;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Utilities\Temporal;
-use SAML2\XML\saml\Issuer;
-use SAML2\XML\samlp\AbstractMessage;
-use SAML2\XML\samlp\ArtifactResolve;
-use SAML2\XML\samlp\ArtifactResponse;
+use SimpleSAML\Assert\Assert;
 use SimpleSAML\Configuration;
 use SimpleSAML\Metadata\MetaDataStorageHandler;
 use SimpleSAML\Module\saml\Message as MSG;
+use SimpleSAML\SAML2\Utilities\Temporal;
+use SimpleSAML\SAML2\XML\saml\Issuer;
+use SimpleSAML\SAML2\XML\samlp\AbstractMessage;
+use SimpleSAML\SAML2\XML\samlp\ArtifactResolve;
+use SimpleSAML\SAML2\XML\samlp\ArtifactResponse;
 use SimpleSAML\Store;
 use SimpleSAML\Utils\HTTP;
-use SimpleSAML\Assert\Assert;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Class which implements the HTTP-Artifact binding.
  *
  * @author  Danny Bollaert, UGent AS. <danny.bollaert@ugent.be>
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 class HTTPArtifact extends Binding
 {
@@ -30,13 +30,13 @@ class HTTPArtifact extends Binding
      * @psalm-suppress UndefinedDocblockClass
      * @var \SimpleSAML\Configuration
      */
-    private $spMetadata;
+    private Configuration $spMetadata;
 
 
     /**
      * Create the redirect URL for a message.
      *
-     * @param  \SAML2\XML\samlp\AbstractMessage $message The message.
+     * @param  \SimpleSAML\SAML2\XML\samlp\AbstractMessage $message The message.
      * @throws \Exception
      * @return string        The URL the user should be redirected to in order to send a message.
      */
@@ -81,7 +81,7 @@ class HTTPArtifact extends Binding
      *
      * Note: This function never returns.
      *
-     * @param \SAML2\XML\samlp\AbstractMessage $message The message we should send.
+     * @param \SimpleSAML\SAML2\XML\samlp\AbstractMessage $message The message we should send.
      * @return void
      * @throws \Exception
      */
@@ -98,7 +98,7 @@ class HTTPArtifact extends Binding
      * Throws an exception if it is unable receive the message.
      *
      * @throws \Exception
-     * @return \SAML2\XML\samlp\AbstractMessage The received message.
+     * @return \SimpleSAML\SAML2\XML\samlp\AbstractMessage The received message.
      *
      * @throws \SimpleSAML\Assert\AssertionFailedException if assertions are false
      */
@@ -158,7 +158,7 @@ class HTTPArtifact extends Binding
         $soap = new SOAPClient();
 
         // Send message through SoapClient
-        /** @var \SAML2\XML\samlp\ArtifactResponse $artifactResponse */
+        /** @var \SimpleSAML\SAML2\XML\samlp\ArtifactResponse $artifactResponse */
         $artifactResponse = $soap->send($ar, $this->spMetadata);
 
         if (!$artifactResponse->isSuccess()) {
@@ -198,8 +198,8 @@ class HTTPArtifact extends Binding
     /**
      * A validator which returns true if the ArtifactResponse was signed with the given key
      *
-     * @param \SAML2\XML\samlp\ArtifactResponse $message
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $key
+     * @param \SimpleSAML\SAML2\XML\samlp\ArtifactResponse $message
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $key
      * @return bool
      */
     public static function validateSignature(ArtifactResponse $message, XMLSecurityKey $key): bool

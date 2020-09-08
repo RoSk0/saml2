@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\saml\AuthnContextDeclRefTest
  *
- * @covers \SAML2\XML\saml\AuthnContextDeclRef
+ * @covers \SimpleSAML\SAML2\XML\saml\AuthnContextDeclRef
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class AuthnContextDeclRefTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -26,10 +28,8 @@ final class AuthnContextDeclRefTest extends TestCase
      */
     protected function setUp(): void
     {
-        $samlNamespace = Constants::NS_SAML;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:AuthnContextDeclRef xmlns:saml="{$samlNamespace}">/relative/path/to/document.xml</saml:AuthnContextDeclRef>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_AuthnContextDeclRef.xml'
         );
     }
 

@@ -2,27 +2,30 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\SignedElementTestTrait;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\SignedElementTestTrait;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
- * @covers \SAML2\XML\md\AuthnAuthorityDescriptor
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\AuthnAuthorityDescriptor
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMetadataDocument
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractRoleDescriptor
  * @package simplesamlphp/saml2
  */
 final class AuthnAuthorityDescriptorTest extends TestCase
 {
     use SignedElementTestTrait;
 
-    /** @var \SAML2\XML\md\AssertionIDRequestService */
-    protected $aidrs;
+    /** @var \SimpleSAML\SAML2\XML\md\AssertionIDRequestService */
+    protected AssertionIDRequestService $aidrs;
 
-    /** @var \SAML2\XML\md\AuthnQueryService */
-    protected $aqs;
+    /** @var \SimpleSAML\SAML2\XML\md\AuthnQueryService */
+    protected AuthnQueryService $aqs;
 
 
     /**
@@ -30,15 +33,8 @@ final class AuthnAuthorityDescriptorTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdns = Constants::NS_MD;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:AuthnAuthorityDescriptor xmlns:md="${mdns}" protocolSupportEnumeration="protocol1 protocol2">
-  <md:AuthnQueryService Binding="uri:binding:aqs" Location="http://www.example.com/aqs" />
-  <md:AssertionIDRequestService Binding="uri:binding:aidrs" Location="http://www.example.com/aidrs" />
-  <md:NameIDFormat>http://www.example1.com/</md:NameIDFormat>
-  <md:NameIDFormat>http://www.example2.com/</md:NameIDFormat>
-</md:AuthnAuthorityDescriptor>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_AuthnAuthorityDescriptor.xml'
         );
 
         $this->aqs = new AuthnQueryService('uri:binding:aqs', 'http://www.example.com/aqs');

@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Certificate;
+namespace SimpleSAML\SAML2\Certificate;
 
 use PHPUnit\Framework\TestCase;
-use SAML2\Configuration\PrivateKey as ConfPrivateKey;
-use SAML2\Certificate\PrivateKey;
-use SAML2\Certificate\PrivateKeyLoader;
+use SimpleSAML\SAML2\Configuration\PrivateKey as ConfPrivateKey;
+use SimpleSAML\SAML2\Certificate\PrivateKey;
+use SimpleSAML\SAML2\Certificate\PrivateKeyLoader;
 
 /**
- * @covers \SAML2\Certificate\PrivateKeyLoader
+ * @covers \SimpleSAML\SAML2\Certificate\PrivateKeyLoader
  * @package simplesamlphp/saml2
  */
 final class PrivateKeyLoaderTest extends TestCase
 {
     /**
-     * @var \SAML2\Certificate\PrivateKeyLoader
+     * @var \SimpleSAML\SAML2\Certificate\PrivateKeyLoader
      */
-    private $privateKeyLoader;
+    private PrivateKeyLoader $privateKeyLoader;
 
 
     /**
@@ -35,11 +35,11 @@ final class PrivateKeyLoaderTest extends TestCase
      * @test
      * @dataProvider privateKeyTestProvider
      *
-     * @param \SAML2\Configuration\PrivateKey $configuredKey
+     * @param \SimpleSAML\SAML2\Configuration\PrivateKey $configuredKey
      * @return void
      */
-    public function loading_a_configured_private_key_returns_a_certificate_private_key(
-        \SAML2\Configuration\PrivateKey $configuredKey
+    public function loadingAConfiguredPrivateKeyReturnsACertificatePrivateKey(
+        ConfPrivateKey $configuredKey
     ): void {
         $resultingKey = $this->privateKeyLoader->loadPrivateKey($configuredKey);
 
@@ -58,22 +58,22 @@ final class PrivateKeyLoaderTest extends TestCase
     {
         return [
             'no passphrase'   => [
-                new \SAML2\Configuration\PrivateKey(
+                new ConfPrivateKey(
                     dirname(__FILE__) . '/File/a_fake_private_key_file.pem',
-                    \SAML2\Configuration\PrivateKey::NAME_DEFAULT
+                    ConfPrivateKey::NAME_DEFAULT
                 )
             ],
             'with passphrase' => [
-                new \SAML2\Configuration\PrivateKey(
+                new ConfPrivateKey(
                     dirname(__FILE__) . '/File/a_fake_private_key_file.pem',
-                    \SAML2\Configuration\PrivateKey::NAME_DEFAULT,
+                    ConfPrivateKey::NAME_DEFAULT,
                     'foo bar baz'
                 )
             ],
             'private key as contents' => [
-                new \SAML2\Configuration\PrivateKey(
+                new ConfPrivateKey(
                     file_get_contents(dirname(__FILE__) . '/File/a_fake_private_key_file.pem'),
-                    \SAML2\Configuration\PrivateKey::NAME_DEFAULT,
+                    ConfPrivateKey::NAME_DEFAULT,
                     '',
                     false
                 )

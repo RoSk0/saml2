@@ -2,17 +2,20 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\CustomCondition;
-use SAML2\DOMDocumentFactory;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\CustomCondition;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\saml\ConditionTest
  *
- * @covers \SAML2\XML\saml\Condition
+ * @covers \SimpleSAML\SAML2\XML\saml\Condition
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractConditionType
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -20,7 +23,7 @@ use SAML2\DOMDocumentFactory;
 final class ConditionTest extends TestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -28,15 +31,8 @@ final class ConditionTest extends TestCase
      */
     public function setup(): void
     {
-        $samlNamespace = Condition::NS;
-        $xsiNamespace = Constants::NS_XSI;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:Condition
-  xmlns:saml="{$samlNamespace}"
-  xmlns:xsi="{$xsiNamespace}"
-  xsi:type="CustomCondition">SomeCondition</saml:Condition>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_Condition.xml'
         );
     }
 
@@ -88,7 +84,7 @@ XML
      */
     public function testUnmarshallingCustomClass(): void
     {
-        /** @var \SAML2\CustomCondition $condition */
+        /** @var \SimpleSAML\SAML2\CustomCondition $condition */
         $condition = CustomCondition::fromXML($this->document->documentElement);
 
         $this->assertEquals('CustomCondition', $condition->getType());

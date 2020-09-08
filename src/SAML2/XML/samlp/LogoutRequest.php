@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
 use DOMElement;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Exception\MissingElementException;
-use SAML2\Exception\TooManyElementsException;
-use SAML2\Utils;
-use SAML2\XML\IdentifierTrait;
-use SAML2\XML\ds\Signature;
-use SAML2\XML\saml\IdentifierInterface;
-use SAML2\XML\saml\BaseID;
-use SAML2\XML\saml\EncryptedID;
-use SAML2\XML\saml\NameID;
-use SAML2\XML\saml\Issuer;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\XML\IdentifierTrait;
+use SimpleSAML\SAML2\XML\ds\Signature;
+use SimpleSAML\SAML2\XML\saml\IdentifierInterface;
+use SimpleSAML\SAML2\XML\saml\BaseID;
+use SimpleSAML\SAML2\XML\saml\EncryptedID;
+use SimpleSAML\SAML2\XML\saml\NameID;
+use SimpleSAML\SAML2\XML\saml\Issuer;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Exception\MissingElementException;
+use SimpleSAML\XML\Exception\TooManyElementsException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class for SAML 2 logout request messages.
  *
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 class LogoutRequest extends AbstractRequest
 {
@@ -32,38 +32,38 @@ class LogoutRequest extends AbstractRequest
      *
      * @var int|null
      */
-    protected $notOnOrAfter = null;
+    protected ?int $notOnOrAfter = null;
 
     /**
      * The SessionIndexes of the sessions that should be terminated.
      *
      * @var string[]
      */
-    protected $sessionIndexes = [];
+    protected array $sessionIndexes = [];
 
     /**
      * The optional reason for the logout, typically a URN
-     * See \SAML2\Constants::LOGOUT_REASON_*
+     * See \SimpleSAML\SAML2\Constants::LOGOUT_REASON_*
      * From the standard section 3.7.3: "other values MAY be agreed on between participants"
      *
      * @var string|null
      */
-    protected $reason = null;
+    protected ?string $reason = null;
 
 
     /**
      * Constructor for SAML 2 AttributeQuery.
      *
-     * @param \SAML2\XML\saml\IdentifierInterface $identifier
+     * @param \SimpleSAML\SAML2\XML\saml\IdentifierInterface $identifier
      * @param int|null $notOnOrAfter
      * @param string|null $reason
      * @param string[] $sessionIndexes
-     * @param \SAML2\XML\saml\Issuer|null $issuer
+     * @param \SimpleSAML\SAML2\XML\saml\Issuer|null $issuer
      * @param string|null $id
      * @param int|null $issueInstant
      * @param string|null $destination
      * @param string|null $consent
-     * @param \SAML2\XML\samlp\Extensions $extensions
+     * @param \SimpleSAML\SAML2\XML\samlp\Extensions $extensions
      * @throws \Exception
      */
     public function __construct(
@@ -160,12 +160,12 @@ class LogoutRequest extends AbstractRequest
      * Convert XML into a LogoutRequest
      *
      * @param \DOMElement $xml The XML element we should load
-     * @return \SAML2\XML\samlp\LogoutRequest
+     * @return \SimpleSAML\SAML2\XML\samlp\LogoutRequest
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
-     * @throws \SAML2\Exception\MissingAttributeException if the supplied element is missing one of the mandatory attributes
-     * @throws \SAML2\Exception\MissingElementException if one of the mandatory child-elements is missing
-     * @throws \SAML2\Exception\TooManyElementsException if too many child-elements of a type are specified
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\MissingAttributeException if the supplied element is missing one of the mandatory attributes
+     * @throws \SimpleSAML\XML\Exception\MissingElementException if one of the mandatory child-elements is missing
+     * @throws \SimpleSAML\XML\Exception\TooManyElementsException if too many child-elements of a type are specified
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -173,11 +173,11 @@ class LogoutRequest extends AbstractRequest
         Assert::same($xml->namespaceURI, LogoutRequest::NS, InvalidDOMElementException::class);
         Assert::same('2.0', self::getAttribute($xml, 'Version'));
 
-        $issueInstant = Utils::xsDateTimeToTimestamp(self::getAttribute($xml, 'IssueInstant'));
+        $issueInstant = XMLUtils::xsDateTimeToTimestamp(self::getAttribute($xml, 'IssueInstant'));
 
         $notOnOrAfter = self::getAttribute($xml, 'NotOnOrAfter', null);
         if ($notOnOrAfter !== null) {
-            $notOnOrAfter = Utils::xsDateTimeToTimestamp($notOnOrAfter);
+            $notOnOrAfter = XMLUtils::xsDateTimeToTimestamp($notOnOrAfter);
         }
 
         $issuer = Issuer::getChildrenOfClass($xml);
@@ -201,7 +201,7 @@ class LogoutRequest extends AbstractRequest
             $identifier,
             $notOnOrAfter,
             self::getAttribute($xml, 'Reason', null),
-            Utils::extractStrings($xml, AbstractSamlpElement::NS, 'SessionIndex'),
+            XMLUtils::extractStrings($xml, AbstractSamlpElement::NS, 'SessionIndex'),
             array_pop($issuer),
             self::getAttribute($xml, 'ID'),
             $issueInstant,
@@ -236,6 +236,7 @@ class LogoutRequest extends AbstractRequest
             $e->setAttribute('Reason', $this->reason);
         }
 
+        /** @var \SimpleSAML\SAML2\XML\saml\IdentifierInterface $this->identifier */
         $this->identifier->toXML($e);
 
         foreach ($this->sessionIndexes as $sessionIndex) {

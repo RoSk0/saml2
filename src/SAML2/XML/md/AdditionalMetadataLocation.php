@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use DOMElement;
 use Exception;
 use InvalidArgumentException;
-use SAML2\Exception\InvalidDOMElementException;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
 
 /**
  * Class representing SAML 2 metadata AdditionalMetadataLocation element.
  *
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 final class AdditionalMetadataLocation extends AbstractMdElement
 {
@@ -22,14 +22,14 @@ final class AdditionalMetadataLocation extends AbstractMdElement
      *
      * @var string
      */
-    protected $namespace;
+    protected string $namespace;
 
     /**
      * The URI where the metadata is located.
      *
      * @var string
      */
-    protected $location;
+    protected string $location;
 
 
     /**
@@ -51,8 +51,8 @@ final class AdditionalMetadataLocation extends AbstractMdElement
      * @param \DOMElement $xml The XML element we should load.
      * @return self
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
-     * @throws \SAML2\Exception\MissingAttributeException if the supplied element is missing any of the mandatory attributes
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\MissingAttributeException if the supplied element is missing any of the mandatory attributes
      */
     public static function fromXML(DOMElement $xml): object
     {

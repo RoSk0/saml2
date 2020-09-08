@@ -2,36 +2,38 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\saml\AuthnContextTest
  *
- * @covers \SAML2\XML\saml\AuthnContext
+ * @covers \SimpleSAML\SAML2\XML\saml\AuthnContext
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class AuthnContextTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
     /** @var \DOMDocument */
-    private $classRef;
+    private DOMDocument $classRef;
 
     /** @var \DOMDocument */
-    private $declRef;
+    private DOMDocument $declRef;
 
     /** @var \DOMDocument */
-    private $decl;
+    private DOMDocument $decl;
 
     /** @var \DOMDocument */
-    private $authority;
+    private DOMDocument $authority;
 
 
     /**
@@ -39,41 +41,24 @@ final class AuthnContextTest extends TestCase
      */
     protected function setUp(): void
     {
-        $samlNamespace = Constants::NS_SAML;
-        $ac_ppt = Constants::AC_PASSWORD_PROTECTED_TRANSPORT;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:AuthnContext xmlns:saml="{$samlNamespace}">
-</saml:AuthnContext>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_AuthnContext.xml'
         );
 
-        $this->classRef = DOMDocumentFactory::fromString(<<<XML
-<saml:AuthnContextClassRef xmlns:saml="{$samlNamespace}">{$ac_ppt}</saml:AuthnContextClassRef>
-XML
+        $this->classRef = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_AuthnContextClassRef.xml'
         );
 
-        $this->declRef = DOMDocumentFactory::fromString(<<<XML
-<saml:AuthnContextDeclRef xmlns:saml="{$samlNamespace}">/relative/path/to/document.xml</saml:AuthnContextDeclRef>
-XML
+        $this->declRef = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_AuthnContextDeclRef.xml'
         );
 
-        $this->decl = DOMDocumentFactory::fromString(<<<XML
-<saml:AuthnContextDecl xmlns:saml="{$samlNamespace}">
-  <samlacpass:AuthenticationContextDeclaration>
-    <samlacpass:Identification nym="verinymity">
-      <samlacpass:Extension>
-        <safeac:NoVerification/>
-      </samlacpass:Extension>
-    </samlacpass:Identification>
-  </samlacpass:AuthenticationContextDeclaration>
-</saml:AuthnContextDecl>
-XML
+        $this->decl = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_AuthnContextDecl.xml'
         );
 
-        $this->authority = DOMDocumentFactory::fromString(<<<XML
-<saml:AuthenticatingAuthority xmlns:saml="{$samlNamespace}">https://idp.example.com/SAML2</saml:AuthenticatingAuthority>
-XML
+        $this->authority = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_AuthenticatingAuthority.xml'
         );
     }
 
@@ -93,9 +78,17 @@ XML
             ['https://idp.example.com/SAML2']
         );
 
-        $this->assertEquals(new AuthnContextClassRef(Constants::AC_PASSWORD_PROTECTED_TRANSPORT), $authnContext->getAuthnContextClassRef());
+        $this->assertEquals(
+            new AuthnContextClassRef(
+                Constants::AC_PASSWORD_PROTECTED_TRANSPORT
+            ),
+            $authnContext->getAuthnContextClassRef()
+        );
         $this->assertNull($authnContext->getAuthnContextDecl());
-        $this->assertEquals(new AuthnContextDeclRef('/relative/path/to/document.xml'), $authnContext->getAuthnContextDeclRef());
+        $this->assertEquals(
+            new AuthnContextDeclRef('/relative/path/to/document.xml'),
+            $authnContext->getAuthnContextDeclRef()
+        );
         $this->assertEquals(['https://idp.example.com/SAML2'], $authnContext->getAuthenticatingAuthorities());
 
         $document = $this->document;
@@ -154,11 +147,14 @@ XML
         $authnContextElement = $authnContext->toXML();
 
         // Test for a AuthnContextClassRef
-        $authnContextElements = Utils::xpQuery($authnContextElement, './saml_assertion:AuthnContextClassRef');
+        $authnContextElements = XMLUtils::xpQuery($authnContextElement, './saml_assertion:AuthnContextClassRef');
         $this->assertCount(1, $authnContextElements);
 
         // Test ordering of AuthnContext contents
-        $authnContextElements = Utils::xpQuery($authnContextElement, './saml_assertion:AuthnContextClassRef/following-sibling::*');
+        $authnContextElements = XMLUtils::xpQuery(
+            $authnContextElement,
+            './saml_assertion:AuthnContextClassRef/following-sibling::*'
+        );
         $this->assertCount(2, $authnContextElements);
         $this->assertEquals('saml:AuthnContextDecl', $authnContextElements[0]->tagName);
         $this->assertEquals('saml:AuthenticatingAuthority', $authnContextElements[1]->tagName);
@@ -184,11 +180,14 @@ XML
         $authnContextElement = $authnContext->toXML();
 
         // Test for a AuthnContextClassRef
-        $authnContextElements = Utils::xpQuery($authnContextElement, './saml_assertion:AuthnContextDecl');
+        $authnContextElements = XMLUtils::xpQuery($authnContextElement, './saml_assertion:AuthnContextDecl');
         $this->assertCount(1, $authnContextElements);
 
         // Test ordering of AuthnContext contents
-        $authnContextElements = Utils::xpQuery($authnContextElement, './saml_assertion:AuthnContextDecl/following-sibling::*');
+        $authnContextElements = XMLUtils::xpQuery(
+            $authnContextElement,
+            './saml_assertion:AuthnContextDecl/following-sibling::*'
+        );
         $this->assertCount(1, $authnContextElements);
         $this->assertEquals('saml:AuthenticatingAuthority', $authnContextElements[0]->tagName);
     }
@@ -213,11 +212,14 @@ XML
         $authnContextElement = $authnContext->toXML();
 
         // Test for a AuthnContextClassRef
-        $authnContextElements = Utils::xpQuery($authnContextElement, './saml_assertion:AuthnContextClassRef');
+        $authnContextElements = XMLUtils::xpQuery($authnContextElement, './saml_assertion:AuthnContextClassRef');
         $this->assertCount(1, $authnContextElements);
 
         // Test ordering of AuthnContext contents
-        $authnContextElements = Utils::xpQuery($authnContextElement, './saml_assertion:AuthnContextClassRef/following-sibling::*');
+        $authnContextElements = XMLUtils::xpQuery(
+            $authnContextElement,
+            './saml_assertion:AuthnContextClassRef/following-sibling::*'
+        );
         $this->assertCount(2, $authnContextElements);
         $this->assertEquals('saml:AuthnContextDeclRef', $authnContextElements[0]->tagName);
         $this->assertEquals('saml:AuthenticatingAuthority', $authnContextElements[1]->tagName);
@@ -243,11 +245,14 @@ XML
         $authnContextElement = $authnContext->toXML();
 
         // Test for a AuthnContextClassRef
-        $authnContextElements = Utils::xpQuery($authnContextElement, './saml_assertion:AuthnContextDeclRef');
+        $authnContextElements = XMLUtils::xpQuery($authnContextElement, './saml_assertion:AuthnContextDeclRef');
         $this->assertCount(1, $authnContextElements);
 
         // Test ordering of AuthnContext contents
-        $authnContextElements = Utils::xpQuery($authnContextElement, './saml_assertion:AuthnContextDeclRef/following-sibling::*');
+        $authnContextElements = XMLUtils::xpQuery(
+            $authnContextElement,
+            './saml_assertion:AuthnContextDeclRef/following-sibling::*'
+        );
         $this->assertCount(1, $authnContextElements);
         $this->assertEquals('saml:AuthenticatingAuthority', $authnContextElements[0]->tagName);
     }
@@ -303,11 +308,11 @@ XML
 
         $authnContext = AuthnContext::fromXML($document->documentElement);
 
-        /** @psalm-var \SAML2\XML\saml\AuthnContextClassRef $classRef */
+        /** @psalm-var \SimpleSAML\SAML2\XML\saml\AuthnContextClassRef $classRef */
         $classRef = $authnContext->getAuthnContextClassRef();
         $this->assertEquals(Constants::AC_PASSWORD_PROTECTED_TRANSPORT, $classRef->getClassRef());
 
-        /** @psalm-var \SAML2\XML\saml\AuthnContextDeclRef $declRef */
+        /** @psalm-var \SimpleSAML\SAML2\XML\saml\AuthnContextDeclRef $declRef */
         $declRef = $authnContext->getAuthnContextDeclRef();
         $this->assertEquals('/relative/path/to/document.xml', $declRef->getDeclRef());
 

@@ -2,24 +2,26 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\saml\AttributeValue;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\saml\AttributeValue;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Test for the RequestedAttribute metadata element.
  *
- * @covers \SAML2\XML\md\RequestedAttribute
+ * @covers \SimpleSAML\SAML2\XML\md\RequestedAttribute
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
  * @package simplesamlphp/saml2
  */
 final class RequestedAttributeTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -27,14 +29,8 @@ final class RequestedAttributeTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdns = Constants::NS_MD;
-        $samlns = Constants::NS_SAML;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:RequestedAttribute xmlns:md="{$mdns}" Name="attr" NameFormat="urn:format" FriendlyName="Attribute" isRequired="true">
-  <saml:AttributeValue xmlns:saml="{$samlns}">value1</saml:AttributeValue>
-</md:RequestedAttribute>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_RequestedAttribute.xml'
         );
     }
 

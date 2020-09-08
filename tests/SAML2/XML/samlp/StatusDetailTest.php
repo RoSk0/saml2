@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\Chunk;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Chunk;
 
 /**
  * Class \SAML2\XML\samlp\StatusDetailTest
  *
- * @covers \SAML2\XML\samlp\StatusDetail
+ * @covers \SimpleSAML\SAML2\XML\samlp\StatusDetail
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -20,7 +22,7 @@ use SAML2\XML\Chunk;
 final class StatusDetailTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -28,12 +30,8 @@ final class StatusDetailTest extends TestCase
      */
     public function setUp(): void
     {
-        $nssamlp = StatusDetail::NS;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<samlp:StatusDetail xmlns:samlp="{$nssamlp}">
-  <Cause>org.sourceid.websso.profiles.idp.FailedAuthnSsoException</Cause>
-</samlp:StatusDetail>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_StatusDetail.xml'
         );
     }
 
@@ -48,10 +46,26 @@ XML
         );
 
         $statusDetail = new StatusDetail([new Chunk($document->documentElement)]);
+        $this->assertFalse($statusDetail->isEmptyElement());
         $this->assertEquals(
             $this->document->saveXML($this->document->documentElement),
             strval($statusDetail)
         );
+    }
+
+
+    /**
+     * Adding an empty StatusDetail element should yield an empty element.
+     */
+    public function testMarshallingEmptyElement(): void
+    {
+        $samlpns = Constants::NS_SAMLP;
+        $statusDetail = new StatusDetail([]);
+        $this->assertEquals(
+            "<samlp:StatusDetail xmlns:samlp=\"$samlpns\"/>",
+            strval($statusDetail)
+        );
+        $this->assertTrue($statusDetail->isEmptyElement());
     }
 
 
@@ -66,8 +80,12 @@ XML
         $statusDetailElement = $statusDetailElement[0]->getXML();
 
         $this->assertEquals('Cause', $statusDetailElement->tagName);
-        $this->assertEquals('org.sourceid.websso.profiles.idp.FailedAuthnSsoException', $statusDetailElement->textContent);
-    }
+        $this->assertEquals(
+            'org.sourceid.websso.profiles.idp.FailedAuthnSsoException',
+            $statusDetailElement->textContent
+        );
+        $this->assertFalse($statusDetail->isEmptyElement());
+   }
 
 
     /**

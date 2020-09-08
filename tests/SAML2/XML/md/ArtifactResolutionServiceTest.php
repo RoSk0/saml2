@@ -2,22 +2,24 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Tests for md:ArtifactResolutionService.
  *
- * @covers \SAML2\XML\md\ArtifactResolutionService
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\ArtifactResolutionService
  * @package simplesamlphp/saml2
  */
 final class ArtifactResolutionServiceTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -25,10 +27,8 @@ final class ArtifactResolutionServiceTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdNamespace = ArtifactResolutionService::NS;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:ArtifactResolutionService xmlns:md="{$mdNamespace}" Binding="urn:something" Location="https://whatever/" index="42" isDefault="false"/>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_ArtifactResolutionService.xml'
         );
     }
 

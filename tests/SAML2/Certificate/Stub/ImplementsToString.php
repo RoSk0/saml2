@@ -2,17 +2,15 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Certificate\Stub;
+namespace SimpleSAML\SAML2\Certificate\Stub;
 
 /**
  * @package simplesamlphp/saml2
  */
 final class ImplementsToString
 {
-    /**
-     * @var string
-     */
-    private $value;
+    /** @var string */
+    private string $value;
 
 
     /**

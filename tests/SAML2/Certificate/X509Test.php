@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Certificate;
+namespace SimpleSAML\SAML2\Certificate;
 
 use PHPUnit\Framework\TestCase;
-use SAML2\Certificate\X509;
+use SimpleSAML\SAML2\Certificate\X509;
 
 /**
- * @covers \SAML2\Certificate\X509
+ * @covers \SimpleSAML\SAML2\Certificate\X509
  * @package simplesamlphp/saml2
  */
 final class X509Test extends TestCase
@@ -18,7 +18,7 @@ final class X509Test extends TestCase
      * @test
      * @return void
      */
-    public function x509_certificate_contents_must_be_stripped_of_whitespace(): void
+    public function x509CertificateContentsMustBeStrippedOfWhitespace(): void
     {
         $toTest = [
             'X509Certificate' => ' Should   No Longer  Have Whitespaces'

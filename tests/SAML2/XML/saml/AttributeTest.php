@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Class \SAML2\XML\saml\AttributeTest
  *
- * @covers \SAML2\XML\saml\Attribute
+ * @covers \SimpleSAML\SAML2\XML\saml\Attribute
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class AttributeTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -28,13 +30,8 @@ final class AttributeTest extends TestCase
      */
     protected function setUp(): void
     {
-        $samlNamespace = Constants::NS_SAML;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:Attribute xmlns:saml="{$samlNamespace}" Name="TheName" NameFormat="TheNameFormat" FriendlyName="TheFriendlyName" test:attr1="testval1" test:attr2="testval2" xmlns:test="urn:test">
-  <saml:AttributeValue>FirstValue</saml:AttributeValue>
-  <saml:AttributeValue>SecondValue</saml:AttributeValue>
-</saml:Attribute>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_Attribute.xml'
         );
     }
 
@@ -141,7 +138,7 @@ XML
         $attribute = Attribute::fromXML($this->document->documentElement);
         $pubkey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'public']);
         $pubkey->loadKey(PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY));
-        /** @psalm-var \SAML2\XML\saml\EncryptedAttribute $encattr */
+        /** @psalm-var \SimpleSAML\SAML2\XML\saml\EncryptedAttribute $encattr */
         $encattr = EncryptedAttribute::fromUnencryptedElement($attribute, $pubkey);
         $str = strval($encattr);
         $doc = DOMDocumentFactory::fromString($str);

@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Assertion\Validation\ConstraintValidator;
+namespace SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator;
 
-use SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotBefore;
-use SAML2\Assertion\Validation\Result;
-use SAML2\Constants;
-use SAML2\ControlledTimeTest;
-use SAML2\XML\saml\SubjectConfirmation;
-use SAML2\XML\saml\SubjectConfirmationData;
+use SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotBefore;
+use SimpleSAML\SAML2\Assertion\Validation\Result;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\ControlledTimeTest;
+use SimpleSAML\SAML2\XML\saml\SubjectConfirmation;
+use SimpleSAML\SAML2\XML\saml\SubjectConfirmationData;
 
 /**
  * Because we're mocking a static call, we have to run it in separate processes so as to no contaminate the other
  * tests.
  *
- * @covers \SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotBefore
+ * @covers \SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotBefore
  * @package simplesamlphp/saml2
  */
 final class SubjectConfirmationNotBeforeTest extends ControlledTimeTest
@@ -28,7 +28,7 @@ final class SubjectConfirmationNotBeforeTest extends ControlledTimeTest
      * @preserveGlobalState disabled
      * @return void
      */
-    public function timestamp_in_the_future_beyond_graceperiod_is_not_valid(): void
+    public function timestampInTheFutureBeyondGraceperiodIsNotValid(): void
     {
         $subjectConfirmationData = new SubjectConfirmationData($this->currentTime + 61);
         $subjectConfirmation = new SubjectConfirmation(Constants::CM_HOK, null, $subjectConfirmationData);
@@ -51,7 +51,7 @@ final class SubjectConfirmationNotBeforeTest extends ControlledTimeTest
      * @preserveGlobalState disabled
      * @return void
      */
-    public function time_within_graceperiod_is_valid(): void
+    public function timeWithinGraceperiodIsValid(): void
     {
         $subjectConfirmationData = new SubjectConfirmationData(null, $this->currentTime + 60);
         $subjectConfirmation = new SubjectConfirmation(Constants::CM_HOK, null, $subjectConfirmationData);
@@ -73,7 +73,7 @@ final class SubjectConfirmationNotBeforeTest extends ControlledTimeTest
      * @preserveGlobalState disabled
      * @return void
      */
-    public function current_time_is_valid(): void
+    public function currentTimeIsValid(): void
     {
         $subjectConfirmationData = new SubjectConfirmationData($this->currentTime);
         $subjectConfirmation = new SubjectConfirmation(Constants::CM_HOK, null, $subjectConfirmationData);

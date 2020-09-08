@@ -2,22 +2,24 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use Mockery;
 use PHPUnit\Framework\TestCase;
-use SAML2\Compat\ContainerInterface;
-use SAML2\Compat\ContainerSingleton;
-use SAML2\Constants;
-use SAML2\CustomBaseID;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\TooManyElementsException;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Compat\ContainerInterface;
+use SimpleSAML\SAML2\Compat\ContainerSingleton;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\CustomBaseID;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\TooManyElementsException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\saml\SubjectTest
  *
- * @covers \SAML2\XML\saml\Subject
+ * @covers \SimpleSAML\SAML2\XML\saml\Subject
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package SimpleSAMLphp
@@ -25,60 +27,38 @@ use SAML2\Utils;
 final class SubjectTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
     /** @var \DOMDocument */
-    private $subject;
+    private DOMDocument $subject;
 
     /** @var \DOMDocument */
-    private $baseId;
+    private DOMDocument $baseId;
 
     /** @var \DOMDocument */
-    private $nameId;
+    private DOMDocument $nameId;
 
     /** @var \DOMDocument */
-    private $subjectConfirmation;
+    private DOMDocument $subjectConfirmation;
 
 
     public function setup(): void
     {
-        $samlNamespace = Subject::NS;
-        $xsiNamespace = Constants::NS_XSI;
-        $nameid_transient = Constants::NAMEID_TRANSIENT;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:Subject xmlns:saml="{$samlNamespace}">
-  <saml:NameID SPNameQualifier="https://sp.example.org/authentication/sp/metadata" Format="{$nameid_transient}">SomeOtherNameIDValue</saml:NameID>
-  <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-    <saml:NameID SPNameQualifier="https://sp.example.org/authentication/sp/metadata" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">SomeOtherNameIDValue</saml:NameID>
-    <saml:SubjectConfirmationData NotOnOrAfter="2020-02-27T11:26:36Z" Recipient="https://sp.example.org/authentication/sp/consume-assertion" InResponseTo="def456"/>
-  </saml:SubjectConfirmation>
-</saml:Subject>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_Subject.xml'
         );
-
         $this->subject = DOMDocumentFactory::fromString(<<<XML
-<saml:Subject xmlns:saml="{$samlNamespace}">
-</saml:Subject>
+<saml:Subject xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"></saml:Subject>
 XML
         );
-
-        $this->baseId = DOMDocumentFactory::fromString(<<<XML
-<saml:BaseID xmlns:saml="{$samlNamespace}" SPNameQualifier="https://sp.example.org/authentication/sp/metadata" xmlns:xsi="{$xsiNamespace}" xsi:type="CustomBaseID">123.456</saml:BaseID>
-XML
+        $this->baseId = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_BaseID.xml'
         );
-
-        $this->nameId = DOMDocumentFactory::fromString(<<<XML
-<saml:NameID xmlns:saml="{$samlNamespace}" SPNameQualifier="https://sp.example.org/authentication/sp/metadata" Format="{$nameid_transient}">SomeOtherNameIDValue</saml:NameID>
-XML
+        $this->nameId = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_NameID.xml'
         );
-
-        $this->subjectConfirmation = DOMDocumentFactory::fromString(<<<XML
-<saml:SubjectConfirmation xmlns:saml="{$samlNamespace}" Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-  <saml:NameID SPNameQualifier="https://sp.example.org/authentication/sp/metadata" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">SomeOtherNameIDValue</saml:NameID>
-  <saml:SubjectConfirmationData NotOnOrAfter="2020-02-27T11:26:36Z" Recipient="https://sp.example.org/authentication/sp/consume-assertion" InResponseTo="def456"/>
-</saml:SubjectConfirmation>
-XML
+        $this->subjectConfirmation = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_SubjectConfirmation.xml'
         );
     }
 
@@ -133,7 +113,9 @@ XML
 
         $document = $this->subject;
         $document->documentElement->appendChild($document->importNode($this->nameId->documentElement, true));
-        $document->documentElement->appendChild($document->importNode($this->subjectConfirmation->documentElement, true));
+        $document->documentElement->appendChild(
+            $document->importNode($this->subjectConfirmation->documentElement, true)
+        );
 
         $this->assertEqualXMLStructure($document->documentElement, $subject->toXML());
     }
@@ -176,11 +158,11 @@ XML
         $subjectElement = $subject->toXML();
 
         // Test for a NameID
-        $subjectElements = Utils::xpQuery($subjectElement, './saml_assertion:NameID');
+        $subjectElements = XMLUtils::xpQuery($subjectElement, './saml_assertion:NameID');
         $this->assertCount(1, $subjectElements);
 
         // Test ordering of Subject contents
-        $subjectElements = Utils::xpQuery($subjectElement, './saml_assertion:NameID/following-sibling::*');
+        $subjectElements = XMLUtils::xpQuery($subjectElement, './saml_assertion:NameID/following-sibling::*');
         $this->assertCount(1, $subjectElements);
         $this->assertEquals('saml:SubjectConfirmation', $subjectElements[0]->tagName);
     }
@@ -224,7 +206,9 @@ XML
 
         $document = $this->subject;
         $document->documentElement->appendChild($document->importNode($this->baseId->documentElement, true));
-        $document->documentElement->appendChild($document->importNode($this->subjectConfirmation->documentElement, true));
+        $document->documentElement->appendChild(
+            $document->importNode($this->subjectConfirmation->documentElement, true)
+        );
 
         $this->assertEqualXMLStructure($document->documentElement, $subject->toXML());
     }
@@ -260,7 +244,9 @@ XML
         $document = DOMDocumentFactory::fromString('<saml:Subject xmlns:saml="' . Subject::NS . '"/>');
 
         $this->expectException(TooManyElementsException::class);
-        $this->expectExceptionMessage('A <saml:Subject> not containing <saml:SubjectConfirmation> should provide exactly one of <saml:BaseID>, <saml:NameID> or <saml:EncryptedID>');
+        $this->expectExceptionMessage(
+            'A <saml:Subject> not containing <saml:SubjectConfirmation> should provide exactly one of <saml:BaseID>, <saml:NameID> or <saml:EncryptedID>'
+        );
 
         Subject::fromXML($document->documentElement);
     }
@@ -297,9 +283,14 @@ XML
         $document = DOMDocumentFactory::fromString(<<<XML
 <saml:Subject xmlns:saml="{$samlNamespace}">
   <saml:BaseID xmlns:xsi="{$xsiNamespace}" xsi:type="CustomBaseID">SomeBaseID</saml:BaseID>
-  <saml:NameID SPNameQualifier="https://sp.example.org/authentication/sp/metadata" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">SomeOtherNameIDValue</saml:NameID>
+  <saml:NameID
+      SPNameQualifier="https://sp.example.org/authentication/sp/metadata"
+      Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">SomeOtherNameIDValue</saml:NameID>
   <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-    <saml:SubjectConfirmationData NotOnOrAfter="2020-02-27T11:26:36Z" Recipient="https://sp.example.org/authentication/sp/consume-assertion" InResponseTo="def456"/>
+    <saml:SubjectConfirmationData
+        NotOnOrAfter="2020-02-27T11:26:36Z"
+        Recipient="https://sp.example.org/authentication/sp/consume-assertion"
+        InResponseTo="def456"/>
   </saml:SubjectConfirmation>
 </saml:Subject>
 XML
@@ -326,7 +317,10 @@ XML
 <saml:Subject xmlns:saml="{$samlNamespace}">
   <saml:BaseID xmlns:xsi="{$xsiNamespace}" xsi:type="CustomBaseID">SomeBaseID</saml:BaseID>
   <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-    <saml:SubjectConfirmationData NotOnOrAfter="2020-02-27T11:26:36Z" Recipient="https://sp.example.org/authentication/sp/consume-assertion" InResponseTo="def456"/>
+    <saml:SubjectConfirmationData
+        NotOnOrAfter="2020-02-27T11:26:36Z"
+        Recipient="https://sp.example.org/authentication/sp/consume-assertion"
+        InResponseTo="def456"/>
   </saml:SubjectConfirmation>
 </saml:Subject>
 XML
@@ -366,7 +360,10 @@ XML
 <saml:Subject xmlns:saml="{$samlNamespace}">
   <saml:BaseID xmlns:xsi="{$xsiNamespace}" xsi:type="CustomBaseID">123.456</saml:BaseID>
   <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-    <saml:SubjectConfirmationData NotOnOrAfter="2020-02-27T11:26:36Z" Recipient="https://sp.example.org/authentication/sp/consume-assertion" InResponseTo="def456"/>
+    <saml:SubjectConfirmationData
+        NotOnOrAfter="2020-02-27T11:26:36Z"
+        Recipient="https://sp.example.org/authentication/sp/consume-assertion"
+        InResponseTo="def456"/>
   </saml:SubjectConfirmation>
 </saml:Subject>
 XML

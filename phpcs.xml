@@ -27,9 +27,12 @@
     <!-- Lines can be a little bit longer before they break the build -->
     <rule ref="Generic.Files.LineLength">
         <properties>
-            <property name="lineLimit" value="130"/>
+            <property name="lineLimit" value="120"/>
             <property name="absoluteLineLimit" value="130"/>
         </properties>
-        <exclude-pattern>**/EntityDescriptor.php</exclude-pattern>
+        <exclude-pattern>**/BindingTest.php</exclude-pattern>
+        <exclude-pattern>**/HTTPPostTest.php</exclude-pattern>
+        <exclude-pattern>**/HTTPRedirectTest.php</exclude-pattern>
+        <exclude-pattern>**/SOAPTest.php</exclude-pattern>
     </rule>
 </ruleset>

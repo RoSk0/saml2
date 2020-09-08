@@ -2,51 +2,39 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
 use DOMElement;
-use SAML2\Constants;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Utils;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class representing SAML 2 Conditions element.
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 final class Conditions extends AbstractSamlElement
 {
-    /**
-     * @var int|null
-     */
-    protected $notBefore;
+    /** @var int|null */
+    protected ?int $notBefore;
 
-    /**
-     * @var int|null
-     */
-    protected $notOnOrAfter;
+    /** @var int|null */
+    protected ?int $notOnOrAfter;
 
-    /**
-     * @var \SAML2\XML\saml\Condition[]
-     */
-    protected $condition;
+    /** @var \SimpleSAML\SAML2\XML\saml\Condition[] */
+    protected array $condition;
 
-    /**
-     * @var \SAML2\XML\saml\AudienceRestriction[]
-     */
-    protected $audienceRestriction;
+    /** @var \SimpleSAML\SAML2\XML\saml\AudienceRestriction[] */
+    protected array $audienceRestriction;
 
-    /**
-     * @var bool
-     */
-    protected $oneTimeUse = false;
+    /** @var bool */
+    protected bool $oneTimeUse = false;
 
-    /**
-     * @var \SAML2\XML\saml\ProxyRestriction|null
-     */
-    protected $proxyRestriction;
+    /** @var \SimpleSAML\SAML2\XML\saml\ProxyRestriction|null */
+    protected ?ProxyRestriction $proxyRestriction;
 
 
     /**
@@ -54,10 +42,10 @@ final class Conditions extends AbstractSamlElement
      *
      * @param int|null $notBefore
      * @param int|null $notOnOrAfter
-     * @param \SAML2\XML\saml\Condition[] $condition
-     * @param \SAML2\XML\saml\AudienceRestriction[] $audienceRestriction
+     * @param \SimpleSAML\SAML2\XML\saml\Condition[] $condition
+     * @param \SimpleSAML\SAML2\XML\saml\AudienceRestriction[] $audienceRestriction
      * @param bool|null $oneTimeUse
-     * @param \SAML2\XML\saml\ProxyRestriction|null $proxyRestriction
+     * @param \SimpleSAML\SAML2\XML\saml\ProxyRestriction|null $proxyRestriction
      */
     public function __construct(
         ?int $notBefore = null,
@@ -127,7 +115,7 @@ final class Conditions extends AbstractSamlElement
     /**
      * Collect the value of the condition-property
      *
-     * @return \SAML2\XML\saml\Condition[]
+     * @return \SimpleSAML\SAML2\XML\saml\Condition[]
      */
     public function getCondition(): array
     {
@@ -138,7 +126,7 @@ final class Conditions extends AbstractSamlElement
     /**
      * Set the value of the condition-property
      *
-     * @param \SAML2\XML\saml\Condition[] $condition
+     * @param \SimpleSAML\SAML2\XML\saml\Condition[] $condition
      * @return void
      */
     private function setCondition(array $condition): void
@@ -152,7 +140,7 @@ final class Conditions extends AbstractSamlElement
     /**
      * Collect the value of the audienceRestriction-property
      *
-     * @return \SAML2\XML\saml\AudienceRestriction[]
+     * @return \SimpleSAML\SAML2\XML\saml\AudienceRestriction[]
      */
     public function getAudienceRestriction(): array
     {
@@ -163,7 +151,7 @@ final class Conditions extends AbstractSamlElement
     /**
      * Set the value of the audienceRestriction-property
      *
-     * @param \SAML2\XML\saml\AudienceRestriction[] $audienceRestriction
+     * @param \SimpleSAML\SAML2\XML\saml\AudienceRestriction[] $audienceRestriction
      * @return void
      */
     private function setAudienceRestriction(array $audienceRestriction): void
@@ -200,7 +188,7 @@ final class Conditions extends AbstractSamlElement
     /**
      * Collect the value of the proxyRestriction-property
      *
-     * @return \SAML2\XML\saml\ProxyRestriction|null
+     * @return \SimpleSAML\SAML2\XML\saml\ProxyRestriction|null
      */
     public function getProxyRestriction(): ?ProxyRestriction
     {
@@ -211,7 +199,7 @@ final class Conditions extends AbstractSamlElement
     /**
      * Set the value of the proxyRestriction-property
      *
-     * @param \SAML2\XML\saml\ProxyRestriction|null $proxyRestriction
+     * @param \SimpleSAML\SAML2\XML\saml\ProxyRestriction|null $proxyRestriction
      * @return void
      */
     private function setProxyRestriction(?ProxyRestriction $proxyRestriction): void
@@ -232,7 +220,7 @@ final class Conditions extends AbstractSamlElement
             && empty($this->notOnOrAfter)
             && empty($this->condition)
             && empty($this->audienceRestriction)
-            && empty($this->oneTimeUse)
+            && $this->oneTimeUse === false
             && empty($this->proxyRestriction)
         );
     }
@@ -244,7 +232,7 @@ final class Conditions extends AbstractSamlElement
      * @param \DOMElement $xml The XML element we should load
      * @return self
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -256,12 +244,12 @@ final class Conditions extends AbstractSamlElement
 
         $condition = Condition::getChildrenOfClass($xml);
         $audienceRestriction = AudienceRestriction::getChildrenOfClass($xml);
-        $oneTimeUse = Utils::extractStrings($xml, AbstractSamlElement::NS, 'OneTimeUse');
+        $oneTimeUse = XMLUtils::extractStrings($xml, AbstractSamlElement::NS, 'OneTimeUse');
         $proxyRestriction = ProxyRestriction::getChildrenOfClass($xml);
 
         return new self(
-            $notBefore !== null ? Utils::xsDateTimeToTimestamp($notBefore) : null,
-            $notOnOrAfter !== null ? Utils::xsDateTimeToTimestamp($notOnOrAfter) : null,
+            $notBefore !== null ? XMLUtils::xsDateTimeToTimestamp($notBefore) : null,
+            $notOnOrAfter !== null ? XMLUtils::xsDateTimeToTimestamp($notOnOrAfter) : null,
             $condition,
             $audienceRestriction,
             !empty($oneTimeUse),
@@ -296,7 +284,7 @@ final class Conditions extends AbstractSamlElement
             $audienceRestriction->toXML($e);
         }
 
-        if (!empty($this->oneTimeUse)) {
+        if ($this->oneTimeUse !== false) {
             /** @psalm-suppress PossiblyNullReference */
             $e->appendChild(
                 $e->ownerDocument->createElementNS(AbstractSamlElement::NS, 'saml:OneTimeUse')

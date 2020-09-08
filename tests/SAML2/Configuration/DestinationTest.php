@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Configuration;
+namespace SimpleSAML\SAML2\Configuration;
 
 use PHPUnit\Framework\TestCase;
-use SAML2\Configuration\Destination;
+use SimpleSAML\SAML2\Configuration\Destination;
 
 /**
- * @covers \SAML2\Configuration\Destination
+ * @covers \SimpleSAML\SAML2\Configuration\Destination
  * @package simplesamlphp/saml2
  */
 final class DestinationTest extends TestCase
@@ -18,7 +18,7 @@ final class DestinationTest extends TestCase
      * @test
      * @return void
      */
-    public function two_destinations_with_the_same_value_are_equal(): void
+    public function twoDestinationsWithTheSameValueAreEqual(): void
     {
         $destinationOne = new Destination('a');
         $destinationTwo = new Destination('a');
@@ -32,7 +32,7 @@ final class DestinationTest extends TestCase
      * @test
      * @return void
      */
-    public function two_destinations_with_the_different_values_are_not_equal(): void
+    public function twoDestinationsWithTheDifferentValuesAreNotEqual(): void
     {
         $destinationOne = new Destination('a');
         $destinationTwo = new Destination('a');

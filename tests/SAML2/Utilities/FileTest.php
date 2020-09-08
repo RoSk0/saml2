@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Utilities;
+namespace SimpleSAML\SAML2\Utilities;
 
 use PHPUnit\Framework\TestCase;
-use SAML2\Utilities\File;
-use SAML2\Exception\RuntimeException;
+use SimpleSAML\SAML2\Utilities\File;
+use SimpleSAML\SAML2\Exception\RuntimeException;
 
 /**
- * @covers \SAML2\Utilities\File
+ * @covers \SimpleSAML\SAML2\Utilities\File
  * @package simplesamlphp/saml2
  */
 final class FileTest extends TestCase
@@ -19,7 +19,7 @@ final class FileTest extends TestCase
      * @test
      * @return void
      */
-    public function when_loading_a_non_existant_file_an_exception_is_thrown(): void
+    public function whenLoadingANonExistantFileAnExceptionIsThrown(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('File "/foo/bar/baz/quux" does not exist or is not readable');
@@ -31,7 +31,7 @@ final class FileTest extends TestCase
      * @test
      * @return void
      */
-    public function an_existing_readable_file_can_be_loaded(): void
+    public function anExistingReadableFileCanBeLoaded(): void
     {
         $contents = File::getFileContents(__DIR__ . '/File/can_be_loaded.txt');
 

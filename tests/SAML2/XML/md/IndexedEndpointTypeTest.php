@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Exception\MissingAttributeException;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Exception\MissingAttributeException;
 
 /**
  * Class \SAML2\XML\md\IndexedEndpointTypeTest
  *
- * @covers \SAML2\XML\md\IndexedEndpointType
+ * @covers \SimpleSAML\SAML2\XML\md\IndexedEndpointType
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
  * @package simplesamlphp/saml2
  */
 final class IndexedEndpointTypeTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -28,10 +30,8 @@ final class IndexedEndpointTypeTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdNamespace = Constants::NS_MD;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:AssertionConsumerService xmlns:md="{$mdNamespace}" Binding="urn:something" Location="https://whatever/" index="42" isDefault="false" />
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_AssertionConsumerService.xml'
         );
     }
 

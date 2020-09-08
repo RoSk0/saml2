@@ -2,42 +2,44 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Compat\ContainerSingleton;
-use SAML2\Compat\MockContainer;
-use SAML2\Compat\Ssp\Container;
-use SAML2\Constants;
-use SAML2\CustomBaseID;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
-use SAML2\XML\Chunk;
-use SAML2\XML\ds\KeyInfo;
-use SAML2\XML\xenc\CipherData;
-use SAML2\XML\xenc\DataReference;
-use SAML2\XML\xenc\EncryptedData;
-use SAML2\XML\xenc\EncryptedKey;
-use SAML2\XML\xenc\EncryptionMethod;
-use SAML2\XML\xenc\ReferenceList;
 use SimpleSAML\Configuration;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Compat\ContainerSingleton;
+use SimpleSAML\SAML2\Compat\MockContainer;
+use SimpleSAML\SAML2\Compat\Ssp\Container;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\CustomBaseID;
+use SimpleSAML\SAML2\XML\ds\KeyInfo;
+use SimpleSAML\SAML2\XML\xenc\CipherData;
+use SimpleSAML\SAML2\XML\xenc\DataReference;
+use SimpleSAML\SAML2\XML\xenc\EncryptedData;
+use SimpleSAML\SAML2\XML\xenc\EncryptedKey;
+use SimpleSAML\SAML2\XML\xenc\EncryptionMethod;
+use SimpleSAML\SAML2\XML\xenc\ReferenceList;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Utils as XMLUtils;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Class EncryptedIDTest
  *
- * @covers \SAML2\XML\saml\EncryptedID
+ * @covers \SimpleSAML\SAML2\XML\saml\EncryptedID
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class EncryptedIDTest extends TestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
 
     /** @var \DOMDocument $retrievalMethod */
-    private $retrievalMethod;
+    private DOMDocument $retrievalMethod;
 
 
     /**
@@ -45,42 +47,12 @@ final class EncryptedIDTest extends TestCase
      */
     public function setup(): void
     {
-        $samlNamespace = BaseID::NS;
-        $xencNamespace = Constants::NS_XENC;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:EncryptedID xmlns:saml="{$samlNamespace}">
-  <xenc:EncryptedData
-      xmlns:xenc="{$xencNamespace}"
-      Id="Encrypted_DATA_ID"
-      Type="http://www.w3.org/2001/04/xmlenc#Element"
-      MimeType="key-type"
-      Encoding="base64-encoded">
-    <xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes128-cbc"/>
-    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-      <ds:RetrievalMethod URI="#Encrypted_KEY_ID" Type="http://www.w3.org/2001/04/xmlenc#EncryptedKey"/>
-    </ds:KeyInfo>
-    <xenc:CipherData>
-      <xenc:CipherValue>Nk4W4mx...</xenc:CipherValue>
-    </xenc:CipherData>
-  </xenc:EncryptedData>
-  <xenc:EncryptedKey xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" Id="Encrypted_KEY_ID" Recipient="some_ENTITY_ID">
-    <xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-1_5"/>
-    <xenc:CipherData>
-      <xenc:CipherValue>PzA5X...</xenc:CipherValue>
-    </xenc:CipherData>
-    <xenc:ReferenceList>
-      <xenc:DataReference URI="#Encrypted_DATA_ID"/>
-    </xenc:ReferenceList>
-    <xenc:CarriedKeyName>Name of the key</xenc:CarriedKeyName>
-  </xenc:EncryptedKey>
-</saml:EncryptedID>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_EncryptedID.xml'
         );
 
-        $this->retrievalMethod = DOMDocumentFactory::fromString(
-            '<ds:RetrievalMethod xmlns:ds="http://www.w3.org/2000/09/xmldsig#" URI="#Encrypted_KEY_ID" ' .
-            'Type="http://www.w3.org/2001/04/xmlenc#EncryptedKey"/>'
+        $this->retrievalMethod = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/ds_RetrievalMethod.xml'
         );
     }
 
@@ -198,11 +170,11 @@ XML
         $eidElement = $eid->toXML();
 
         // Test for an EncryptedID
-        $eidElements = Utils::xpQuery($eidElement, './xenc:EncryptedData');
+        $eidElements = XMLUtils::xpQuery($eidElement, './xenc:EncryptedData');
         $this->assertCount(1, $eidElements);
 
         // Test ordering of EncryptedID contents
-        $eidElements = Utils::xpQuery($eidElement, './xenc:EncryptedData/following-sibling::*');
+        $eidElements = XMLUtils::xpQuery($eidElement, './xenc:EncryptedData/following-sibling::*');
         $this->assertCount(1, $eidElements);
         $this->assertEquals('xenc:EncryptedKey', $eidElements[0]->tagName);
     }

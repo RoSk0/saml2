@@ -2,26 +2,24 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Signature;
+namespace SimpleSAML\SAML2\Signature;
 
 use PHPUnit\Framework\TestCase;
-use SAML2\Configuration\IdentityProvider;
-use SAML2\Signature\ValidatorChain;
-use SAML2\XML\samlp\Response;
-use SAML2\XML\samlp\Status;
-use SAML2\XML\samlp\StatusCode;
-use SAML2\Signature\MissingConfigurationException;
+use SimpleSAML\SAML2\Configuration\IdentityProvider;
+use SimpleSAML\SAML2\Signature\ValidatorChain;
+use SimpleSAML\SAML2\XML\samlp\Response;
+use SimpleSAML\SAML2\XML\samlp\Status;
+use SimpleSAML\SAML2\XML\samlp\StatusCode;
+use SimpleSAML\SAML2\Signature\MissingConfigurationException;
 
 /**
- * @covers \SAML2\Signature\ValidatorChain
+ * @covers \SimpleSAML\SAML2\Signature\ValidatorChain
  * @package simplesamlphp/saml2
  */
 final class ValidatorChainTest extends TestCase
 {
-    /**
-     * @var \SAML2\Signature\ValidatorChain
-     */
-    private $chain;
+    /** @var \SimpleSAML\SAML2\Signature\ValidatorChain */
+    private ValidatorChain $chain;
 
 
     /**
@@ -38,7 +36,7 @@ final class ValidatorChainTest extends TestCase
      * @test
      * @return void
      */
-    public function if_no_validators_can_validate_an_exception_is_thrown(): void
+    public function ifNoValidatorsCanValidateAnExceptionIsThrown(): void
     {
         $this->chain->appendValidator(new MockChainedValidator(false, true));
         $this->chain->appendValidator(new MockChainedValidator(false, true));
@@ -53,7 +51,7 @@ final class ValidatorChainTest extends TestCase
      * @test
      * @return void
      */
-    public function all_registered_validators_should_be_tried(): void
+    public function allRegisteredValidatorsShouldBeTried(): void
     {
         $this->chain->appendValidator(new MockChainedValidator(false, true));
         $this->chain->appendValidator(new MockChainedValidator(false, true));
@@ -72,7 +70,7 @@ final class ValidatorChainTest extends TestCase
      * @test
      * @return void
      */
-    public function it_uses_the_result_of_the_first_validator_that_can_validate(): void
+    public function itUsesTheResultOfTheFirstValidatorThatCanValidate(): void
     {
         $this->chain->appendValidator(new MockChainedValidator(false, true));
         $this->chain->appendValidator(new MockChainedValidator(true, false));

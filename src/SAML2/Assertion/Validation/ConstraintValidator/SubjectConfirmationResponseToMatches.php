@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Assertion\Validation\ConstraintValidator;
+namespace SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator;
 
-use SAML2\Assertion\Validation\Result;
-use SAML2\Assertion\Validation\SubjectConfirmationConstraintValidator;
-use SAML2\XML\saml\SubjectConfirmation;
-use SAML2\XML\samlp\Response;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Assertion\Validation\Result;
+use SimpleSAML\SAML2\Assertion\Validation\SubjectConfirmationConstraintValidator;
+use SimpleSAML\SAML2\XML\saml\SubjectConfirmation;
+use SimpleSAML\SAML2\XML\samlp\Response;
 
 class SubjectConfirmationResponseToMatches implements
     SubjectConfirmationConstraintValidator
 {
-    /** @var Response */
-    private $response;
+    /** @var \SimpleSAML\SAML2\XML\samlp\Response */
+    private Response $response;
 
 
     /**
      * Constructor for SubjectConfirmationResponseToMatches
-     * @param \SAML2\XML\samlp\Response $response
+     * @param \SimpleSAML\SAML2\XML\samlp\Response $response
      */
     public function __construct(Response $response)
     {
@@ -28,8 +28,8 @@ class SubjectConfirmationResponseToMatches implements
 
 
     /**
-     * @param \SAML2\XML\saml\SubjectConfirmation $subjectConfirmation
-     * @param \SAML2\Assertion\Validation\Result $result
+     * @param \SimpleSAML\SAML2\XML\saml\SubjectConfirmation $subjectConfirmation
+     * @param \SimpleSAML\SAML2\Assertion\Validation\Result $result
      * @return void
      *
      * @throws \SimpleSAML\Assert\AssertionFailedException if assertions are false

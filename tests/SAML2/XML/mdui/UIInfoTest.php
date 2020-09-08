@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\mdui;
+namespace SimpleSAML\SAML2\XML\mdui;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\Chunk;
-use SAML2\Utils;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\mdui\UIInfoTest
  *
- * @covers \SAML2\XML\mdui\UIInfo
+ * @covers \SimpleSAML\SAML2\XML\mdui\UIInfo
+ * @covers \SimpleSAML\SAML2\XML\mdui\AbstractMduiElement
  * @package simplesamlphp/saml2
  */
 final class UIInfoTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -26,16 +28,8 @@ final class UIInfoTest extends TestCase
      */
     public function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
-  <mdui:DisplayName xml:lang="en">University of Examples</mdui:DisplayName>
-  <mdui:DisplayName xml:lang="el">Univërsitä øf Exåmpleß</mdui:DisplayName>
-  <mdui:Description xml:lang="en">Just an example</mdui:Description>
-  <mdui:InformationURL xml:lang="en">http://www.example.edu/en/</mdui:InformationURL>
-  <mdui:InformationURL xml:lang="el">http://www.example.edu/</mdui:InformationURL>
-  <mdui:PrivacyStatementURL xml:lang="en">https://example.org/privacy</mdui:PrivacyStatementURL>
-</mdui:UIInfo>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/mdui_UIInfo.xml'
         );
     }
 
@@ -61,7 +55,7 @@ XML
         $document = DOMDocumentFactory::fromString('<root />');
         $xml = $uiinfo->toXML($document->documentElement);
 
-        $infoElements = Utils::xpQuery(
+        $infoElements = XMLUtils::xpQuery(
             $xml,
             '/root/*[local-name()=\'UIInfo\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -69,7 +63,7 @@ XML
         $infoElement = $infoElements[0];
 
         /** @var \DOMElement[] $displaynameElements */
-        $displaynameElements = Utils::xpQuery(
+        $displaynameElements = XMLUtils::xpQuery(
             $infoElement,
             './*[local-name()=\'DisplayName\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -80,7 +74,7 @@ XML
         $this->assertEquals("en", $displaynameElements[1]->getAttribute("xml:lang"));
 
         /** @var \DOMElement[] $descriptionElements */
-        $descriptionElements = Utils::xpQuery(
+        $descriptionElements = XMLUtils::xpQuery(
             $infoElement,
             './*[local-name()=\'Description\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -91,7 +85,7 @@ XML
         $this->assertEquals("en", $descriptionElements[1]->getAttribute("xml:lang"));
 
         /** @var \DOMElement[] $infourlElements */
-        $infourlElements = Utils::xpQuery(
+        $infourlElements = XMLUtils::xpQuery(
             $infoElement,
             './*[local-name()=\'InformationURL\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -102,7 +96,7 @@ XML
         $this->assertEquals("en", $infourlElements[1]->getAttribute("xml:lang"));
 
         /** @var \DOMElement[] $privurlElements */
-        $privurlElements = Utils::xpQuery(
+        $privurlElements = XMLUtils::xpQuery(
             $infoElement,
             './*[local-name()=\'PrivacyStatementURL\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -145,14 +139,14 @@ XML
         $document = DOMDocumentFactory::fromString('<root />');
         $xml = $uiinfo->toXML($document->documentElement);
 
-        $infoElements = Utils::xpQuery(
+        $infoElements = XMLUtils::xpQuery(
             $xml,
             '/root/*[local-name()=\'UIInfo\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
         $this->assertCount(1, $infoElements);
         $infoElement = $infoElements[0];
 
-        $logoElements = Utils::xpQuery(
+        $logoElements = XMLUtils::xpQuery(
             $infoElement,
             './*[local-name()=\'Logo\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -160,7 +154,7 @@ XML
         $this->assertEquals("https://example.edu/logo.png", $logoElements[0]->textContent);
 
         /** @var \DOMElement[] $keywordElements */
-        $keywordElements = Utils::xpQuery(
+        $keywordElements = XMLUtils::xpQuery(
             $infoElement,
             './*[local-name()=\'Keywords\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -168,14 +162,14 @@ XML
         $this->assertEquals("voorbeeld specimen", $keywordElements[0]->textContent);
         $this->assertEquals("nl", $keywordElements[0]->getAttribute("xml:lang"));
 
-        $discoElements = Utils::xpQuery(
+        $discoElements = XMLUtils::xpQuery(
             $infoElement,
             './*[local-name()=\'DiscoHints\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
         $this->assertCount(1, $discoElements);
         $discoElement = $discoElements[0];
 
-        $iphintElements = Utils::xpQuery(
+        $iphintElements = XMLUtils::xpQuery(
             $discoElement,
             './*[local-name()=\'IPHint\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -184,7 +178,7 @@ XML
         $this->assertEquals("fd00:0123:aa:1001::/64", $iphintElements[1]->textContent);
 
         /** @var \DOMElement[] $keywordElements */
-        $keywordElements = Utils::xpQuery(
+        $keywordElements = XMLUtils::xpQuery(
             $discoElement,
             './*[local-name()=\'Keywords\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );
@@ -195,12 +189,30 @@ XML
 
 
     /**
+     * Adding an empty UInfo element should yield an empty element.
+     */
+    public function testMarshallingEmptyElement(): void
+    {
+        $mduins = UIInfo::NS;
+        $uiInfo = new UIInfo([]);
+        $this->assertEquals(
+            "<mdui:UIInfo xmlns:mdui=\"$mduins\"/>",
+            strval($uiInfo)
+        );
+        $this->assertTrue($uiInfo->isEmptyElement());
+    }
+
+
+    /**
      * Test unmarshalling a basic UIInfo element
      * @return void
      */
     public function testUnmarshalling(): void
     {
         $uiinfo = UIInfo::fromXML($this->document->documentElement);
+        $uiinfo->addChild(
+            new Chunk(DOMDocumentFactory::fromString('<child3 />')->documentElement)
+        );
 
         $this->assertCount(2, $uiinfo->getDisplayName());
         $this->assertEquals('University of Examples', $uiinfo->getDisplayName()['en']);
@@ -212,34 +224,6 @@ XML
         $this->assertEquals('https://example.org/privacy', $uiinfo->getPrivacyStatementURL()['en']);
         $this->assertCount(1, $uiinfo->getDescription());
         $this->assertEquals('Just an example', $uiinfo->getDescription()['en']);
-    }
-
-
-    /**
-     * Test unmarshalling wuth Logo, Keywords child elements
-     * @return void
-     */
-    public function testUnmarshallingChildren(): void
-    {
-        $document = DOMDocumentFactory::fromString(<<<XML
-<mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
-  <mdui:DisplayName xml:lang="en">University of Examples</mdui:DisplayName>
-  <mdui:Logo xml:lang="fy" height="88" width="87">https://example.org/idp/images/logo_87x88.png</mdui:Logo>
-  <mdui:Keywords xml:lang="en">University Fictional</mdui:Keywords>
-  <mdui:Keywords xml:lang="fr">Université Fictif</mdui:Keywords>
-  <child1 />
-  <child2 />
-</mdui:UIInfo>
-XML
-        );
-
-        $uiinfo = UIInfo::fromXML($document->documentElement);
-        $uiinfo->addChild(
-            new Chunk(DOMDocumentFactory::fromString('<child3 />')->documentElement)
-        );
-
-        $this->assertCount(1, $uiinfo->getDisplayName());
-        $this->assertEquals('University of Examples', $uiinfo->getDisplayName()['en']);
         $this->assertCount(1, $uiinfo->getLogo());
         $this->assertEquals('https://example.org/idp/images/logo_87x88.png', $uiinfo->getLogo()[0]->getUrl());
         $this->assertEquals(87, $uiinfo->getLogo()[0]->getWidth());
@@ -249,7 +233,9 @@ XML
         $this->assertEquals('Fictional', $uiinfo->getKeywords()[0]->getKeywords()[1]);
         $this->assertEquals('fr', $uiinfo->getKeywords()[1]->getLanguage());
         $this->assertCount(3, $uiinfo->getChildren());
+        $this->assertEquals('child1', $uiinfo->getChildren()[0]->getLocalName());
         $this->assertEquals('child2', $uiinfo->getChildren()[1]->getLocalName());
+        $this->assertEquals('child3', $uiinfo->getChildren()[2]->getLocalName());
     }
 
 

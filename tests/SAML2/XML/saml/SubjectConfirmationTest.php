@@ -2,41 +2,37 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use Mockery;
 use PHPUnit\Framework\TestCase;
-use SAML2\Compat\ContainerInterface;
-use SAML2\Compat\ContainerSingleton;
-use SAML2\Constants;
-use SAML2\CustomBaseID;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SAML2\Exception\TooManyElementsException;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Compat\ContainerInterface;
+use SimpleSAML\SAML2\Compat\ContainerSingleton;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\CustomBaseID;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\XML\Exception\TooManyElementsException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\saml\SubjectConfirmationTest
  *
- * @covers \SAML2\XML\saml\SubjectConfirmation
+ * @covers \SimpleSAML\SAML2\XML\saml\SubjectConfirmation
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class SubjectConfirmationTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     public function setup(): void
     {
-        $samlNamespace = SubjectConfirmation::NS;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:SubjectConfirmation xmlns:saml="{$samlNamespace}" Method="SomeMethod">
-  <saml:NameID>SomeNameIDValue</saml:NameID>
-  <saml:SubjectConfirmationData/>
-</saml:SubjectConfirmation>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_SubjectConfirmation.xml'
         );
     }
 
@@ -88,11 +84,14 @@ XML
         $subjectConfirmationElement = $subjectConfirmation->toXML();
 
         // Test for a NameID
-        $subjectConfirmationElements = Utils::xpQuery($subjectConfirmationElement, './saml_assertion:NameID');
+        $subjectConfirmationElements = XMLUtils::xpQuery($subjectConfirmationElement, './saml_assertion:NameID');
         $this->assertCount(1, $subjectConfirmationElements);
 
         // Test ordering of SubjectConfirmation contents
-        $subjectConfirmationElements = Utils::xpQuery($subjectConfirmationElement, './saml_assertion:NameID/following-sibling::*');
+        $subjectConfirmationElements = XMLUtils::xpQuery(
+            $subjectConfirmationElement,
+            './saml_assertion:NameID/following-sibling::*'
+        );
         $this->assertCount(1, $subjectConfirmationElements);
         $this->assertEquals('saml:SubjectConfirmationData', $subjectConfirmationElements[0]->tagName);
     }
@@ -172,7 +171,9 @@ XML
         );
 
         $this->expectException(TooManyElementsException::class);
-        $this->expectExceptionMessage('A <saml:SubjectConfirmation> can contain exactly one of <saml:BaseID>, <saml:NameID> or <saml:EncryptedID>.');
+        $this->expectExceptionMessage(
+            'A <saml:SubjectConfirmation> can contain exactly one of <saml:BaseID>, <saml:NameID> or <saml:EncryptedID>.'
+        );
         SubjectConfirmation::fromXML($document->documentElement);
     }
 
@@ -215,7 +216,7 @@ XML
         );
 
         $subjectConfirmation = SubjectConfirmation::fromXML($document->documentElement);
-        /** @psalm-var \SAML2\XML\saml\BaseID $identifier */
+        /** @psalm-var \SimpleSAML\SAML2\XML\saml\BaseID $identifier */
         $identifier = $subjectConfirmation->getIdentifier();
         $this->assertEquals('SomeMethod', $subjectConfirmation->getMethod());
         $this->assertEquals(BaseID::class, get_class($identifier));

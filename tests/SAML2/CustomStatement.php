@@ -1,21 +1,23 @@
 <?php
 
-namespace SAML2;
+declare(strict_types=1);
+
+namespace SimpleSAML\SAML2;
 
 use DOMElement;
-use SAML2\XML\saml\Statement;
+use SimpleSAML\SAML2\XML\saml\Statement;
 use SimpleSAML\Assert\Assert;
 
 /**
- * @covers \SAML2\CustomStatement
+ * @covers \SimpleSAML\SAML2\CustomStatement
  * @package simplesamlphp\saml2
  */
 final class CustomStatement extends Statement
 {
     protected const XSI_TYPE = 'CustomStatement';
 
-    /** @var \DOMElement */
-    protected $value;
+    /** @var string */
+    protected string $value;
 
 
     /**

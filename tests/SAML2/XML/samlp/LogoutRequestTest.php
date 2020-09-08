@@ -2,44 +2,49 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
+use DOMElement;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingElementException;
-use SAML2\Exception\TooManyElementsException;
-use SAML2\Utils;
-use SAML2\XML\Chunk;
-use SAML2\XML\ds\KeyInfo;
-use SAML2\XML\saml\EncryptedID;
-use SAML2\XML\saml\Issuer;
-use SAML2\XML\saml\NameID;
-use SAML2\XML\xenc\CipherData;
-use SAML2\XML\xenc\DataReference;
-use SAML2\XML\xenc\EncryptedData;
-use SAML2\XML\xenc\EncryptedKey;
-use SAML2\XML\xenc\EncryptionMethod;
-use SAML2\XML\xenc\ReferenceList;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\ds\KeyInfo;
+use SimpleSAML\SAML2\XML\saml\EncryptedID;
+use SimpleSAML\SAML2\XML\saml\Issuer;
+use SimpleSAML\SAML2\XML\saml\NameID;
+use SimpleSAML\SAML2\XML\xenc\CipherData;
+use SimpleSAML\SAML2\XML\xenc\DataReference;
+use SimpleSAML\SAML2\XML\xenc\EncryptedData;
+use SimpleSAML\SAML2\XML\xenc\EncryptedKey;
+use SimpleSAML\SAML2\XML\xenc\EncryptionMethod;
+use SimpleSAML\SAML2\XML\xenc\ReferenceList;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingElementException;
+use SimpleSAML\XML\Exception\TooManyElementsException;
+use SimpleSAML\XML\Utils as XMLUtils;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Class \SAML2\XML\samlp\LogoutRequestTest
  *
- * @covers \SAML2\XML\samlp\LogoutRequest
+ * @covers \SimpleSAML\SAML2\XML\samlp\LogoutRequest
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractRequest
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractMessage
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  * @package simplesamlphp/saml2
  */
 final class LogoutRequestTest extends MockeryTestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
 
     /** @var \DOMElement */
-    private $logoutRequestElement;
+    private DOMElement $logoutRequestElement;
 
     /** @var \DOMDocument $retrievalMethod */
-    private $retrievalMethod;
+    private DOMDocument $retrievalMethod;
 
 
     /**
@@ -48,32 +53,9 @@ final class LogoutRequestTest extends MockeryTestCase
      */
     public function setUp(): void
     {
-        $xml = <<<XML
-<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_f987e7436c1103bcf89296303f780d853d7713a8ef" Version="2.0" IssueInstant="2020-08-15T15:53:24Z">
-  <saml:Issuer>TheIssuer</saml:Issuer>
-  <saml:EncryptedID>
-    <xenc:EncryptedData xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" Type="http://www.w3.org/2001/04/xmlenc#Element">
-      <xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes128-cbc"/>
-      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-        <xenc:EncryptedKey xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
-          <xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p"/>
-          <xenc:CipherData>
-            <xenc:CipherValue>QMYbOZfUgJmvzmTeSDqvA8MKzt4M2K9kb0BQtIqMgyn+OlBmRVvebZEkW/5k5E9qPtMUBCPiTatJ8aNb7Z4DuPqTRODgGzR7LEyOxe8JTPbzn/xwkVHRwzMkodDUkTDDIkJr7Tzyseg1crGZf21q8pBJfGXSaPamIC2ncjuOcs0=</xenc:CipherValue>
-          </xenc:CipherData>
-        </xenc:EncryptedKey>
-      </ds:KeyInfo>
-      <xenc:CipherData>
-        <xenc:CipherValue>U0czb6qGEvLTQaVcJDNjuAJvMAV4CcRQYvxUoBgfCP1T1xh14Kez8k0VHyEtgf6TYG7dK87SBzZccsn7MlLDLFbWH807bJ+cnXSQ9+8dXB/aohfXnmNSZUcIQiPLr5oNq1g6GYhgiNShDnYZUG3ffQ==</xenc:CipherValue>
-      </xenc:CipherData>
-    </xenc:EncryptedData>
-  </saml:EncryptedID>
-  <samlp:SessionIndex>SomeSessionIndex1</samlp:SessionIndex>
-  <samlp:SessionIndex>SomeSessionIndex2</samlp:SessionIndex>
-</samlp:LogoutRequest>
-XML;
-        $document = DOMDocumentFactory::fromString($xml);
-        $this->document = $document;
-        $this->logoutRequestElement = $document->documentElement;
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_LogoutRequest.xml'
+        );
 
         $this->retrievalMethod = DOMDocumentFactory::fromString(
             '<ds:RetrievalMethod xmlns:ds="http://www.w3.org/2000/09/xmldsig#" URI="#Encrypted_KEY_ID" ' .
@@ -95,12 +77,12 @@ XML;
         $this->assertEquals('LogoutRequest', $logoutRequestElement->localName);
         $this->assertEquals(Constants::NS_SAMLP, $logoutRequestElement->namespaceURI);
 
-        $nameIdElements = Utils::xpQuery($logoutRequestElement, './saml_assertion:NameID');
+        $nameIdElements = XMLUtils::xpQuery($logoutRequestElement, './saml_assertion:NameID');
         $this->assertCount(1, $nameIdElements);
         $nameIdElements = $nameIdElements[0];
         $this->assertEquals('NameIDValue', $nameIdElements->textContent);
 
-        $sessionIndexElements = Utils::xpQuery($logoutRequestElement, './saml_protocol:SessionIndex');
+        $sessionIndexElements = XMLUtils::xpQuery($logoutRequestElement, './saml_protocol:SessionIndex');
         $this->assertCount(1, $sessionIndexElements);
         $this->assertEquals('SessionIndexValue', $sessionIndexElements[0]->textContent);
 
@@ -113,7 +95,7 @@ XML;
         );
         $logoutRequestElement = $logoutRequest->toXML();
 
-        $sessionIndexElements = Utils::xpQuery($logoutRequestElement, './saml_protocol:SessionIndex');
+        $sessionIndexElements = XMLUtils::xpQuery($logoutRequestElement, './saml_protocol:SessionIndex');
         $this->assertCount(2, $sessionIndexElements);
         $this->assertEquals('SessionIndexValue1', $sessionIndexElements[0]->textContent);
         $this->assertEquals('SessionIndexValue2', $sessionIndexElements[1]->textContent);
@@ -132,11 +114,11 @@ XML;
         $logoutRequestElement = $logoutRequest->toXML();
 
         // Test for a NameID
-        $logoutRequestElements = Utils::xpQuery($logoutRequestElement, './saml_assertion:NameID');
+        $logoutRequestElements = XMLUtils::xpQuery($logoutRequestElement, './saml_assertion:NameID');
         $this->assertCount(1, $logoutRequestElements);
 
         // Test ordering of LogoutRequest contents
-        $logoutRequestElements = Utils::xpQuery($logoutRequestElement, './saml_assertion:NameID/following-sibling::*');
+        $logoutRequestElements = XMLUtils::xpQuery($logoutRequestElement, './saml_assertion:NameID/following-sibling::*');
 
         $this->assertCount(1, $logoutRequestElements);
         $this->assertEquals('samlp:SessionIndex', $logoutRequestElements[0]->tagName);
@@ -148,7 +130,7 @@ XML;
      */
     public function testUnmarshalling(): void
     {
-        $logoutRequest = LogoutRequest::fromXML($this->logoutRequestElement);
+        $logoutRequest = LogoutRequest::fromXML($this->document->documentElement);
         $issuer = $logoutRequest->getIssuer();
 
         $this->assertInstanceOf(Issuer::class, $issuer);
@@ -159,7 +141,12 @@ XML;
 
         $this->assertEquals(['SomeSessionIndex1', 'SomeSessionIndex2'], $logoutRequest->getSessionIndexes());
 
-        $identifier = $encid->decrypt(PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_OAEP_MGF1P, PEMCertificatesMock::SELFSIGNED_PRIVATE_KEY));
+        $identifier = $encid->decrypt(
+            PEMCertificatesMock::getPrivateKey(
+                XMLSecurityKey::RSA_OAEP_MGF1P,
+                PEMCertificatesMock::SELFSIGNED_PRIVATE_KEY
+            )
+        );
         $this->assertInstanceOf(NameID::class, $identifier);
         $this->assertEquals('very secret', $identifier->getValue());
     }
@@ -200,7 +187,7 @@ XML;
         $logoutRequestElement = $logoutRequest->toXML();
         $this->assertCount(
             1,
-            Utils::xpQuery($logoutRequestElement, './saml_assertion:EncryptedID/xenc:EncryptedData')
+            XMLUtils::xpQuery($logoutRequestElement, './saml_assertion:EncryptedID/xenc:EncryptedData')
         );
     }
 
@@ -211,7 +198,12 @@ XML;
     public function testPlainNameIDUnmarshalling(): void
     {
         $xml = <<<XML
-<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="SomeIDValue" Version="2.0" IssueInstant="2010-07-22T11:30:19Z">
+<samlp:LogoutRequest
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    ID="SomeIDValue"
+    Version="2.0"
+    IssueInstant="2010-07-22T11:30:19Z">
   <saml:Issuer>TheIssuer</saml:Issuer>
   <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified">frits</saml:NameID>
 </samlp:LogoutRequest>
@@ -234,7 +226,12 @@ XML;
     public function testMissingNameIDThrowsException(): void
     {
         $xml = <<<XML
-<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="SomeIDValue" Version="2.0" IssueInstant="2010-07-22T11:30:19Z">
+<samlp:LogoutRequest
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    ID="SomeIDValue"
+    Version="2.0"
+    IssueInstant="2010-07-22T11:30:19Z">
   <saml:Issuer>TheIssuer</saml:Issuer>
 </samlp:LogoutRequest>
 XML;
@@ -242,7 +239,9 @@ XML;
         $this->logoutRequestElement = $document->documentElement;
 
         $this->expectException(MissingElementException::class);
-        $this->expectExceptionMessage("Missing <saml:NameID>, <saml:BaseID> or <saml:EncryptedID> in <samlp:LogoutRequest>.");
+        $this->expectExceptionMessage(
+            "Missing <saml:NameID>, <saml:BaseID> or <saml:EncryptedID> in <samlp:LogoutRequest>."
+        );
         $logoutRequest = LogoutRequest::fromXML($this->logoutRequestElement);
     }
 
@@ -253,7 +252,12 @@ XML;
     public function testMultipleNameIDThrowsException(): void
     {
         $xml = <<<XML
-<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="SomeIDValue" Version="2.0" IssueInstant="2010-07-22T11:30:19Z">
+<samlp:LogoutRequest
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    ID="SomeIDValue"
+    Version="2.0"
+    IssueInstant="2010-07-22T11:30:19Z">
   <saml:Issuer>TheIssuer</saml:Issuer>
   <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified">frits</saml:NameID>
   <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified">willem</saml:NameID>
@@ -274,7 +278,13 @@ XML;
     public function testGetNotOnOrAfter(): void
     {
         $xml = <<<XML
-<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="SomeIDValue" Version="2.0" IssueInstant="2010-07-22T11:30:19Z" NotOnOrAfter="2018-11-28T19:33:12Z">
+<samlp:LogoutRequest
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    ID="SomeIDValue"
+    Version="2.0"
+    IssueInstant="2010-07-22T11:30:19Z"
+    NotOnOrAfter="2018-11-28T19:33:12Z">
   <saml:Issuer>TheIssuer</saml:Issuer>
   <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified">frits</saml:NameID>
 </samlp:LogoutRequest>
@@ -309,7 +319,14 @@ XML;
     {
         $reason = "urn:simplesamlphp:reason-test";
         $xml = <<<XML
-<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="SomeIDValue" Version="2.0" IssueInstant="2010-07-22T11:30:19Z" NotOnOrAfter="2018-11-28T19:33:12Z" Reason="$reason">
+<samlp:LogoutRequest
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    ID="SomeIDValue"
+    Version="2.0"
+    IssueInstant="2010-07-22T11:30:19Z"
+    NotOnOrAfter="2018-11-28T19:33:12Z"
+    Reason="$reason">
   <saml:Issuer>TheIssuer</saml:Issuer>
   <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified">frits</saml:NameID>
 </samlp:LogoutRequest>
@@ -345,7 +362,12 @@ XML;
     public function testWithOutSessionIndices(): void
     {
         $xml = <<<XML
-<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="SomeIDValue" Version="2.0" IssueInstant="2010-07-22T11:30:19Z">
+<samlp:LogoutRequest
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    ID="SomeIDValue"
+    Version="2.0"
+    IssueInstant="2010-07-22T11:30:19Z">
   <saml:Issuer>TheIssuer</saml:Issuer>
   <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified">frits</saml:NameID>
 </samlp:LogoutRequest>

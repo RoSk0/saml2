@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use DOMElement;
-use SAML2\Constants;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Exception\TooManyElementsException;
-use SAML2\Utils;
-use SAML2\XML\ds\Signature;
-use SAML2\XML\saml\Attribute;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\ds\Signature;
+use SimpleSAML\SAML2\XML\saml\Attribute;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Exception\TooManyElementsException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class representing SAML 2 IDPSSODescriptor.
@@ -25,65 +25,65 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
      *
      * @var bool|null
      */
-    protected $wantAuthnRequestsSigned = null;
+    protected ?bool $wantAuthnRequestsSigned = null;
 
     /**
      * List of SingleSignOnService endpoints.
      *
-     * @var \SAML2\XML\md\SingleSignOnService[]
+     * @var \SimpleSAML\SAML2\XML\md\SingleSignOnService[]
      */
-    protected $ssoServiceEndpoints = [];
+    protected array $ssoServiceEndpoints = [];
 
     /**
      * List of NameIDMappingService endpoints.
      *
-     * @var \SAML2\XML\md\NameIDMappingService[]
+     * @var \SimpleSAML\SAML2\XML\md\NameIDMappingService[]
      */
-    protected $nameIDMappingServiceEndpoints = [];
+    protected array $nameIDMappingServiceEndpoints = [];
 
     /**
      * List of AssertionIDRequestService endpoints.
      *
-     * @var \SAML2\XML\md\AssertionIDRequestService[]
+     * @var \SimpleSAML\SAML2\XML\md\AssertionIDRequestService[]
      */
-    protected $assertionIDRequestServiceEndpoints = [];
+    protected array $assertionIDRequestServiceEndpoints = [];
 
     /**
      * List of supported attribute profiles.
      *
      * @var string[]
      */
-    protected $attributeProfiles = [];
+    protected array $attributeProfiles = [];
 
     /**
      * List of supported attributes.
      *
-     * @var \SAML2\XML\saml\Attribute[]
+     * @var \SimpleSAML\SAML2\XML\saml\Attribute[]
      */
-    protected $attributes = [];
+    protected array $attributes = [];
 
 
     /**
      * IDPSSODescriptor constructor.
      *
-     * @param \SAML2\XML\md\SingleSignOnService[] $ssoServiceEndpoints
+     * @param \SimpleSAML\SAML2\XML\md\SingleSignOnService[] $ssoServiceEndpoints
      * @param string[] $protocolSupportEnumeration
      * @param bool|null $wantAuthnRequestsSigned
-     * @param \SAML2\XML\md\NameIDMappingService[] $nameIDMappingServiceEndpoints
-     * @param \SAML2\XML\md\AssertionIDRequestService[] $assertionIDRequestServiceEndpoints
+     * @param \SimpleSAML\SAML2\XML\md\NameIDMappingService[] $nameIDMappingServiceEndpoints
+     * @param \SimpleSAML\SAML2\XML\md\AssertionIDRequestService[] $assertionIDRequestServiceEndpoints
      * @param string[] $attributeProfiles
-     * @param \SAML2\XML\saml\Attribute[] $attributes
+     * @param \SimpleSAML\SAML2\XML\saml\Attribute[] $attributes
      * @param string|null $ID
      * @param int|null $validUntil
      * @param string|null $cacheDuration
-     * @param \SAML2\XML\md\Extensions|null $extensions
+     * @param \SimpleSAML\SAML2\XML\md\Extensions|null $extensions
      * @param string|null $errorURL
-     * @param \SAML2\XML\md\KeyDescriptor[] $keyDescriptors
-     * @param \SAML2\XML\md\Organization|null $organization
-     * @param \SAML2\XML\md\ContactPerson[] $contacts
-     * @param \SAML2\XML\md\ArtifactResolutionService[] $artifactResolutionService
-     * @param \SAML2\XML\md\SingleLogoutService[] $singleLogoutService
-     * @param \SAML2\XML\md\ManageNameIDService[] $manageNameIDService
+     * @param \SimpleSAML\SAML2\XML\md\KeyDescriptor[] $keyDescriptors
+     * @param \SimpleSAML\SAML2\XML\md\Organization|null $organization
+     * @param \SimpleSAML\SAML2\XML\md\ContactPerson[] $contacts
+     * @param \SimpleSAML\SAML2\XML\md\ArtifactResolutionService[] $artifactResolutionService
+     * @param \SimpleSAML\SAML2\XML\md\SingleLogoutService[] $singleLogoutService
+     * @param \SimpleSAML\SAML2\XML\md\ManageNameIDService[] $manageNameIDService
      * @param string[] $nameIDFormat
      */
     public function __construct(
@@ -135,11 +135,11 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
      * Initialize an IDPSSODescriptor.
      *
      * @param \DOMElement $xml The XML element we should load.
-     * @return \SAML2\XML\md\IDPSSODescriptor
+     * @return \SimpleSAML\SAML2\XML\md\IDPSSODescriptor
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
-     * @throws \SAML2\Exception\MissingElementException if one of the mandatory child-elements is missing
-     * @throws \SAML2\Exception\TooManyElementsException if too many child-elements of a type are specified
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\MissingElementException if one of the mandatory child-elements is missing
+     * @throws \SimpleSAML\XML\Exception\TooManyElementsException if too many child-elements of a type are specified
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -163,10 +163,10 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
             self::getBooleanAttribute($xml, 'WantAuthnRequestsSigned', null),
             NameIDMappingService::getChildrenOfClass($xml),
             AssertionIDRequestService::getChildrenOfClass($xml),
-            Utils::extractStrings($xml, Constants::NS_MD, 'AttributeProfile'),
+            XMLUtils::extractStrings($xml, Constants::NS_MD, 'AttributeProfile'),
             Attribute::getChildrenOfClass($xml),
             self::getAttribute($xml, 'ID', null),
-            $validUntil !== null ? Utils::xsDateTimeToTimestamp($validUntil) : null,
+            $validUntil !== null ? XMLUtils::xsDateTimeToTimestamp($validUntil) : null,
             self::getAttribute($xml, 'cacheDuration', null),
             !empty($extensions) ? $extensions[0] : null,
             self::getAttribute($xml, 'errorURL', null),
@@ -176,7 +176,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
             ArtifactResolutionService::getChildrenOfClass($xml),
             SingleLogoutService::getChildrenOfClass($xml),
             ManageNameIDService::getChildrenOfClass($xml),
-            Utils::extractStrings($xml, Constants::NS_MD, 'NameIDFormat')
+            XMLUtils::extractStrings($xml, Constants::NS_MD, 'NameIDFormat')
         );
         if (!empty($signature)) {
             $idpssod->setSignature($signature[0]);
@@ -211,7 +211,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
     /**
      * Get the SingleSignOnService endpoints
      *
-     * @return \SAML2\XML\md\SingleSignOnService[]
+     * @return \SimpleSAML\SAML2\XML\md\SingleSignOnService[]
      */
     public function getSingleSignOnServices(): array
     {
@@ -222,7 +222,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
     /**
      * Set the SingleSignOnService endpoints
      *
-     * @param \SAML2\XML\md\SingleSignOnService[] $singleSignOnServices
+     * @param \SimpleSAML\SAML2\XML\md\SingleSignOnService[] $singleSignOnServices
      * @return void
      */
     protected function setSingleSignOnServices(array $singleSignOnServices): void
@@ -240,7 +240,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
     /**
      * Get the NameIDMappingService endpoints
      *
-     * @return \SAML2\XML\md\NameIDMappingService[]
+     * @return \SimpleSAML\SAML2\XML\md\NameIDMappingService[]
      */
     public function getNameIDMappingServices(): array
     {
@@ -251,7 +251,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
     /**
      * Set the NameIDMappingService endpoints
      *
-     * @param \SAML2\XML\md\NameIDMappingService[] $nameIDMappingServices
+     * @param \SimpleSAML\SAML2\XML\md\NameIDMappingService[] $nameIDMappingServices
      * @return void
      */
     protected function setNameIDMappingServices(array $nameIDMappingServices): void
@@ -268,7 +268,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
     /**
      * Collect the AssertionIDRequestService endpoints
      *
-     * @return \SAML2\XML\md\AssertionIDRequestService[]
+     * @return \SimpleSAML\SAML2\XML\md\AssertionIDRequestService[]
      */
     public function getAssertionIDRequestServices(): array
     {
@@ -279,7 +279,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
     /**
      * Set the AssertionIDRequestService endpoints
      *
-     * @param \SAML2\XML\md\AssertionIDRequestService[] $assertionIDRequestServices
+     * @param \SimpleSAML\SAML2\XML\md\AssertionIDRequestService[] $assertionIDRequestServices
      * @return void
      */
     protected function setAssertionIDRequestService(array $assertionIDRequestServices): void
@@ -322,7 +322,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
     /**
      * Get the attributes supported by this IdP
      *
-     * @return \SAML2\XML\saml\Attribute[]
+     * @return \SimpleSAML\SAML2\XML\saml\Attribute[]
      */
     public function getSupportedAttributes(): array
     {
@@ -333,7 +333,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
     /**
      * Set the attributes supported by this IdP
      *
-     * @param \SAML2\XML\saml\Attribute[] $attributes
+     * @param \SimpleSAML\SAML2\XML\saml\Attribute[] $attributes
      */
     protected function setSupportedAttributes(array $attributes): void
     {
@@ -373,7 +373,7 @@ final class IDPSSODescriptor extends AbstractSSODescriptor
             $ep->toXML($e);
         }
 
-        Utils::addStrings($e, Constants::NS_MD, 'md:AttributeProfile', false, $this->attributeProfiles);
+        XMLUtils::addStrings($e, Constants::NS_MD, 'md:AttributeProfile', false, $this->attributeProfiles);
 
         foreach ($this->attributes as $a) {
             $a->toXML($e);

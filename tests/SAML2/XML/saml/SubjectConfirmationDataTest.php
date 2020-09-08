@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\Chunk;
-use SAML2\XML\ds\KeyInfo;
-use SAML2\XML\ds\KeyName;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\ds\KeyInfo;
+use SimpleSAML\SAML2\XML\ds\KeyName;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Chunk;
 
 /**
  * Class \SAML2\XML\saml\SubjectConfirmationDataTest
  *
- * @covers \SAML2\XML\saml\SubjectConfirmationData
+ * @covers \SimpleSAML\SAML2\XML\saml\SubjectConfirmationData
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class SubjectConfirmationDataTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -28,26 +30,8 @@ final class SubjectConfirmationDataTest extends TestCase
      */
     public function setup(): void
     {
-        $samlNamespace = SubjectConfirmationData::NS;
-        $dsNamespace = KeyInfo::NS;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:SubjectConfirmationData
-    xmlns:saml="{$samlNamespace}"
-    NotBefore="2001-04-19T04:25:21Z"
-    NotOnOrAfter="2009-02-13T23:31:30Z"
-    Recipient="https://sp.example.org/asdf"
-    InResponseTo="SomeRequestID"
-    Address="127.0.0.1"
-    test:attr1="testval1"
-    test:attr2="testval2"
-    xmlns:test="urn:test">
-  <ds:KeyInfo xmlns:ds="{$dsNamespace}">
-    <ds:KeyName>SomeKey</ds:KeyName>
-  </ds:KeyInfo>
-  <some>Arbitrary Element</some>
-</saml:SubjectConfirmationData>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_SubjectConfirmationData.xml'
         );
     }
 
@@ -173,13 +157,13 @@ XML
         $this->assertEquals('testval1', $subjectConfirmationData->getAttributeNS('urn:test', 'attr1'));
         $this->assertEquals('testval2', $subjectConfirmationData->getAttributeNS('urn:test', 'attr2'));
 
-        /** @psalm-var \SAML2\XML\ds\KeyInfo $info */
+        /** @psalm-var \SimpleSAML\SAML2\XML\ds\KeyInfo $info */
         $info = $subjectConfirmationData->getInfo()[0];
 
-        /** @psalm-var \SAML2\XML\ds\KeyName $keyName */
+        /** @psalm-var \SimpleSAML\SAML2\XML\ds\KeyName $keyName */
         $keyName = $info->getInfo()[0];
 
-        /** @psalm-var \SAML2\XML\Chunk $info */
+        /** @psalm-var \SimpleSAML\XML\Chunk $info */
         $info = $subjectConfirmationData->getInfo()[1];
 
         $this->assertEquals('SomeKey', $keyName->getName());

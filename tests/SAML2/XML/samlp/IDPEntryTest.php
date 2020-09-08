@@ -2,16 +2,18 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\samlp\IDPEntry;
+use SimpleSAML\SAML2\XML\samlp\IDPEntry;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\samlp\IDPEntryTest
  *
- * @covers \SAML2\XML\samlp\IDPEntry
+ * @covers \SimpleSAML\SAML2\XML\samlp\IDPEntry
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -19,7 +21,7 @@ use SAML2\XML\samlp\IDPEntry;
 final class IDPEntryTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -27,11 +29,8 @@ final class IDPEntryTest extends TestCase
      */
     protected function setUp(): void
     {
-        $ns = IDPEntry::NS;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<samlp:IDPEntry xmlns:samlp="{$ns}" ProviderID="urn:some:requester" Name="testName" Loc="testLoc"/>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_IDPEntry.xml'
         );
     }
 
@@ -55,11 +54,9 @@ XML
      */
     public function testMarshallingNullables(): void
     {
-        $ns = IDPEntry::NS;
-        $document = <<<XML
-<samlp:IDPEntry xmlns:samlp="{$ns}" ProviderID="urn:some:requester"/>
-XML
-        ;
+        $document = $this->document;
+        $document->documentElement->removeAttribute('Name');
+        $document->documentElement->removeAttribute('Loc');
 
         $entry = new IDPEntry('urn:some:requester', null, null);
 
@@ -67,7 +64,10 @@ XML
         $this->assertNull($entry->getName());
         $this->assertNull($entry->getLoc());
 
-        $this->assertEquals($document, strval($entry));
+        $this->assertEquals(
+            $this->document->saveXML($document->documentElement),
+            strval($entry)
+        );
     }
 
 

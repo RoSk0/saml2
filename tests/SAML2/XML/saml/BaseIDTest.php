@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\CustomBaseID;
-use SAML2\DOMDocumentFactory;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\CustomBaseID;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\saml\BaseIDTest
  *
- * @covers \SAML2\XML\saml\BaseID
+ * @covers \SimpleSAML\SAML2\XML\saml\BaseID
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -20,7 +22,7 @@ use SAML2\DOMDocumentFactory;
 final class BaseIDTest extends TestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -28,17 +30,8 @@ final class BaseIDTest extends TestCase
      */
     public function setup(): void
     {
-        $samlNamespace = BaseID::NS;
-        $xsiNamespace = Constants::NS_XSI;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:BaseID
-  xmlns:saml="{$samlNamespace}"
-  NameQualifier="TheNameQualifier"
-  SPNameQualifier="TheSPNameQualifier"
-  xmlns:xsi="{$xsiNamespace}"
-  xsi:type="CustomBaseID">123.456</saml:BaseID>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_BaseID.xml'
         );
     }
 
@@ -60,6 +53,7 @@ XML
         $this->assertEquals('123.456', $baseId->getValue());
         $this->assertEquals('TheNameQualifier', $baseId->getNameQualifier());
         $this->assertEquals('TheSPNameQualifier', $baseId->getSPNameQualifier());
+        $this->assertEquals('CustomBaseID', $baseId->getType());
 
         $this->assertEquals(
             $this->document->saveXML($this->document->documentElement),
@@ -81,6 +75,7 @@ XML
         $this->assertEquals('123.456', $baseId->getValue());
         $this->assertEquals('TheNameQualifier', $baseId->getNameQualifier());
         $this->assertEquals('TheSPNameQualifier', $baseId->getSPNameQualifier());
+        $this->assertEquals('CustomBaseID', $baseId->getType());
 
         $this->assertEquals(
             $this->document->saveXML($this->document->documentElement),
@@ -94,7 +89,7 @@ XML
      */
     public function testUnmarshallingCustomClass(): void
     {
-        /** @var \SAML2\CustomBaseID $baseId */
+        /** @var \SimpleSAML\SAML2\CustomBaseID $baseId */
         $baseId = CustomBaseID::fromXML($this->document->documentElement);
 
         $this->assertEquals(123.456, $baseId->getValue());

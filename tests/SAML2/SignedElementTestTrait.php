@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace SAML2;
+namespace SimpleSAML\SAML2;
 
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use DOMDocument;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * A trait providing basic tests for signed elements.
@@ -22,14 +23,14 @@ trait SignedElementTestTrait
      *
      * @var \DOMDocument
      */
-    protected $document;
+    protected DOMDocument $document;
 
     /**
      * The name of the class we are testing.
      *
      * @var string
      */
-    protected $testedClass = '';
+    protected string $testedClass = '';
 
 
     /**
@@ -53,13 +54,18 @@ trait SignedElementTestTrait
             $key->loadKey(PEMCertificatesMock::getPlainPrivateKey(PEMCertificatesMock::PRIVATE_KEY));
             $pre = $this->testedClass::fromXML($this->document->documentElement);
             $pre->setSigningKey($key);
-            $pre->setCertificates([PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY), PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::OTHER_PUBLIC_KEY)]);
+            $pre->setCertificates(
+                [
+                    PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY),
+                    PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::OTHER_PUBLIC_KEY)
+                ]
+            );
 
             // verify signature
             $cert = new XMLSecurityKey($algorithm, ['type' => 'public']);
             $cert->loadKey(PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY));
 
-            /** @var \SAML2\XML\SignedElementInterface $post */
+            /** @var \SimpleSAML\SAML2\XML\SignedElementInterface $post */
             $post = $this->testedClass::fromXML($pre->toXML());
             try {
                 $this->assertTrue($post->validate($cert));

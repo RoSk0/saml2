@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ds;
+namespace SimpleSAML\SAML2\XML\ds;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XMLSecurity\XMLSecurityDSig;
 
 /**
  * Class \SAML2\XML\ds\X509SubjectNameTest
  *
- * @covers \SAML2\XML\ds\X509SubjectName
+ * @covers \SimpleSAML\SAML2\XML\ds\AbstractDsElement
+ * @covers \SimpleSAML\SAML2\XML\ds\X509SubjectName
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -20,17 +21,16 @@ use SAML2\Utils;
 final class X509SubjectNameTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
+
 
     /**
      * @return void
      */
     protected function setUp(): void
     {
-        $ns = X509SubjectName::NS;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<ds:X509SubjectName xmlns:ds="{$ns}">some name</ds:X509SubjectName>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/ds_X509SubjectName.xml'
         );
     }
 

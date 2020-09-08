@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\mdrpi;
+namespace SimpleSAML\SAML2\XML\mdrpi;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\mdrpi\PublicationInfoTest
  *
- * @covers \SAML2\XML\mdrpi\PublicationInfo
+ * @covers \SimpleSAML\SAML2\XML\mdrpi\PublicationInfo
+ * @covers \SimpleSAML\SAML2\XML\mdrpi\AbstractMdrpiElement
  * @package simplesamlphp/saml2
  */
 final class PublicationInfoTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -26,15 +28,8 @@ final class PublicationInfoTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<mdrpi:PublicationInfo xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi"
-                       publisher="SomePublisher"
-                       creationInstant="2011-01-01T00:00:00Z"
-                       publicationId="SomePublicationId">
-  <mdrpi:UsagePolicy xml:lang="en">http://TheEnglishUsagePolicy</mdrpi:UsagePolicy>
-  <mdrpi:UsagePolicy xml:lang="no">http://TheNorwegianUsagePolicy</mdrpi:UsagePolicy>
-</mdrpi:PublicationInfo>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/mdrpi_PublicationInfo.xml'
         );
     }
 
@@ -58,7 +53,7 @@ XML
         $xml = $publicationInfo->toXML($document->documentElement);
 
         /** @var \DOMElement[] $publicationInfoElements */
-        $publicationInfoElements = Utils::xpQuery(
+        $publicationInfoElements = XMLUtils::xpQuery(
             $xml,
             '/root/*[local-name()=\'PublicationInfo\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:rpi\']'
         );
@@ -70,7 +65,7 @@ XML
         $this->assertEquals('PublicationIdValue', $publicationInfoElement->getAttribute("publicationId"));
 
         /** @var \DOMElement[] $usagePolicyElements */
-        $usagePolicyElements = Utils::xpQuery(
+        $usagePolicyElements = XMLUtils::xpQuery(
             $publicationInfoElement,
             './*[local-name()=\'UsagePolicy\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:rpi\']'
         );
@@ -84,8 +79,7 @@ XML
         $this->assertEquals(
             'no',
             $usagePolicyElements[1]->getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang")
-
-);
+        );
         $this->assertEquals('http://NorwegianUsagePolicy', $usagePolicyElements[1]->textContent);
     }
 

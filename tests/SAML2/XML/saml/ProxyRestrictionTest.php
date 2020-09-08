@@ -2,16 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\SAML2\Constants;
 
 /**
  * Class \SAML2\XML\saml\ProxyRestrictionTest
  *
- * @covers \SAML2\XML\samlp\ProxyRestriction
+ * @covers \SimpleSAML\SAML2\XML\saml\ProxyRestriction
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractConditionType
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -19,7 +22,7 @@ use SAML2\DOMDocumentFactory;
 final class ProxyRestrictionTest extends TestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -27,15 +30,8 @@ final class ProxyRestrictionTest extends TestCase
      */
     public function setup(): void
     {
-        $samlNamespace = ProxyRestriction::NS;
-        $xsiNamespace = Constants::NS_XSI;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:ProxyRestriction xmlns:saml="{$samlNamespace}" Count="2">
-  <saml:Audience>urn:audience1</saml:Audience>
-  <saml:Audience>urn:audience2</saml:Audience>
-</saml:ProxyRestriction>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_ProxyRestriction.xml'
         );
     }
 

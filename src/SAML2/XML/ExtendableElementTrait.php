@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML;
+namespace SimpleSAML\SAML2\XML;
+
+use SimpleSAML\XML\AbstractXMLElement;
 
 /**
  * Trait for metadata elements that can be extended.
@@ -16,15 +18,15 @@ trait ExtendableElementTrait
      *
      * Array of extension elements.
      *
-     * @var \SAML2\XML\AbstractXMLElement|null
+     * @var \SimpleSAML\XML\AbstractXMLElement|null
      */
-    protected $Extensions = null;
+    protected ?AbstractXMLElement $Extensions = null;
 
 
     /**
      * Collect the value of the Extensions property.
      *
-     * @return \SAML2\XML\AbstractXMLElement|null
+     * @return \SimpleSAML\XML\AbstractXMLElement|null
      */
     public function getExtensions(): ?AbstractXMLElement
     {
@@ -35,7 +37,7 @@ trait ExtendableElementTrait
     /**
      * Set the value of the Extensions property.
      *
-     * @param \SAML2\XML\AbstractXMLElement|null $extensions
+     * @param \SimpleSAML\XML\AbstractXMLElement|null $extensions
      */
     protected function setExtensions(?AbstractXMLElement $extensions): void
     {

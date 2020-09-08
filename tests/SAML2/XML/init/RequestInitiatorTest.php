@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\init;
+namespace SimpleSAML\SAML2\XML\init;
 
+use DOMDocument;
 use Exception;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Exception\ProtocolViolationException;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\init\RequestInitiatorTest
  *
- * @covers \SAML2\XML\init\RequestInitiator
+ * @covers \SimpleSAML\SAML2\XML\init\RequestInitiator
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -21,7 +22,7 @@ use SAML2\Utils;
 final class RequestInitiatorTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -29,13 +30,8 @@ final class RequestInitiatorTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<init:RequestInitiator xmlns:init="urn:oasis:names:tc:SAML:profiles:SSO:request-init"
-                       Binding="urn:oasis:names:tc:SAML:profiles:SSO:request-init"
-                       Location="https://whatever/"
-                       ResponseLocation="https://foo.bar/"
-                       xmlns:test="urn:test" test:attr="value" />
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/init_RequestInitiator.xml'
         );
     }
 
@@ -96,8 +92,10 @@ XML
     {
         $this->document->documentElement->setAttribute('Binding', 'urn:something');
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("The Binding of a RequestInitiator must be 'urn:oasis:names:tc:SAML:profiles:SSO:request-init'.");
+        $this->expectException(ProtocolViolationException::class);
+        $this->expectExceptionMessage(
+            "The Binding of a RequestInitiator must be 'urn:oasis:names:tc:SAML:profiles:SSO:request-init'."
+        );
 
         RequestInitiator::fromXML($this->document->documentElement);
     }

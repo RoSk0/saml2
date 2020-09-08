@@ -2,24 +2,26 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\saml\SubjectLocalityTest
  *
- * @covers \SAML2\XML\saml\SubjectLocality
+ * @covers \SimpleSAML\SAML2\XML\saml\SubjectLocality
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class SubjectLocalityTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -27,11 +29,8 @@ final class SubjectLocalityTest extends TestCase
      */
     protected function setUp(): void
     {
-        $samlNamespace = Constants::NS_SAML;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:SubjectLocality xmlns:saml="{$samlNamespace}" Address="1.1.1.1" DNSName="idp.example.org" />
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_SubjectLocality.xml'
         );
     }
 

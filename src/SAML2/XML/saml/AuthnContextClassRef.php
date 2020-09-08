@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
 use DOMElement;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\InvalidDOMElementException;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
 
 /**
  * Class representing SAML2 AuthnContextClassRef
@@ -19,7 +19,7 @@ use SimpleSAML\Assert\Assert;
 final class AuthnContextClassRef extends AbstractSamlElement
 {
     /** @var string */
-    protected $classRef;
+    protected string $classRef;
 
 
     /**
@@ -60,9 +60,9 @@ final class AuthnContextClassRef extends AbstractSamlElement
      * Convert XML into a AuthnContextClassRef
      *
      * @param \DOMElement $xml The XML element we should load
-     * @return \SAML2\XML\saml\AuthnContextClassRef
+     * @return \SimpleSAML\SAML2\XML\saml\AuthnContextClassRef
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {

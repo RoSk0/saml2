@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\shibmd;
+namespace SimpleSAML\SAML2\XML\shibmd;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\shibmd\Scope;
-use SAML2\Utils;
+use SimpleSAML\SAML2\XML\shibmd\Scope;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\shibmd\Scope
  *
- * @covers \SAML2\XML\shibmd\Scope
+ * @covers \SimpleSAML\SAML2\XML\shibmd\Scope
+ * @covers \SimpleSAML\SAML2\XML\shibmd\AbstractShibmdElement
  * @package simplesamlphp/saml2
  */
 final class ScopeTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -26,10 +28,8 @@ final class ScopeTest extends TestCase
      */
     public function setUp(): void
     {
-        $ns = Scope::NS;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<shibmd:Scope xmlns:shibmd="{$ns}" regexp="false">example.org</shibmd:Scope>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/shibmd_Scope.xml'
         );
     }
 
@@ -46,7 +46,7 @@ XML
         $scopeElement = $scope->toXML($document->documentElement);
 
         /** @var \DOMElement[] $scopeElements */
-        $scopeElements = Utils::xpQuery($scopeElement, '/root/shibmd:Scope');
+        $scopeElements = XMLUtils::xpQuery($scopeElement, '/root/shibmd:Scope');
         $this->assertCount(1, $scopeElements);
         $scopeElement = $scopeElements[0];
 
@@ -69,7 +69,7 @@ XML
         $scopeElement = $scope->toXML($document->documentElement);
 
         /** @var \DOMElement[] $scopeElements */
-        $scopeElements = Utils::xpQuery($scopeElement, '/root/shibmd:Scope');
+        $scopeElements = XMLUtils::xpQuery($scopeElement, '/root/shibmd:Scope');
         $this->assertCount(1, $scopeElements);
         $scopeElement = $scopeElements[0];
 
@@ -91,7 +91,7 @@ XML
         $scopeElement = $scope->toXML($document->documentElement);
 
         /** @var \DOMElement[] $scopeElements */
-        $scopeElements = Utils::xpQuery($scopeElement, '/root/shibmd:Scope');
+        $scopeElements = XMLUtils::xpQuery($scopeElement, '/root/shibmd:Scope');
         $this->assertCount(1, $scopeElements);
         $scopeElement = $scopeElements[0];
 
@@ -150,6 +150,9 @@ XML
     public function testSerialization(): void
     {
         $scope = Scope::fromXML($this->document->documentElement);
-        $this->assertEquals($this->document->saveXML($this->document->documentElement), strval(unserialize(serialize($scope))));
+        $this->assertEquals(
+            $this->document->saveXML($this->document->documentElement),
+            strval(unserialize(serialize($scope)))
+        );
     }
 }

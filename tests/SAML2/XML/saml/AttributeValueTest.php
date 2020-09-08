@@ -2,22 +2,24 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Tests for AttributeValue elements.
  *
- * @covers \SAML2\XML\saml\AttributeValue
+ * @covers \SimpleSAML\SAML2\XML\saml\AttributeValue
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class AttributeValueTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -25,13 +27,8 @@ final class AttributeValueTest extends TestCase
      */
     protected function setUp(): void
     {
-        $nssaml = Constants::NS_SAML;
-        $nsxs = Constants::NS_XS;
-        $nsxsi = Constants::NS_XSI;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:AttributeValue xmlns:saml="$nssaml" xmlns:xs="$nsxs" xmlns:xsi="$nsxsi" xsi:type="xs:integer">2</saml:AttributeValue>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_AttributeValue.xml'
         );
     }
 
@@ -78,7 +75,8 @@ XML
         $this->assertEquals('xs:nil', $av->getXsiType());
         $nssaml = Constants::NS_SAML;
         $nsxsi = Constants::NS_XSI;
-        $this->assertEquals(<<<XML
+        $this->assertEquals(
+            <<<XML
 <saml:AttributeValue xmlns:saml="$nssaml" xmlns:xsi="$nsxsi" xsi:nil="1"/>
 XML
             ,

@@ -2,26 +2,28 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SAML2\Exception\MissingElementException;
-use SAML2\XML\saml\AttributeValue;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\saml\AttributeValue;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\XML\Exception\MissingElementException;
 
 /**
  * Tests for the AttributeConsumingService class.
  *
- * @covers \SAML2\XML\md\AttributeConsumingService
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\AttributeConsumingService
  * @package simplesamlphp/saml2
  */
 final class AttributeConsumingServiceTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -29,17 +31,8 @@ final class AttributeConsumingServiceTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdns = Constants::NS_MD;
-        $samlns = Constants::NS_SAML;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:AttributeConsumingService xmlns:md="{$mdns}" index="2" isDefault="true">
-  <md:ServiceName xml:lang="en">Academic Journals R US</md:ServiceName>
-  <md:ServiceDescription xml:lang="en">Academic Journals R US and only us</md:ServiceDescription>
-  <md:RequestedAttribute Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.7" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="eduPersonEntitlement">
-    <saml:AttributeValue xmlns:saml="{$samlns}">https://ServiceProvider.com/entitlements/123456789</saml:AttributeValue>
-  </md:RequestedAttribute>
-</md:AttributeConsumingService>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_AttributeConsumingService.xml'
         );
     }
 
@@ -79,7 +72,10 @@ XML
         $this->assertEquals([new ServiceName('en', 'Academic Journals R US')], $acs->getServiceNames());
         $this->assertEquals([$this->getRequestedAttribute()], $acs->getRequestedAttributes());
         $this->assertTrue($acs->getIsDefault());
-        $this->assertEquals([new ServiceDescription('en', 'Academic Journals R US and only us')], $acs->getServiceDescriptions());
+        $this->assertEquals(
+            [new ServiceDescription('en', 'Academic Journals R US and only us')],
+            $acs->getServiceDescriptions()
+        );
 
         $this->assertEquals($this->document->saveXML($this->document->documentElement), strval($acs));
     }

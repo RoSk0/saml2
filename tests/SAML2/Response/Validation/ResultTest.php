@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Response\Validation;
+namespace SimpleSAML\SAML2\Response\Validation;
 
 use PHPUnit\Framework\TestCase;
-use SAML2\Response\Validation\Result;
+use SimpleSAML\SAML2\Response\Validation\Result;
 
 /**
- * @covers \SAML2\Respose\Validation\Result
+ * @covers \SimpleSAML\SAML2\Respose\Validation\Result
  * @package simplesamlphp/saml2
  */
 final class ResultTest extends TestCase
@@ -18,7 +18,7 @@ final class ResultTest extends TestCase
      * @test
      * @return void
      */
-    public function added_errors_can_be_retrieved(): void
+    public function addedErrorsCanBeRetrieved(): void
     {
         $error = 'This would be an error message';
         $result = new Result();
@@ -36,7 +36,7 @@ final class ResultTest extends TestCase
      * @test
      * @return void
      */
-    public function the_result_correctly_reports_whether_or_not_it_is_valid(): void
+    public function theResultCorrectlyReportsWhetherOrNotItIsValid(): void
     {
         $result = new Result();
 

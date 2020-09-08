@@ -2,37 +2,39 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ds;
+namespace SimpleSAML\SAML2\XML\ds;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
-use SAML2\XML\Chunk;
 use SimpleSAML\Assert\AssertionFailedException;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityDSig;
 
 /**
  * Class \SAML2\XML\ds\X509DataTest
  *
- * @covers \SAML2\XML\ds\X509Data
+ * @covers \SimpleSAML\SAML2\XML\ds\AbstractDsElement
+ * @covers \SimpleSAML\SAML2\XML\ds\X509Data
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
  */
 final class X509DataTest extends TestCase
 {
-    /** @var \DOMDocument */
-    private $document;
-
     /** @var string */
     private const FRAMEWORK = 'vendor/simplesamlphp/simplesamlphp-test-framework';
 
+    /** @var \DOMDocument */
+    private DOMDocument $document;
+
     /** @var string */
-    private $certificate;
+    private string $certificate;
 
     /** @var string[] */
-    private $certData;
+    private array $certData;
 
 
     /**
@@ -40,8 +42,6 @@ final class X509DataTest extends TestCase
      */
     public function setUp(): void
     {
-        $ns = X509Data::NS;
-
         $this->certificate = str_replace(
             [
                 '-----BEGIN CERTIFICATE-----',
@@ -66,14 +66,8 @@ final class X509DataTest extends TestCase
             PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::SELFSIGNED_PUBLIC_KEY)
         );
 
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<ds:X509Data xmlns:ds="{$ns}">
-  <ds:X509UnknownTag>somevalue</ds:X509UnknownTag>
-  <ds:X509Certificate>{$this->certificate}</ds:X509Certificate>
-  <ds:X509SubjectName>{$this->certData['name']}</ds:X509SubjectName>
-  <some>Chunk</some>
-</ds:X509Data>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/ds_X509Data.xml'
         );
     }
 
@@ -85,7 +79,9 @@ XML
     {
         $X509data = new X509Data(
             [
-                new Chunk(DOMDocumentFactory::fromString('<ds:X509UnknownTag>somevalue</ds:X509UnknownTag>')->documentElement),
+                new Chunk(
+                    DOMDocumentFactory::fromString('<ds:X509UnknownTag>somevalue</ds:X509UnknownTag>')->documentElement
+                ),
                 new X509Certificate($this->certificate),
                 new X509SubjectName($this->certData['name']),
                 new Chunk(DOMDocumentFactory::fromString('<some>Chunk</some>')->documentElement)

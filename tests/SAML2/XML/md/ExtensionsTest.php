@@ -2,33 +2,35 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\alg\DigestMethod;
-use SAML2\XML\alg\SigningMethod;
-use SAML2\XML\Chunk;
-use SAML2\XML\mdattr\EntityAttributes;
-use SAML2\XML\mdrpi\PublicationInfo;
-use SAML2\XML\mdrpi\RegistrationInfo;
-use SAML2\XML\mdui\DiscoHints;
-use SAML2\XML\mdui\UIInfo;
-use SAML2\XML\shibmd\Scope;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\alg\DigestMethod;
+use SimpleSAML\SAML2\XML\alg\SigningMethod;
+use SimpleSAML\SAML2\XML\mdattr\EntityAttributes;
+use SimpleSAML\SAML2\XML\mdrpi\PublicationInfo;
+use SimpleSAML\SAML2\XML\mdrpi\RegistrationInfo;
+use SimpleSAML\SAML2\XML\mdui\DiscoHints;
+use SimpleSAML\SAML2\XML\mdui\UIInfo;
+use SimpleSAML\SAML2\XML\shibmd\Scope;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\md\ExtensionsTest.
  *
  * This class tests for currently supported metadata extensions.
  *
- * @covers \SAML2\XML\md\Extensions
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\Extensions
  * @package simplesamlphp/saml2
  */
 final class ExtensionsTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -36,22 +38,8 @@ final class ExtensionsTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:Extensions xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata">
-  <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">SomeScope</shibmd:Scope>
-  <mdrpi:RegistrationInfo xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" registrationAuthority="SomeAuthority"></mdrpi:RegistrationInfo>
-  <mdrpi:PublicationInfo xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" publisher="SomePublisher"></mdrpi:PublicationInfo>
-  <mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
-    <mdui:DisplayName xml:lang="en">Example</mdui:DisplayName>
-  </mdui:UIInfo>
-  <mdui:DiscoHints xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
-    <mdui:IPHint>127.0.0.1</mdui:IPHint>
-  </mdui:DiscoHints>
-  <alg:DigestMethod Algorithm="SomeAlgorithm" xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport"></alg:DigestMethod>
-  <alg:SigningMethod xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport" Algorithm="SomeOtherAlgorithm"
-  MinKeySize="1024" MaxKeySize="4096"></alg:SigningMethod>
-</md:Extensions>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_Extensions.xml'
         );
         $this->document->normalizeDocument();
     }

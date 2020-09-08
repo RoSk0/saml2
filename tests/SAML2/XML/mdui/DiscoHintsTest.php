@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\mdui;
+namespace SimpleSAML\SAML2\XML\mdui;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\Chunk;
-use SAML2\Utils;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\mdui\DiscoHintsTest
  *
- * @covers \SAML2\XML\mdui\DiscoHints
+ * @covers \SimpleSAML\SAML2\XML\mdui\DiscoHints
+ * @covers \SimpleSAML\SAML2\XML\mdui\AbstractMduiElement
  * @package simplesamlphp/saml2
  */
 final class DiscoHintsTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -26,16 +28,8 @@ final class DiscoHintsTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<mdui:DiscoHints xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
-  <mdui:IPHint>130.59.0.0/16</mdui:IPHint>
-  <mdui:IPHint>2001:620::0/96</mdui:IPHint>
-  <mdui:DomainHint>example.com</mdui:DomainHint>
-  <mdui:DomainHint>www.example.com</mdui:DomainHint>
-  <mdui:GeolocationHint>geo:47.37328,8.531126</mdui:GeolocationHint>
-  <mdui:GeolocationHint>geo:19.34343,12.342514</mdui:GeolocationHint>
-</mdui:DiscoHints>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/mdui_DiscoHints.xml'
         );
     }
 
@@ -66,10 +60,26 @@ XML
             ["geo:47.37328,8.531126", "geo:19.34343,12.342514"],
             $discoHints->getGeolocationHint()
         );
+        $this->assertFalse($discoHints->isEmptyElement());
         $this->assertEquals(
             $this->document->saveXML($this->document->documentElement),
             strval($discoHints)
         );
+    }
+
+
+    /**
+     * Adding an empty DiscoHints element should yield an empty element.
+     */
+    public function testMarshallingEmptyElement(): void
+    {
+        $mduins = DiscoHints::NS;
+        $discohints = new DiscoHints([]);
+        $this->assertEquals(
+            "<mdui:DiscoHints xmlns:mdui=\"$mduins\"/>",
+            strval($discohints)
+        );
+        $this->assertTrue($discohints->isEmptyElement());
     }
 
 
@@ -107,7 +117,7 @@ XML
         $xml = $discoHints->toXML($document->documentElement);
 
         /** @var \DOMElement[] $discoElements */
-        $discoElements = Utils::xpQuery(
+        $discoElements = XMLUtils::xpQuery(
             $xml,
             '/root/*[local-name()=\'DiscoHints\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:ui\']'
         );

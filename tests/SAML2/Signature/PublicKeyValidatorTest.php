@@ -2,33 +2,37 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Signature;
+namespace SimpleSAML\SAML2\Signature;
 
 use Mockery;
+use Mockery\MockInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\NullLogger;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Certificate\Key;
-use SAML2\Certificate\KeyCollection;
-use SAML2\Certificate\KeyLoader;
-use SAML2\Configuration\IdentityProvider;
-use SAML2\Configuration\CertificateProvider;
-use SAML2\DOMDocumentFactory;
-use SAML2\Signature\PublicKeyValidator;
-use SAML2\SimpleTestLogger;
-use SAML2\Utilities\Certificate;
-use SAML2\XML\samlp\AbstractMessage;
-use SAML2\XML\samlp\Response;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Certificate\Key;
+use SimpleSAML\SAML2\Certificate\KeyCollection;
+use SimpleSAML\SAML2\Certificate\KeyLoader;
+use SimpleSAML\SAML2\Configuration\IdentityProvider;
+use SimpleSAML\SAML2\Configuration\CertificateProvider;
+use SimpleSAML\SAML2\Signature\PublicKeyValidator;
+use SimpleSAML\SAML2\SimpleTestLogger;
+use SimpleSAML\SAML2\Utilities\Certificate;
+use SimpleSAML\SAML2\XML\samlp\AbstractMessage;
+use SimpleSAML\SAML2\XML\samlp\Response;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
- * @covers \SAML2\Signature\PublicKeyValidator
+ * @covers \SimpleSAML\SAML2\Signature\PublicKeyValidator
  * @package simplesamlphp/saml2
  */
 final class PublicKeyValidatorTest extends MockeryTestCase
 {
-    private $mockSignedElement;
-    private $mockConfiguration;
+    /** @var \Mockery\MockInterface */
+    private MockInterface $mockSignedElement;
+
+    /** @var \Mockery\MockInterface */
+    private MockInterface $mockConfiguration;
 
 
     /**
@@ -46,7 +50,7 @@ final class PublicKeyValidatorTest extends MockeryTestCase
      * @group signature
      * @return void
      */
-    public function it_cannot_validate_if_no_keys_can_be_loaded(): void
+    public function itCannotValidateIfNoKeysCanBeLoaded(): void
     {
         $keyloaderMock = $this->prepareKeyLoader(new KeyCollection());
         $validator = new PublicKeyValidator(new NullLogger(), $keyloaderMock);
@@ -60,7 +64,7 @@ final class PublicKeyValidatorTest extends MockeryTestCase
      * @group signature
      * @return void
      */
-    public function it_will_validate_when_keys_can_be_loaded(): void
+    public function itWillValidateWhenKeysCanBeLoaded(): void
     {
         $keyloaderMock = $this->prepareKeyLoader(new KeyCollection([1, 2]));
         $validator = new PublicKeyValidator(new NullLogger(), $keyloaderMock);
@@ -74,7 +78,7 @@ final class PublicKeyValidatorTest extends MockeryTestCase
      * @group signature
      * @return void
      */
-    public function non_X509_keys_are_not_used_for_validation(): void
+    public function nonX509KeysAreNotUsedForValidation(): void
     {
         $controlledCollection = new KeyCollection([
             new Key(['type' => 'not_X509']),
@@ -98,7 +102,7 @@ final class PublicKeyValidatorTest extends MockeryTestCase
      * @group signature
      * @return void
      */
-    public function signed_message_with_valid_signature_is_validated_correctly(): void
+    public function signedMessageWithValidSignatureIsValidatedCorrectly(): void
     {
         $pattern = Certificate::CERTIFICATE_PATTERN;
         preg_match($pattern, PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY), $matches);
@@ -108,7 +112,9 @@ final class PublicKeyValidatorTest extends MockeryTestCase
 
         $doc = DOMDocumentFactory::fromFile(__DIR__ . '/response.xml');
         $response = Response::fromXML($doc->firstChild);
-        $response->setSigningKey(PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_SHA256, PEMCertificatesMock::PRIVATE_KEY));
+        $response->setSigningKey(
+            PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_SHA256, PEMCertificatesMock::PRIVATE_KEY)
+        );
         $response->setCertificates([PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY)]);
 
         // convert to signed response
@@ -120,7 +126,7 @@ final class PublicKeyValidatorTest extends MockeryTestCase
 
 
     /**
-     * @return \SAML2\Certificate\KeyLoader
+     * @return \SimpleSAML\SAML2\Certificate\KeyLoader
      */
     private function prepareKeyLoader($returnValue)
     {

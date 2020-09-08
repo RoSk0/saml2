@@ -2,31 +2,32 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
 use DOMDocument;
 use DOMElement;
 use Exception;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingElementException;
-use SAML2\Utils;
-use SAML2\XML\Chunk;
-use SAML2\XML\ds\Signature;
-use SAML2\XML\saml\Issuer;
-use SAML2\XML\samlp\AbstractMessage;
-use SAML2\XML\samlp\Extensions;
-use SAML2\XML\samlp\MessageFactory;
-use SAML2\XML\samlp\Response;
-use SAML2\XML\samlp\Status;
-use SAML2\XML\samlp\StatusCode;
 use SimpleSAML\Assert\AssertionFailedException;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\ds\Signature;
+use SimpleSAML\SAML2\XML\saml\Issuer;
+use SimpleSAML\SAML2\XML\samlp\AbstractMessage;
+use SimpleSAML\SAML2\XML\samlp\Extensions;
+use SimpleSAML\SAML2\XML\samlp\MessageFactory;
+use SimpleSAML\SAML2\XML\samlp\Response;
+use SimpleSAML\SAML2\XML\samlp\Status;
+use SimpleSAML\SAML2\XML\samlp\StatusCode;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingElementException;
+use SimpleSAML\XML\Utils as XMLUtils;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
- * @covers \SAML2\XML\samlp\AbstractMessage
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractMessage
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  * @package simplesamlphp/saml2
  */
 final class AbstractMessageTest extends MockeryTestCase
@@ -49,17 +50,23 @@ final class AbstractMessageTest extends MockeryTestCase
     Version="2.0">
   <saml:Issuer>https://gateway.stepup.org/saml20/sp/metadata</saml:Issuer>
   <saml:Subject>
-        <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">user@example.org</saml:NameID>
+    <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">user@example.org</saml:NameID>
   </saml:Subject>
 </samlp:AuthnRequest>
 AUTHNREQUEST
         );
 
-        $privateKey = PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_SHA256, PEMCertificatesMock::SELFSIGNED_PRIVATE_KEY);
+        $privateKey = PEMCertificatesMock::getPrivateKey(
+            XMLSecurityKey::RSA_SHA256,
+            PEMCertificatesMock::SELFSIGNED_PRIVATE_KEY
+        );
 
         $unsignedMessage = MessageFactory::fromXML($authnRequest->documentElement);
+        $this->assertEquals('2.0', $unsignedMessage->getVersion());
         $unsignedMessage->setSigningKey($privateKey);
-        $unsignedMessage->setCertificates([PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::SELFSIGNED_PUBLIC_KEY)]);
+        $unsignedMessage->setCertificates(
+            [PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::SELFSIGNED_PUBLIC_KEY)]
+        );
 
         $signedMessage = MessageFactory::fromXML($unsignedMessage->toXML());
         $signature = $signedMessage->getSignature();
@@ -122,7 +129,7 @@ AUTHNREQUEST
 
         $response = new Response($status, $issuer);
         $xml = $response->toXML();
-        $xml_issuer = Utils::xpQuery($xml, './saml_assertion:Issuer');
+        $xml_issuer = XMLUtils::xpQuery($xml, './saml_assertion:Issuer');
         $xml_issuer = $xml_issuer[0];
 
         $this->assertFalse($xml_issuer->hasAttributes());
@@ -138,7 +145,7 @@ AUTHNREQUEST
         );
         $response = new Response($status, $issuer);
         $xml = $response->toXML();
-        $xml_issuer = Utils::xpQuery($xml, './saml_assertion:Issuer');
+        $xml_issuer = XMLUtils::xpQuery($xml, './saml_assertion:Issuer');
         $xml_issuer = $xml_issuer[0];
         $this->assertInstanceOf(DOMElement::class, $xml_issuer);
 
@@ -152,7 +159,7 @@ AUTHNREQUEST
         $response = new Response($status);
         $xml = $response->toXML();
 
-        $this->assertEmpty(Utils::xpQuery($xml, './saml_assertion:Issuer'));
+        $this->assertEmpty(XMLUtils::xpQuery($xml, './saml_assertion:Issuer'));
     }
 
 
@@ -165,11 +172,16 @@ AUTHNREQUEST
         $response = new DOMDocument();
         $response->load(__DIR__ . '../../../Response/response.xml');
 
-        $privateKey = PEMCertificatesMock::getPrivateKey(XMLSecurityKey::RSA_SHA256, PEMCertificatesMock::SELFSIGNED_PRIVATE_KEY);
+        $privateKey = PEMCertificatesMock::getPrivateKey(
+            XMLSecurityKey::RSA_SHA256,
+            PEMCertificatesMock::SELFSIGNED_PRIVATE_KEY
+        );
 
         $unsignedMessage = MessageFactory::fromXML($response->documentElement);
         $unsignedMessage->setSigningKey($privateKey);
-        $unsignedMessage->setCertificates([PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::SELFSIGNED_PUBLIC_KEY)]);
+        $unsignedMessage->setCertificates(
+            [PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::SELFSIGNED_PUBLIC_KEY)]
+        );
 
         $signedMessage = MessageFactory::fromXML($unsignedMessage->toXML());
 
@@ -344,7 +356,7 @@ XML;
         $this->assertEquals(Constants::CONSENT_PRIOR, $message->getConsent());
 
         $messageElement = $message->toXML();
-        $xp = Utils::xpQuery($messageElement, '.');
+        $xp = XMLUtils::xpQuery($messageElement, '.');
 
         /** @psalm-var \DOMElement $query */
         $query = $xp[0];

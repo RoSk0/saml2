@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ds;
+namespace SimpleSAML\SAML2\XML\ds;
 
 use DOMElement;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\XML\Chunk;
-use SAML2\XML\xenc\EncryptedKey;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\xenc\EncryptedData;
+use SimpleSAML\SAML2\XML\xenc\EncryptedKey;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Chunk;
 
 /**
  * Class representing a ds:KeyInfo element.
@@ -22,7 +24,7 @@ final class KeyInfo extends AbstractDsElement
      *
      * @var string|null
      */
-    protected $Id = null;
+    protected ?string $Id = null;
 
     /**
      * The various key information elements.
@@ -30,15 +32,15 @@ final class KeyInfo extends AbstractDsElement
      * Array with various elements describing this key.
      * Unknown elements will be represented by \SAML2\XML\Chunk.
      *
-     * @var (\SAML2\XML\Chunk|\SAML2\XML\ds\KeyName|\SAML2\XML\ds\X509Data|\SAML2\XML\xenc\EncryptedKey)[]
+     * @var (\SimpleSAML\XML\Chunk|\SimpleSAML\SAML2\XML\ds\KeyName|\SimpleSAML\SAML2\XML\ds\X509Data|\SimpleSAML\SAML2\XML\xenc\EncryptedKey)[]
      */
-    protected $info = [];
+    protected array $info = [];
 
 
     /**
      * Initialize a KeyInfo element.
      *
-     * @param (\SAML2\XML\Chunk|\SAML2\XML\ds\KeyName|\SAML2\XML\ds\X509Data|\SAML2\XML\xenc\EncryptedKey)[] $info
+     * @param (\SimpleSAML\XML\Chunk|\SimpleSAML\SAML2\XML\ds\KeyName|\SimpleSAML\SAML2\XML\ds\X509Data|\SimpleSAML\SAML2\XML\xenc\EncryptedKey)[] $info
      * @param string|null $Id
      */
     public function __construct(array $info, $Id = null)
@@ -74,7 +76,7 @@ final class KeyInfo extends AbstractDsElement
     /**
      * Collect the value of the info-property
      *
-     * @return (\SAML2\XML\Chunk|\SAML2\XML\ds\KeyName|\SAML2\XML\ds\X509Data|\SAML2\XML\xenc\EncryptedKey)[]
+     * @return (\SimpleSAML\XML\Chunk|\SimpleSAML\SAML2\XML\ds\KeyName|\SimpleSAML\SAML2\XML\ds\X509Data|\SimpleSAML\SAML2\XML\xenc\EncryptedKey)[]
      */
     public function getInfo(): array
     {
@@ -85,7 +87,7 @@ final class KeyInfo extends AbstractDsElement
     /**
      * Set the value of the info-property
      *
-     * @param (\SAML2\XML\Chunk|\SAML2\XML\ds\KeyName|\SAML2\XML\ds\X509Data|\SAML2\XML\xenc\EncryptedKey)[] $info
+     * @param (\SimpleSAML\XML\Chunk|\SimpleSAML\SAML2\XML\ds\KeyName|\SimpleSAML\SAML2\XML\ds\X509Data|\SimpleSAML\SAML2\XML\xenc\EncryptedKey)[] $info
      * @return void
      * @throws \SimpleSAML\Assert\AssertionFailedException  if $info contains
      *   anything other than KeyName, X509Data, EncryptedKey or Chunk
@@ -108,7 +110,7 @@ final class KeyInfo extends AbstractDsElement
      * @param \DOMElement $xml The XML element we should load
      * @return self
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -121,24 +123,33 @@ final class KeyInfo extends AbstractDsElement
         foreach ($xml->childNodes as $n) {
             if (!($n instanceof DOMElement)) {
                 continue;
-            } elseif ($n->namespaceURI !== self::NS) {
+            } elseif ($n->namespaceURI === self::NS) {
+                switch ($n->localName) {
+                    case 'KeyName':
+                        $info[] = KeyName::fromXML($n);
+                        break;
+                    case 'X509Data':
+                        $info[] = X509Data::fromXML($n);
+                        break;
+                    default:
+                        $info[] = new Chunk($n);
+                        break;
+                }
+            } elseif ($n->namespaceURI === Constants::NS_XENC) {
+                switch ($n->localName) {
+                    case 'EncryptedData':
+                        $info[] = EncryptedData::fromXML($n);
+                        break;
+                    case 'EncryptedKey':
+                        $info[] = EncryptedKey::fromXML($n);
+                        break;
+                    default:
+                        $info[] = new Chunk($n);
+                        break;
+                }
+            } else {
                 $info[] = new Chunk($n);
-                continue;
-            }
-
-            switch ($n->localName) {
-                case 'KeyName':
-                    $info[] = KeyName::fromXML($n);
-                    break;
-                case 'X509Data':
-                    $info[] = X509Data::fromXML($n);
-                    break;
-                case 'EncryptedKey':
-                    $info[] = EncryptedKey::fromXML($n);
-                    break;
-                default:
-                    $info[] = new Chunk($n);
-                    break;
+                break;
             }
         }
 

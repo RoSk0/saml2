@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ds;
+namespace SimpleSAML\SAML2\XML\ds;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XMLSecurity\XMLSecurityDSig;
 
 /**
  * Class \SAML2\XML\ds\KeyNameTest
  *
- * @covers \SAML2\XML\ds\KeyName
+ * @covers \SimpleSAML\SAML2\XML\ds\AbstractDsElement
+ * @covers \SimpleSAML\SAML2\XML\ds\KeyName
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -20,17 +22,15 @@ use SAML2\Utils;
 final class KeyNameTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
     /**
      * @return void
      */
     protected function setUp(): void
     {
-        $ns = KeyName::NS;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<ds:KeyName xmlns:ds="{$ns}">testkey</ds:KeyName>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/ds_KeyName.xml'
         );
     }
 

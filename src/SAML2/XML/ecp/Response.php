@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ecp;
+namespace SimpleSAML\SAML2\XML\ecp;
 
 use DOMElement;
 use InvalidArgumentException;
-use SAML2\Constants;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Exception\MissingAttributeException;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Exception\MissingAttributeException;
 
 /**
  * Class representing the ECP Response element.
@@ -23,7 +23,7 @@ final class Response extends AbstractEcpElement
      *
      * @var string
      */
-    protected $AssertionConsumerServiceURL;
+    protected string $AssertionConsumerServiceURL;
 
 
     /**
@@ -72,8 +72,8 @@ final class Response extends AbstractEcpElement
      * @param \DOMElement $xml The XML element we should load
      * @return self
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
-     * @throws \SAML2\Exception\MissingAttributeException if the supplied element is missing any of the mandatory attributes
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\MissingAttributeException if the supplied element is missing any of the mandatory attributes
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -83,11 +83,13 @@ final class Response extends AbstractEcpElement
         // Assert required attributes
         Assert::true(
             $xml->hasAttributeNS(Constants::NS_SOAP, 'mustUnderstand'),
-            'Missing SOAP-ENV:mustUnderstand attribute in <ecp:Response>.'
+            'Missing SOAP-ENV:mustUnderstand attribute in <ecp:Response>.',
+            MissingAttributeException::class
         );
         Assert::true(
             $xml->hasAttributeNS(Constants::NS_SOAP, 'actor'),
-            'Missing SOAP-ENV:actor attribute in <ecp:Response>.'
+            'Missing SOAP-ENV:actor attribute in <ecp:Response>.',
+            MissingAttributeException::class
         );
         Assert::true(
             $xml->hasAttribute('AssertionConsumerServiceURL'),

@@ -2,26 +2,25 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Assertion\Validation\ConstraintValidator;
+namespace SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator;
 
 use Mockery;
+use Mockery\MockInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use SAML2\Assertion\Validation\Result;
-use SAML2\Constants;
-use SAML2\XML\samlp\Response;
-use SAML2\XML\saml\SubjectConfirmation;
-use SAML2\XML\saml\SubjectConfirmationData;
+use SimpleSAML\SAML2\Assertion\Validation\Result;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\samlp\Response;
+use SimpleSAML\SAML2\XML\saml\SubjectConfirmation;
+use SimpleSAML\SAML2\XML\saml\SubjectConfirmationData;
 
 /**
- * @covers \SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationResponseToMatches
+ * @covers \SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationResponseToMatches
  * @package simplesamlphp/saml2
  */
 final class SubjectConfirmationResponseToMatchesTest extends MockeryTestCase
 {
-    /**
-     * @var \Mockery\MockInterface
-     */
-    private $response;
+    /** @var \Mockery\MockInterface */
+    private MockInterface $response;
 
 
     /**
@@ -40,7 +39,7 @@ final class SubjectConfirmationResponseToMatchesTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function when_the_response_responseto_is_null_the_subject_confirmation_is_valid(): void
+    public function whenTheResponseResponsetoIsNullTheSubjectConfirmationIsValid(): void
     {
         $this->response->shouldReceive('getInResponseTo')->andReturnNull();
         $subjectConfirmationData = new SubjectConfirmationData(null, null, null, 'someValue');
@@ -62,7 +61,7 @@ final class SubjectConfirmationResponseToMatchesTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function when_the_subjectconfirmation_responseto_is_null_the_subjectconfirmation_is_valid(): void
+    public function whenTheSubjectconfirmationResponsetoIsNullTheSubjectconfirmationIsValid(): void
     {
         $this->response->shouldReceive('getInResponseTo')->andReturn('someValue');
         $subjectConfirmationData = new SubjectConfirmationData();
@@ -84,7 +83,7 @@ final class SubjectConfirmationResponseToMatchesTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function when_the_subjectconfirmation_and_response_responseto_are_null_the_subjectconfirmation_is_valid(): void
+    public function whenTheSubjectconfirmationAndResponseResponsetoAreNullTheSubjectconfirmationIsValid(): void
     {
         $this->response->shouldReceive('getInResponseTo')->andReturnNull();
         $subjectConfirmationData = new SubjectConfirmationData();
@@ -106,7 +105,7 @@ final class SubjectConfirmationResponseToMatchesTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function when_the_subjectconfirmation_and_response_responseto_are_equal_the_subjectconfirmation_is_valid(): void
+    public function whenTheSubjectconfirmationAndResponseResponsetoAreEqualTheSubjectconfirmationIsValid(): void
     {
         $this->response->shouldReceive('getInResponseTo')->andReturn('theSameValue');
         $subjectConfirmationData = new SubjectConfirmationData(null, null, null, 'theSameValue');
@@ -128,7 +127,7 @@ final class SubjectConfirmationResponseToMatchesTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function when_the_subjectconfirmation_and_response_responseto_differ_the_subjectconfirmation_is_invalid(): void
+    public function whenTheSubjectconfirmationAndResponseResponsetoDifferTheSubjectconfirmationIsInvalid(): void
     {
         $this->response->shouldReceive('getInResponseTo')->andReturn('someValue');
         $subjectConfirmationData = new SubjectConfirmationData(null, null, null, 'anotherValue');

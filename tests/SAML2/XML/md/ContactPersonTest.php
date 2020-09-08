@@ -2,26 +2,28 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SAML2\XML\Chunk;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\XML\Chunk;
 
 /**
  * Tests for the ContactPerson class.
  *
- * @covers \SAML2\XML\md\ContactPerson
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\ContactPerson
  * @package simplesamlphp/saml2
  */
 final class ContactPersonTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -29,21 +31,8 @@ final class ContactPersonTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdNamespace = Constants::NS_MD;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<?xml version="1.0"?>
-<md:ContactPerson contactType="other" test:attr1="testval1" test:attr2="testval2" xmlns:md="{$mdNamespace}" xmlns:test="urn:test">
-  <md:Extensions>
-    <some:Ext xmlns:some="urn:mace:some:metadata:1.0">SomeExtension</some:Ext>
-  </md:Extensions>
-  <md:Company>Test Company</md:Company>
-  <md:GivenName>John</md:GivenName>
-  <md:SurName>Doe</md:SurName>
-  <md:EmailAddress>mailto:jdoe@test.company</md:EmailAddress>
-  <md:EmailAddress>mailto:john.doe@test.company</md:EmailAddress>
-  <md:TelephoneNumber>1-234-567-8901</md:TelephoneNumber>
-</md:ContactPerson>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_ContactPerson.xml'
         );
     }
 

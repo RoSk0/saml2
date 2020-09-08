@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Assertion\Validation\ConstraintValidator;
+namespace SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator;
 
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationMethod;
-use SAML2\Assertion\Validation\Result;
-use SAML2\Constants;
-use SAML2\XML\saml\SubjectConfirmation;
+use SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationMethod;
+use SimpleSAML\SAML2\Assertion\Validation\Result;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\saml\SubjectConfirmation;
 
 /**
- * @covers \SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationMethod
+ * @covers \SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationMethod
  * @package simplesamlphp/saml2
  */
 final class SubjectConfirmationMethodTest extends MockeryTestCase
@@ -21,7 +21,7 @@ final class SubjectConfirmationMethodTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function a_subject_confirmation_with_bearer_method_is_valid(): void
+    public function aSubjectConfirmationWithBearerMethodIsValid(): void
     {
         $subjectConfirmation = new SubjectConfirmation(Constants::CM_BEARER);
 
@@ -39,7 +39,7 @@ final class SubjectConfirmationMethodTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function a_subject_confirmation_with_holder_of_key_method_is_not_valid(): void
+    public function aSubjectConfirmationWithHolderOfKeyMethodIsNotValid(): void
     {
         $subjectConfirmation = new SubjectConfirmation(Constants::CM_HOK);
 

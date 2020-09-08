@@ -2,21 +2,23 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SAML2\SignedElementTestTrait;
-use SAML2\Utils;
-use SAML2\XML\ds\KeyInfo;
-use SAML2\XML\ds\KeyName;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\SAML2\SignedElementTestTrait;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\SAML2\XML\ds\KeyInfo;
+use SimpleSAML\SAML2\XML\ds\KeyName;
 
 /**
  * Tests for the AffiliationDescriptor class.
  *
- * @covers \SAML2\XML\md\AffiliationDescriptor
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMetadataDocument
+ * @covers \SimpleSAML\SAML2\XML\md\AffiliationDescriptor
  * @package simplesamlphp/saml2
  */
 final class AffiliationDescriptorTest extends TestCase
@@ -29,20 +31,9 @@ final class AffiliationDescriptorTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdNamespace = AffiliationDescriptor::NS;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:AffiliationDescriptor xmlns:md="{$mdNamespace}" ID="TheID" validUntil="2009-02-13T23:31:30Z" cacheDuration="PT5000S" affiliationOwnerID="TheOwner">
-  <md:AffiliateMember>Member</md:AffiliateMember>
-  <md:AffiliateMember>OtherMember</md:AffiliateMember>
-  <md:KeyDescriptor use="signing">
-    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-      <ds:KeyName>IdentityProvider.com SSO Key</ds:KeyName>
-    </ds:KeyInfo>
-  </md:KeyDescriptor>
-</md:AffiliationDescriptor>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_AffiliationDescriptor.xml'
         );
-
         $this->testedClass = AffiliationDescriptor::class;
     }
 
@@ -184,7 +175,8 @@ XML
     {
         $mdNamespace = AffiliationDescriptor::NS;
         $document = DOMDocumentFactory::fromString(<<<XML
-<md:AffiliationDescriptor xmlns:md="{$mdNamespace}" affiliationOwnerID="TheOwner" ID="TheID" validUntil="2009-02-13T23:31:30Z" cacheDuration="PT5000S">
+<md:AffiliationDescriptor xmlns:md="{$mdNamespace}" affiliationOwnerID="TheOwner" ID="TheID"
+    validUntil="2009-02-13T23:31:30Z" cacheDuration="PT5000S">
 </md:AffiliationDescriptor>
 XML
         );
@@ -201,9 +193,10 @@ XML
     {
         $mdNamespace = AffiliationDescriptor::NS;
         $document = DOMDocumentFactory::fromString(<<<XML
-<md:AffiliationDescriptor xmlns:md="{$mdNamespace}" affiliationOwnerID="TheOwner" ID="TheID" validUntil="2009-02-13T23:31:30Z" cacheDuration="PT5000S">
-    <md:AffiliateMember></md:AffiliateMember>
-    <md:AffiliateMember>OtherMember</md:AffiliateMember>
+<md:AffiliationDescriptor xmlns:md="{$mdNamespace}" affiliationOwnerID="TheOwner" ID="TheID"
+    validUntil="2009-02-13T23:31:30Z" cacheDuration="PT5000S">
+  <md:AffiliateMember></md:AffiliateMember>
+  <md:AffiliateMember>OtherMember</md:AffiliateMember>
 </md:AffiliationDescriptor>
 XML
         );
@@ -220,9 +213,10 @@ XML
     {
         $mdNamespace = AffiliationDescriptor::NS;
         $document = DOMDocumentFactory::fromString(<<<XML
-<md:AffiliationDescriptor xmlns:md="{$mdNamespace}" ID="TheID" validUntil="2009-02-13T23:31:30Z" cacheDuration="PT5000S">
-    <md:AffiliateMember>Member</md:AffiliateMember>
-    <md:AffiliateMember>OtherMember</md:AffiliateMember>
+<md:AffiliationDescriptor xmlns:md="{$mdNamespace}" ID="TheID"
+    validUntil="2009-02-13T23:31:30Z" cacheDuration="PT5000S">
+  <md:AffiliateMember>Member</md:AffiliateMember>
+  <md:AffiliateMember>OtherMember</md:AffiliateMember>
 </md:AffiliationDescriptor>
 XML
         );
@@ -239,6 +233,9 @@ XML
     public function testSerialization(): void
     {
         $ad = AffiliationDescriptor::fromXML($this->document->documentElement);
-        $this->assertEquals($this->document->saveXML($this->document->documentElement), strval(unserialize(serialize($ad))));
+        $this->assertEquals(
+            $this->document->saveXML($this->document->documentElement),
+            strval(unserialize(serialize($ad)))
+        );
     }
 }

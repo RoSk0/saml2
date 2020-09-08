@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Response\Validation\ConstraintValidator;
+namespace SimpleSAML\SAML2\Response\Validation\ConstraintValidator;
 
 use Mockery;
+use Mockery\MockInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use SAML2\Constants;
-use SAML2\Response\Validation\Result;
-use SAML2\Response\Validation\ConstraintValidator\IsSuccessful;
-use SAML2\XML\samlp\Status;
-use SAML2\XML\samlp\StatusCode;
-use SAML2\XML\samlp\StatusMessage;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\Response\Validation\Result;
+use SimpleSAML\SAML2\Response\Validation\ConstraintValidator\IsSuccessful;
+use SimpleSAML\SAML2\XML\samlp\Response;
+use SimpleSAML\SAML2\XML\samlp\Status;
+use SimpleSAML\SAML2\XML\samlp\StatusCode;
+use SimpleSAML\SAML2\XML\samlp\StatusMessage;
 
 /**
- * @covers \SAML2\Response\Validation\ConstraintValidator\IsSuccessful
+ * @covers \SimpleSAML\SAML2\Response\Validation\ConstraintValidator\IsSuccessful
  * @package simplesamlphp/saml2
  */
 final class IsSuccessfulTest extends MockeryTestCase
 {
-    /**
-     * @var \Mockery\MockInterface
-     */
-    private $response;
+    /** @var \Mockery\MockInterface */
+    private MockInterface $response;
 
 
     /**
@@ -30,7 +30,7 @@ final class IsSuccessfulTest extends MockeryTestCase
      */
     public function setUp(): void
     {
-        $this->response = Mockery::mock('SAML2\XML\samlp\Response');
+        $this->response = Mockery::mock(Response::class);
     }
 
 
@@ -39,7 +39,7 @@ final class IsSuccessfulTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function validating_a_successful_response_gives_a_valid_validation_result(): void
+    public function validatingASuccessfulResponseGivesAValidValidationResult(): void
     {
         $this->response->shouldReceive('isSuccess')->once()->andReturn(true);
 
@@ -57,7 +57,7 @@ final class IsSuccessfulTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function an_unsuccessful_response_is_not_valid_and_generates_a_proper_error_message(): void
+    public function anUnsuccessfulResponseIsNotValidAndGeneratesAProperErrorMessage(): void
     {
         $responseStatus = new Status(
             new StatusCode(

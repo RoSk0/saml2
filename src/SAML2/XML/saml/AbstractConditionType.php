@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
 use DOMElement;
-use SAML2\Constants;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
 
 /**
  * Abstract class to be implemented by all the conditions in this namespace
@@ -17,7 +17,7 @@ use SimpleSAML\Assert\Assert;
 abstract class AbstractConditionType extends AbstractSamlElement
 {
     /** @var string */
-    protected $value;
+    protected string $value;
 
 
     /**

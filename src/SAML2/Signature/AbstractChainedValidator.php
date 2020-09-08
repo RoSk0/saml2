@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Signature;
+namespace SimpleSAML\SAML2\Signature;
 
 use Exception;
 use Psr\Log\LoggerInterface;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Utils;
-use SAML2\XML\SignedElementInterface;
-use SAML2\Utilities\ArrayCollection;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\SAML2\XML\SignedElementInterface;
+use SimpleSAML\SAML2\Utilities\ArrayCollection;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 abstract class AbstractChainedValidator implements ChainedValidator
 {
     /**
      * @var \Psr\Log\LoggerInterface
      */
-    protected $logger;
+    protected LoggerInterface $logger;
 
 
     /**
      * Constructor for AbstractChainedValidator
      *
-     * @param LoggerInterface $logger
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(LoggerInterface $logger)
     {
@@ -33,8 +33,8 @@ abstract class AbstractChainedValidator implements ChainedValidator
     /**
      * BC compatible version of the signature check
      *
-     * @param \SAML2\XML\SignedElementInterface    $element
-     * @param \SAML2\Utilities\ArrayCollection $pemCandidates
+     * @param \SimpleSAML\SAML2\XML\SignedElementInterface    $element
+     * @param \SimpleSAML\SAML2\Utilities\ArrayCollection $pemCandidates
      *
      * @throws \Exception
      *

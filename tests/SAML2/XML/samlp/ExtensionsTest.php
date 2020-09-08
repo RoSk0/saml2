@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\Chunk;
-use SAML2\XML\saml\Attribute;
-use SAML2\XML\shibmd\Scope;
+use SimpleSAML\SAML2\XML\saml\Attribute;
+use SimpleSAML\SAML2\XML\shibmd\Scope;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Chunk;
 
 /**
  * Class \SAML2\XML\samlp\ExtensionsTest
  *
- * @covers \SAML2\XML\samlp\Extensions
+ * @covers \SimpleSAML\SAML2\XML\samlp\Extensions
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  * @package simplesamlphp/saml2
  */
 final class ExtensionsTest extends TestCase
 {
-    /**
-     * @var \DOMDocument
-     */
-    private $document;
+    /** @var \DOMDocument */
+    private DOMDocument $document;
 
 
     /**
@@ -30,14 +30,8 @@ final class ExtensionsTest extends TestCase
      */
     public function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<samlp:Extensions xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
-  <myns:AttributeList xmlns:myns="urn:mynamespace">
-    <myns:Attribute name="UserName" value=""/>
-  </myns:AttributeList>
-  <ExampleElement name="AnotherExtension" />
-</samlp:Extensions>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_Extensions.xml'
         );
     }
 

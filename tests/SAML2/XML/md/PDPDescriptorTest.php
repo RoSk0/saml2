@@ -2,29 +2,33 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Tests for md:PDPDescriptor
  *
- * @covers \SAML2\XML\md\PDPDescriptor
+ * @covers \SimpleSAML\SAML2\XML\md\PDPDescriptor
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMetadataDocument
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractRoleDescriptor
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
  * @package simplesamlphp/saml2
  */
 final class PDPDescriptorTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
-    /** @var \SAML2\XML\md\AuthzService */
-    protected $authzService;
+    /** @var \SimpleSAML\SAML2\XML\md\AuthzService */
+    protected AuthzService $authzService;
 
-    /** @var \SAML2\XML\md\AssertionIDRequestService */
-    protected $assertionIDRequestService;
+    /** @var \SimpleSAML\SAML2\XML\md\AssertionIDRequestService */
+    protected AssertionIDRequestService $assertionIDRequestService;
 
 
     /**
@@ -32,16 +36,8 @@ final class PDPDescriptorTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdns = Constants::NS_MD;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:PDPDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:md="{$mdns}">
-  <md:AuthzService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
-  <md:AssertionIDRequestService Binding="urn:oasis:names:tc:SAML:2.0:bindings:URI" Location="https://IdentityProvider.com/SAML/AA/URI"/>
-  <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</md:NameIDFormat>
-  <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
-  <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
-</md:PDPDescriptor>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_PDPDescriptor.xml'
         );
 
         $this->authzService = new AuthzService(
@@ -213,7 +209,8 @@ XML
         $mdns = Constants::NS_MD;
         $document = DOMDocumentFactory::fromString(<<<XML
 <md:PDPDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:md="{$mdns}">
-  <md:AuthzService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
+  <md:AuthzService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+      Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
 </md:PDPDescriptor>
 XML
         );

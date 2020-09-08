@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SAML2;
+namespace SimpleSAML\SAML2;
 
 use DOMDocument;
 use DOMElement;
@@ -10,22 +10,24 @@ use DOMNode;
 use DOMXPath;
 use Exception;
 use InvalidArgumentException;
-use RobRichards\XMLSecLibs\XMLSecEnc;
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Compat\ContainerInterface;
-use SAML2\Compat\ContainerSingleton;
-use SAML2\Exception\RuntimeException;
-use SAML2\XML\ds\KeyInfo;
-use SAML2\XML\ds\X509Certificate;
-use SAML2\XML\ds\X509Data;
-use SAML2\XML\md\KeyDescriptor;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Compat\ContainerInterface;
+use SimpleSAML\SAML2\Compat\ContainerSingleton;
+use SimpleSAML\SAML2\Exception\RuntimeException;
+use SimpleSAML\SAML2\XML\ds\KeyInfo;
+use SimpleSAML\SAML2\XML\ds\X509Certificate;
+use SimpleSAML\SAML2\XML\ds\X509Data;
+use SimpleSAML\SAML2\XML\md\KeyDescriptor;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XMLSecurity\XMLSecEnc;
+use SimpleSAML\XMLSecurity\XMLSecurityDSig;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Helper functions for the SAML2 library.
  *
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 class Utils
 {
@@ -58,7 +60,7 @@ class Utils
 
         /* Locate the XMLDSig Signature element to be used. */
         /** @var \DOMElement[] $signatureElement */
-        $signatureElement = self::xpQuery($root, './ds:Signature');
+        $signatureElement = XMLUtils::xpQuery($root, './ds:Signature');
         if (empty($signatureElement)) {
             /* We don't have a signature element ot validate. */
 
@@ -96,7 +98,7 @@ class Utils
 
         /* Now we extract all available X509 certificates in the signature element. */
         $certificates = [];
-        foreach (self::xpQuery($signatureElement, './ds:KeyInfo/ds:X509Data/ds:X509Certificate') as $certNode) {
+        foreach (XMLUtils::xpQuery($signatureElement, './ds:KeyInfo/ds:X509Data/ds:X509Certificate') as $certNode) {
             $certData = trim($certNode->textContent);
             $certData = str_replace(["\r", "\n", "\t", ' '], '', $certData);
             $certificates[] = $certData;
@@ -114,10 +116,10 @@ class Utils
     /**
      * Helper function to convert a XMLSecurityKey to the correct algorithm.
      *
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $key The key.
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $key The key.
      * @param string $algorithm The desired algorithm.
      * @param string $type Public or private key, defaults to public.
-     * @return \RobRichards\XMLSecLibs\XMLSecurityKey The new key.
+     * @return \SimpleSAML\XMLSecurity\XMLSecurityKey The new key.
      *
      * @throws \SimpleSAML\Assert\AssertionFailedException if assertions are false
      */
@@ -169,7 +171,7 @@ class Utils
      * An exception is thrown if we are unable to validate the signature.
      *
      * @param array $info The information returned by the validateElement() function.
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $key The publickey that should validate the Signature object.
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $key The publickey that should validate the Signature object.
      * @throws \Exception
      * @return void
      *
@@ -186,7 +188,7 @@ class Utils
          * @var \DOMElement[] $sigMethod
          * @var \DOMElement $objXMLSecDSig->sigNode
          */
-        $sigMethod = self::xpQuery($objXMLSecDSig->sigNode, './ds:SignedInfo/ds:SignatureMethod');
+        $sigMethod = XMLUtils::xpQuery($objXMLSecDSig->sigNode, './ds:SignedInfo/ds:SignatureMethod');
         if (empty($sigMethod)) {
             throw new Exception('Missing SignatureMethod element.');
         }
@@ -208,91 +210,9 @@ class Utils
 
 
     /**
-     * Do an XPath query on an XML node.
-     *
-     * @param \DOMNode $node  The XML node.
-     * @param string $query The query.
-     * @return \DOMNode[] Array with matching DOM nodes.
-     */
-    public static function xpQuery(DOMNode $node, string $query): array
-    {
-        static $xpCache = null;
-
-        if ($node instanceof DOMDocument) {
-            $doc = $node;
-        } else {
-            $doc = $node->ownerDocument;
-        }
-
-        if ($xpCache === null || !$xpCache->document->isSameNode($doc)) {
-            $xpCache = new DOMXPath($doc);
-            $xpCache->registerNamespace('soap-env', Constants::NS_SOAP);
-            $xpCache->registerNamespace('saml_protocol', Constants::NS_SAMLP);
-            $xpCache->registerNamespace('saml_assertion', Constants::NS_SAML);
-            $xpCache->registerNamespace('saml_metadata', Constants::NS_MD);
-            $xpCache->registerNamespace('ds', XMLSecurityDSig::XMLDSIGNS);
-            $xpCache->registerNamespace('xenc', XMLSecEnc::XMLENCNS);
-        }
-
-        $results = $xpCache->query($query, $node);
-        $ret = [];
-        for ($i = 0; $i < $results->length; $i++) {
-            $ret[$i] = $results->item($i);
-        }
-
-        return $ret;
-    }
-
-
-    /**
-     * Make an exact copy the specific \DOMElement.
-     *
-     * @param \DOMElement $element The element we should copy.
-     * @param \DOMElement|null $parent The target parent element.
-     * @return \DOMElement The copied element.
-     */
-    public static function copyElement(DOMElement $element, DOMElement $parent = null): DOMElement
-    {
-        if ($parent === null) {
-            $document = DOMDocumentFactory::create();
-        } else {
-            $document = $parent->ownerDocument;
-        }
-
-        $namespaces = [];
-        for ($e = $element; $e instanceof DOMNode; $e = $e->parentNode) {
-            foreach (Utils::xpQuery($e, './namespace::*') as $ns) {
-                $prefix = $ns->localName;
-                if ($prefix === 'xml' || $prefix === 'xmlns') {
-                    continue;
-                }
-                $uri = $ns->nodeValue;
-                if (!isset($namespaces[$prefix])) {
-                    $namespaces[$prefix] = $uri;
-                }
-            }
-        }
-
-        /** @var \DOMElement $newElement */
-        $newElement = $document->importNode($element, true);
-        if ($parent !== null) {
-            /* We need to append the child to the parent before we add the namespaces. */
-            $parent->appendChild($newElement);
-        }
-
-        foreach ($namespaces as $prefix => $uri) {
-            $newElement->setAttributeNS($uri, $prefix . ':__ns_workaround__', 'tmp');
-            $newElement->removeAttributeNS($uri, '__ns_workaround__');
-        }
-
-        return $newElement;
-    }
-
-
-    /**
      * Insert a Signature node.
      *
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $key The key we should use to sign the message.
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $key The key we should use to sign the message.
      * @param array $certificates The certificates we should add to the signature node.
      * @param \DOMElement $root The XML node we should sign.
      * @param \DOMNode $insertBefore  The XML element we should insert the signature element before.
@@ -344,7 +264,7 @@ class Utils
      * This is an internal helper function.
      *
      * @param \DOMElement $encryptedData The encrypted data.
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $inputKey The decryption key.
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $inputKey The decryption key.
      * @param array &$blacklist Blacklisted decryption algorithms.
      * @throws \Exception
      * @return \DOMElement The decrypted element.
@@ -503,7 +423,7 @@ class Utils
      * Decrypt an encrypted element.
      *
      * @param \DOMElement $encryptedData The encrypted data.
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $inputKey The decryption key.
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $inputKey The decryption key.
      * @param array $blacklist Blacklisted decryption algorithms.
      * @throws \Exception
      * @return \DOMElement The decrypted element.
@@ -527,117 +447,10 @@ class Utils
 
 
     /**
-     * Extract localized strings from a set of nodes.
-     *
-     * @param \DOMElement $parent The element that contains the localized strings.
-     * @param string $namespaceURI The namespace URI the localized strings should have.
-     * @param string $localName The localName of the localized strings.
-     * @return array Localized strings.
-     */
-    public static function extractLocalizedStrings(\DOMElement $parent, string $namespaceURI, string $localName): array
-    {
-        $ret = [];
-        foreach ($parent->childNodes as $node) {
-            if ($node->namespaceURI !== $namespaceURI || $node->localName !== $localName) {
-                continue;
-            } elseif (!($node instanceof DOMElement)) {
-                continue;
-            }
-
-            if ($node->hasAttribute('xml:lang')) {
-                $language = $node->getAttribute('xml:lang');
-            } else {
-                $language = 'en';
-            }
-            $ret[$language] = trim($node->textContent);
-        }
-
-        return $ret;
-    }
-
-
-    /**
-     * Extract strings from a set of nodes.
-     *
-     * @param \DOMElement $parent The element that contains the localized strings.
-     * @param string $namespaceURI The namespace URI the string elements should have.
-     * @param string $localName The localName of the string elements.
-     * @return array The string values of the various nodes.
-     */
-    public static function extractStrings(DOMElement $parent, string $namespaceURI, string $localName): array
-    {
-        $ret = [];
-        foreach ($parent->childNodes as $node) {
-            if ($node->namespaceURI !== $namespaceURI || $node->localName !== $localName) {
-                continue;
-            }
-            $ret[] = trim($node->textContent);
-        }
-
-        return $ret;
-    }
-
-
-    /**
-     * Append string element.
-     *
-     * @param \DOMElement $parent The parent element we should append the new nodes to.
-     * @param string $namespace The namespace of the created element.
-     * @param string $name The name of the created element.
-     * @param string $value The value of the element.
-     * @return \DOMElement The generated element.
-     */
-    public static function addString(
-        DOMElement $parent,
-        string $namespace,
-        string $name,
-        string $value
-    ): DOMElement {
-        $doc = $parent->ownerDocument;
-
-        $n = $doc->createElementNS($namespace, $name);
-        $n->appendChild($doc->createTextNode($value));
-        $parent->appendChild($n);
-
-        return $n;
-    }
-
-
-    /**
-     * Append string elements.
-     *
-     * @param \DOMElement $parent The parent element we should append the new nodes to.
-     * @param string $namespace The namespace of the created elements
-     * @param string $name The name of the created elements
-     * @param bool $localized Whether the strings are localized, and should include the xml:lang attribute.
-     * @param array $values The values we should create the elements from.
-     * @return void
-     */
-    public static function addStrings(
-        DOMElement $parent,
-        string $namespace,
-        string $name,
-        bool $localized,
-        array $values
-    ): void {
-        $doc = $parent->ownerDocument;
-
-        foreach ($values as $index => $value) {
-            $n = $doc->createElementNS($namespace, $name);
-            $n->appendChild($doc->createTextNode($value));
-            if ($localized) {
-                $n->setAttribute('xml:lang', $index);
-            }
-            $parent->appendChild($n);
-        }
-    }
-
-
-    /**
      * Create a KeyDescriptor with the given certificate.
      *
-     * @param string $x509Data The certificate, as a base64-encoded DER data.
-     * @return \SAML2\XML\md\KeyDescriptor The keydescriptor.
+     * @param string $x509Data The certificate, as a base64-encoded PEM data.
+     * @return \SimpleSAML\SAML2\XML\md\KeyDescriptor The keydescriptor.
      */
     public static function createKeyDescriptor(string $x509Data): KeyDescriptor
     {
@@ -654,55 +467,7 @@ class Utils
 
 
     /**
-     * This function converts a SAML2 timestamp on the form
-     * yyyy-mm-ddThh:mm:ss(\.s+)?Z to a UNIX timestamp. The sub-second
-     * part is ignored.
-     *
-     * Andreas comments:
-     *  I got this timestamp from Shibboleth 1.3 IdP: 2008-01-17T11:28:03.577Z
-     *  Therefore I added to possibility to have microseconds to the format.
-     * Added: (\.\\d{1,3})? to the regex.
-     *
-     * Note that we always require a 'Z' timezone for the dateTime to be valid.
-     * This is not in the SAML spec but that's considered to be a bug in the
-     * spec. See https://github.com/simplesamlphp/saml2/pull/36 for some
-     * background.
-     *
-     * @param string $time The time we should convert.
-     * @throws \Exception
-     * @return int Converted to a unix timestamp.
-     */
-    public static function xsDateTimeToTimestamp(string $time): int
-    {
-        $matches = [];
-
-        // We use a very strict regex to parse the timestamp.
-        $regex = '/^(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)T(\\d\\d):(\\d\\d):(\\d\\d)(?:\\.\\d{1,9})?Z$/D';
-        if (preg_match($regex, $time, $matches) == 0) {
-            throw new InvalidArgumentException(
-                'Invalid SAML2 timestamp passed to xsDateTimeToTimestamp: ' . $time
-            );
-        }
-
-        // Extract the different components of the time from the  matches in the regex.
-        // intval will ignore leading zeroes in the string.
-        $year   = intval($matches[1]);
-        $month  = intval($matches[2]);
-        $day    = intval($matches[3]);
-        $hour   = intval($matches[4]);
-        $minute = intval($matches[5]);
-        $second = intval($matches[6]);
-
-        // We use gmmktime because the timestamp will always be given
-        //in UTC.
-        $ts = gmmktime($hour, $minute, $second, $month, $day, $year);
-
-        return $ts;
-    }
-
-
-    /**
-     * @return \SAML2\Compat\ContainerInterface
+     * @return \SimpleSAML\SAML2\Compat\ContainerInterface
      */
     public static function getContainer(): ContainerInterface
     {

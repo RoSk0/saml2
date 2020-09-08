@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ds;
+namespace SimpleSAML\SAML2\XML\ds;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
-use SAML2\XML\Chunk;
 use SimpleSAML\Assert\AssertionFailedException;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\XMLSecurityDSig;
 
 /**
  * Class \SAML2\XML\ds\KeyInfoTest
  *
- * @covers \SAML2\XML\ds\KeyInfo
+ * @covers \SimpleSAML\SAML2\XML\ds\AbstractDsElement
+ * @covers \SimpleSAML\SAML2\XML\ds\KeyInfo
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -23,13 +25,13 @@ use SimpleSAML\TestUtils\PEMCertificatesMock;
 final class KeyInfoTest extends TestCase
 {
     /** @var string */
-    private $certificate;
+    private string $certificate;
 
     /** @var string[] */
-    private $certData;
+    private array $certData;
 
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -37,8 +39,6 @@ final class KeyInfoTest extends TestCase
      */
     public function setUp(): void
     {
-        $ns = KeyInfo::NS;
-
         $this->certificate = str_replace(
             [
                 '-----BEGIN CERTIFICATE-----',
@@ -63,17 +63,8 @@ final class KeyInfoTest extends TestCase
             PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::SELFSIGNED_PUBLIC_KEY)
         );
 
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<ds:KeyInfo xmlns:ds="{$ns}" Id="abc123">
-  <ds:KeyName>testkey</ds:KeyName>
-  <ds:X509Data>
-    <ds:X509Certificate>{$this->certificate}</ds:X509Certificate>
-    <ds:X509SubjectName>{$this->certData['name']}</ds:X509SubjectName>
-  </ds:X509Data>
-  <ds:KeySomething>Some unknown tag within the ds-namespace</ds:KeySomething>
-  <some>Chunk</some>
-</ds:KeyInfo>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/ds_KeyInfo.xml'
         );
     }
 
@@ -106,7 +97,7 @@ XML
         $this->assertInstanceOf(X509Data::class, $info[1]);
         $this->assertInstanceOf(Chunk::class, $info[2]);
         $this->assertInstanceOf(Chunk::class, $info[3]);
-        $this->assertEquals('abc123' , $keyInfo->getId());
+        $this->assertEquals('abc123', $keyInfo->getId());
 
         $this->assertEquals($this->document->saveXML($this->document->documentElement), strval($keyInfo));
     }
@@ -138,7 +129,7 @@ XML
         $this->assertInstanceOf(X509Data::class, $info[1]);
         $this->assertInstanceOf(Chunk::class, $info[2]);
         $this->assertInstanceOf(Chunk::class, $info[3]);
-        $this->assertEquals('abc123' , $keyInfo->getId());
+        $this->assertEquals('abc123', $keyInfo->getId());
     }
 
 

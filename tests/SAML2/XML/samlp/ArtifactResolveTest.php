@@ -2,37 +2,34 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\XML\saml\Issuer;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\SAML2\XML\saml\Issuer;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
- * @covers \SAML2\XML\samlp\ArtifactResolve
+ * @covers \SimpleSAML\SAML2\XML\samlp\ArtifactResolve
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractRequest
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractMessage
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  * @package simplesamlphp/saml2
  */
 final class ArtifactResolveTest extends TestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
+
 
     /**
      * @return void
      */
     public function setup(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<samlp:ArtifactResolve
-        xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-        xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-        ID="_6c3a4f8b9c2d" Version="2.0"
-        IssueInstant="2004-01-21T19:00:49Z">
-  <saml:Issuer>https://ServiceProvider.com/SAML</saml:Issuer>
-  <samlp:Artifact>AAQAADWNEw5VT47wcO4zX/iEzMmFQvGknDfws2ZtqSGdkNSbsW1cmVR0bzU=</samlp:Artifact>
-</samlp:ArtifactResolve>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_ArtifactResolve.xml'
         );
     }
 

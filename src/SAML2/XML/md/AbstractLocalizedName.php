@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use DOMElement;
 use InvalidArgumentException;
-use SAML2\Exception\InvalidDOMElementException;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
 
 /**
  * Abstract class implementing LocalizedNameType.
@@ -26,14 +26,14 @@ abstract class AbstractLocalizedName extends AbstractMdElement
      *
      * @var string
      */
-    protected $language;
+    protected string $language;
 
     /**
      * The localized string.
      *
      * @var string
      */
-    protected $value;
+    protected string $value;
 
 
     /**
@@ -55,7 +55,7 @@ abstract class AbstractLocalizedName extends AbstractMdElement
      * @param \DOMElement $xml
      * @return static
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {

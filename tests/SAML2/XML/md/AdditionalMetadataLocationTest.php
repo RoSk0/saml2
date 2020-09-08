@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
 
 /**
  * Tests for the AdditionalMetadataLocation class
  *
- * @covers \SAML2\XML\md\AdditionalMetadataLocation
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\AdditionalMetadataLocation
  * @package simplesamlphp/saml2
  */
 final class AdditionalMetadataLocationTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -26,10 +28,8 @@ final class AdditionalMetadataLocationTest extends TestCase
      */
     public function setUp(): void
     {
-        $ns = AdditionalMetadataLocation::NS;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:AdditionalMetadataLocation xmlns:md="{$ns}" namespace="TheNamespaceAttribute">LocationText</md:AdditionalMetadataLocation>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_AdditionalMetadataLocation.xml'
         );
     }
 
@@ -47,7 +47,10 @@ XML
         $this->assertEquals('TheNamespaceAttribute', $additionalMetadataLocation->getNamespace());
         $this->assertEquals('LocationText', $additionalMetadataLocation->getLocation());
 
-        $this->assertEquals($this->document->saveXML($this->document->documentElement), strval($additionalMetadataLocation));
+        $this->assertEquals(
+            $this->document->saveXML($this->document->documentElement),
+            strval($additionalMetadataLocation)
+        );
     }
 
 

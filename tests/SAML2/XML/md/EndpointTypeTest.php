@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Exception\MissingAttributeException;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Exception\MissingAttributeException;
 
 /**
  * Class \SAML2\XML\md\EndpointType
  *
- * @covers \SAML2\XML\md\EndpointType
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\EndpointType
  * @package simplesamlphp/saml2
  */
 final class EndpointTypeTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -28,12 +30,9 @@ final class EndpointTypeTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdNamespace = Constants::NS_MD;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:AttributeService xmlns:md="{$mdNamespace}" Binding="urn:something" Location="https://whatever/" ResponseLocation="https://foo.bar/" xmlns:test="urn:test" test:attr="value" />
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_AttributeService.xml'
         );
-
     }
 
 

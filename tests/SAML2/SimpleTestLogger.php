@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SAML2;
+namespace SimpleSAML\SAML2;
 
 use Psr\Log\AbstractLogger;
 
@@ -16,7 +16,7 @@ final class SimpleTestLogger extends AbstractLogger
     /**
      * @var array
      */
-    private $messages = [];
+    private array $messages = [];
 
 
     /**

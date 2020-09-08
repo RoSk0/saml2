@@ -2,16 +2,18 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\saml\ConditionsTest
  *
- * @covers \SAML2\XML\saml\Conditions
+ * @covers \SimpleSAML\SAML2\XML\saml\Conditions
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -19,7 +21,7 @@ use SAML2\DOMDocumentFactory;
 final class ConditionsTest extends TestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -27,23 +29,8 @@ final class ConditionsTest extends TestCase
      */
     public function setup(): void
     {
-        $samlNamespace = Conditions::NS;
-        $xsiNamespace = Constants::NS_XSI;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:Conditions
-    xmlns:saml="{$samlNamespace}"
-    NotBefore="2014-07-17T01:01:18Z"
-    NotOnOrAfter="2024-01-18T06:21:48Z">
-  <saml:AudienceRestriction>
-    <saml:Audience>http://sp.example.com/demo1/metadata.php</saml:Audience>
-  </saml:AudienceRestriction>
-  <saml:OneTimeUse />
-  <saml:ProxyRestriction Count="2">
-    <saml:Audience>http://sp.example.com/demo2/metadata.php</saml:Audience>
-  </saml:ProxyRestriction>
-</saml:Conditions>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_Conditions.xml'
         );
     }
 

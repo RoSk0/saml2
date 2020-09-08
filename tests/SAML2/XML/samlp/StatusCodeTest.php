@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\samlp\StatusCodeTest
  *
- * @covers \SAML2\XML\samlp\StatusCode
+ * @covers \SimpleSAML\SAML2\XML\samlp\StatusCode
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -20,7 +22,7 @@ use SAML2\Utils;
 final class StatusCodeTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -28,15 +30,8 @@ final class StatusCodeTest extends TestCase
      */
     public function setUp(): void
     {
-        $nssamlp = StatusCode::NS;
-        $status_responder = Constants::STATUS_RESPONDER;
-        $status_request_denied = Constants::STATUS_REQUEST_DENIED;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<samlp:StatusCode xmlns:samlp="{$nssamlp}" Value="{$status_responder}">
-  <samlp:StatusCode Value="{$status_request_denied}"/>
-</samlp:StatusCode>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_StatusCode.xml'
         );
     }
 

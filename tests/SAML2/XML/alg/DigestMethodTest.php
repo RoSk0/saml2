@@ -2,18 +2,20 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\alg;
+namespace SimpleSAML\SAML2\XML\alg;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SAML2\XML\alg\DigestMethod;
-use SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\SAML2\XML\alg\DigestMethod;
+use SimpleSAML\SAML2\Utils;
 
 /**
  * Class \SAML2\XML\alg\DigestMethodTest
  *
- * @covers \SAML2\XML\alg\DigestMethod
+ * @covers \SimpleSAML\SAML2\XML\alg\AbstractAlgElement
+ * @covers \SimpleSAML\SAML2\XML\alg\DigestMethod
  *
  * @author Jaime Pérez Crespo, UNINETT AS <jaime.perez@uninett.no>
  * @package simplesamlphp/saml2
@@ -21,7 +23,7 @@ use SAML2\Utils;
 final class DigestMethodTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -29,8 +31,8 @@ final class DigestMethodTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(
-            '<alg:DigestMethod xmlns:alg="' . DigestMethod::NS . '" Algorithm="http://exampleAlgorithm" />'
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/alg_DigestMethod.xml'
         );
     }
 

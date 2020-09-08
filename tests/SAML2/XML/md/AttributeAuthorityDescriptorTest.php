@@ -2,32 +2,35 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\SignedElementTestTrait;
-use SAML2\XML\saml\Attribute;
-use SAML2\XML\saml\AttributeValue;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\SignedElementTestTrait;
+use SimpleSAML\SAML2\XML\saml\Attribute;
+use SimpleSAML\SAML2\XML\saml\AttributeValue;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Tests for the AttributeAuthorityDescriptor class.
  *
- * @covers \SAML2\XML\md\AttributeAuthorityDescriptor
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMetadataDocument
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractRoleDescriptor
+ * @covers \SimpleSAML\SAML2\XML\md\AttributeAuthorityDescriptor
  * @package simplesamlphp/saml2
  */
 final class AttributeAuthorityDescriptorTest extends TestCase
 {
     use SignedElementTestTrait;
 
-    /** @var \SAML2\XML\md\AttributeService */
-    protected $as;
+    /** @var \SimpleSAML\SAML2\XML\md\AttributeService */
+    protected AttributeService $as;
 
-    /** @var \SAML2\XML\md\AssertionIDRequestService */
-    protected $aidrs;
+    /** @var \SimpleSAML\SAML2\XML\md\AssertionIDRequestService */
+    protected AssertionIDRequestService $aidrs;
 
 
     /**
@@ -35,30 +38,9 @@ final class AttributeAuthorityDescriptorTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdns = Constants::NS_MD;
-        $samlns = Constants::NS_SAML;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:md="{$mdns}">
-  <md:AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
-  <md:AssertionIDRequestService Binding="urn:oasis:names:tc:SAML:2.0:bindings:URI" Location="https://IdentityProvider.com/SAML/AA/URI"/>
-  <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</md:NameIDFormat>
-  <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
-  <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
-  <md:AttributeProfile>profile1</md:AttributeProfile>
-  <md:AttributeProfile>profile2</md:AttributeProfile>
-  <saml:Attribute xmlns:saml="{$samlns}" Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.6" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="eduPersonPrincipalName"></saml:Attribute>
-  <saml:Attribute xmlns:saml="{$samlns}" Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.1" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="eduPersonAffiliation">
-    <saml:AttributeValue>member</saml:AttributeValue>
-    <saml:AttributeValue>student</saml:AttributeValue>
-    <saml:AttributeValue>faculty</saml:AttributeValue>
-    <saml:AttributeValue>employee</saml:AttributeValue>
-    <saml:AttributeValue>staff</saml:AttributeValue>
-  </saml:Attribute>
-</md:AttributeAuthorityDescriptor>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_AttributeAuthorityDescriptor.xml'
         );
-
         $this->as = new AttributeService(
             "urn:oasis:names:tc:SAML:2.0:bindings:SOAP",
             "https://IdentityProvider.com/SAML/AA/SOAP"
@@ -140,7 +122,7 @@ XML
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'At least one protocol must be supported by this SAML2\XML\md\AttributeAuthorityDescriptor.'
+            'At least one protocol must be supported by this SimpleSAML\SAML2\XML\md\AttributeAuthorityDescriptor.'
         );
         new AttributeAuthorityDescriptor([$this->as], []);
     }
@@ -225,7 +207,7 @@ XML
     public function testMarshallingWithWrongAssertionIDRequestService(): void
     {
         $this->expectException(AssertionFailedException::class);
-        $this->expectExceptionMessage('Expected an instance of SAML2\XML\md\AssertionIDRequestService. Got: string');
+        $this->expectExceptionMessage('Expected an instance of SimpleSAML\SAML2\XML\md\AssertionIDRequestService. Got: string');
 
         /** @psalm-suppress InvalidArgument */
         new AttributeAuthorityDescriptor([$this->as], ['x'], ['x']);
@@ -260,7 +242,7 @@ XML
     public function testMarshallingWithWrongAttribute(): void
     {
         $this->expectException(AssertionFailedException::class);
-        $this->expectExceptionMessage('Expected an instance of SAML2\XML\saml\Attribute. Got: string');
+        $this->expectExceptionMessage('Expected an instance of SimpleSAML\SAML2\XML\saml\Attribute. Got: string');
 
         /** @psalm-suppress InvalidArgument */
         new AttributeAuthorityDescriptor([$this->as], ['x'], [$this->aidrs], ['x'], ['x'], ['x']);
@@ -314,7 +296,8 @@ XML
         $mdns = Constants::NS_MD;
         $document = DOMDocumentFactory::fromString(<<<XML
 <md:AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:md="{$mdns}">
-  <md:AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
+  <md:AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+      Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
 </md:AttributeAuthorityDescriptor>
 XML
         );
@@ -341,7 +324,8 @@ XML
         $mdns = Constants::NS_MD;
         $document = DOMDocumentFactory::fromString(<<<XML
 <md:AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:md="{$mdns}">
-  <md:AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
+  <md:AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+      Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
   <md:NameIDFormat></md:NameIDFormat>
 </md:AttributeAuthorityDescriptor>
 XML
@@ -360,7 +344,8 @@ XML
         $mdns = Constants::NS_MD;
         $document = DOMDocumentFactory::fromString(<<<XML
 <md:AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:md="{$mdns}">
-  <md:AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
+  <md:AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+      Location="https://IdentityProvider.com/SAML/AA/SOAP"/>
   <md:AttributeProfile></md:AttributeProfile>
 </md:AttributeAuthorityDescriptor>
 XML

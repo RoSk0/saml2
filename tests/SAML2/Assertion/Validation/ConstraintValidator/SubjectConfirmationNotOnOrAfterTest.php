@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Assertion\Validation\ConstraintValidator;
+namespace SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator;
 
-use SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotOnOrAfter;
-use SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotBefore;
-use SAML2\Assertion\Validation\Result;
-use SAML2\Constants;
-use SAML2\ControlledTimeTest;
-use SAML2\XML\saml\SubjectConfirmation;
-use SAML2\XML\saml\SubjectConfirmationData;
+use SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotOnOrAfter;
+use SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotBefore;
+use SimpleSAML\SAML2\Assertion\Validation\Result;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\ControlledTimeTest;
+use SimpleSAML\SAML2\XML\saml\SubjectConfirmation;
+use SimpleSAML\SAML2\XML\saml\SubjectConfirmationData;
 
 /**
  * Because we're mocking a static call, we have to run it in separate processes so as to not contaminate the other
  * tests.
  *
- * @covers \SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotOnOrAfter
+ * @covers \SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\SubjectConfirmationNotOnOrAfter
  * @package simplesamlphp/saml2
  */
 final class SubjectConfirmationNotOnOrAfterTest extends ControlledTimeTest
@@ -29,7 +29,7 @@ final class SubjectConfirmationNotOnOrAfterTest extends ControlledTimeTest
      * @preserveGlobalState disabled
      * @return void
      */
-    public function timestamp_in_the_past_before_graceperiod_is_not_valid(): void
+    public function timestampInThePastBeforeGraceperiodIsNotValid(): void
     {
         $subjectConfirmationData = new SubjectConfirmationData(null, $this->currentTime - 60);
         $subjectConfirmation = new SubjectConfirmation(Constants::CM_HOK, null, $subjectConfirmationData);
@@ -52,7 +52,7 @@ final class SubjectConfirmationNotOnOrAfterTest extends ControlledTimeTest
      * @preserveGlobalState disabled
      * @return void
      */
-    public function time_within_graceperiod_is_valid(): void
+    public function timeWithinGraceperiodIsValid(): void
     {
         $subjectConfirmationData = new SubjectConfirmationData(null, $this->currentTime - 59);
         $subjectConfirmation = new SubjectConfirmation(Constants::CM_HOK, null, $subjectConfirmationData);
@@ -74,7 +74,7 @@ final class SubjectConfirmationNotOnOrAfterTest extends ControlledTimeTest
      * @preserveGlobalState disabled
      * @return void
      */
-    public function current_time_is_valid(): void
+    public function currentTimeIsValid(): void
     {
         $subjectConfirmationData = new SubjectConfirmationData(null, $this->currentTime);
         $subjectConfirmation = new SubjectConfirmation(Constants::CM_HOK, null, $subjectConfirmationData);

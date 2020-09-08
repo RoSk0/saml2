@@ -2,24 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\saml\IssuerTest
  *
- * @covers \SAML2\XML\saml\Issuer
+ * @covers \SimpleSAML\SAML2\XML\saml\Issuer
+ * @covers \SimpleSAML\SAML2\XML\saml\NameIDType
+ * @covers \SimpleSAML\SAML2\XML\saml\AbstractSamlElement
  * @package simplesamlphp/saml2
  */
 final class IssuerTest extends TestCase
 {
     /** @var \DOMDocument $document */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -27,15 +30,8 @@ final class IssuerTest extends TestCase
      */
     public function setup(): void
     {
-        $samlNamespace = Issuer::NS;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<saml:Issuer
-  xmlns:saml="{$samlNamespace}"
-  NameQualifier="TheNameQualifier"
-  SPNameQualifier="TheSPNameQualifier"
-  Format="TheFormat"
-  SPProvidedID="TheSPProvidedID">TheIssuerValue</saml:Issuer>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/saml_Issuer.xml'
         );
     }
 

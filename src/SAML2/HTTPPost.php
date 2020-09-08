@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SAML2;
+namespace SimpleSAML\SAML2;
 
 use DOMDocument;
 use Exception;
-use SAML2\XML\samlp\AbstractMessage;
-use SAML2\XML\samlp\AbstractRequest;
-use SAML2\XML\samlp\MessageFactory;
+use SimpleSAML\SAML2\XML\samlp\AbstractMessage;
+use SimpleSAML\SAML2\XML\samlp\AbstractRequest;
+use SimpleSAML\SAML2\XML\samlp\MessageFactory;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class which implements the HTTP-POST binding.
  *
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 class HTTPPost extends Binding
 {
@@ -22,7 +23,7 @@ class HTTPPost extends Binding
      *
      * Note: This function never returns.
      *
-     * @param \SAML2\XML\samlp\AbstractMessage $message The message we should send.
+     * @param \SimpleSAML\SAML2\XML\samlp\AbstractMessage $message The message we should send.
      * @return void
      */
     public function send(AbstractMessage $message): void
@@ -66,7 +67,7 @@ class HTTPPost extends Binding
      *
      * Throws an exception if it is unable receive the message.
      *
-     * @return \SAML2\XML\samlp\AbstractMessage The received message.
+     * @return \SimpleSAML\SAML2\XML\samlp\AbstractMessage The received message.
      * @throws \Exception
      */
     public function receive(): AbstractMessage

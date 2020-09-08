@@ -2,45 +2,45 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Compat;
+namespace SimpleSAML\SAML2\Compat;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Class \SAML2\Compat\MockContainer
+ * Class \SimpleSAML\SAML2\Compat\MockContainer
  */
 class MockContainer implements ContainerInterface
 {
     /**
      * @var string
      */
-    private $id = '123';
+    private string $id = '123';
 
     /**
      * @var array
      */
-    private $debugMessages = [];
+    private array $debugMessages = [];
 
     /**
      * @var string
      */
-    private $redirectUrl;
+    private string $redirectUrl;
 
     /**
      * @var array
      */
-    private $redirectData = [];
+    private array $redirectData = [];
 
     /**
      * @var string|null
      */
-    private $postRedirectUrl = null;
+    private ?string $postRedirectUrl = null;
 
     /**
      * @var array
      */
-    private $postRedirectData;
+    private array $postRedirectData;
 
 
     /**

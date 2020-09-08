@@ -2,38 +2,40 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Assertion;
+namespace SimpleSAML\SAML2\Assertion;
 
 use Mockery as m;
+use Mockery\MockInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
-use SAML2\Assertion\Transformer\TransformerInterface;
-use SAML2\Assertion\Validation\AssertionValidator;
-use SAML2\Assertion\Validation\SubjectConfirmationValidator;
-use SAML2\Configuration\IdentityProvider;
-use SAML2\Signature\Validator;
-use SAML2\Utilities\ArrayCollection;
-use SAML2\XML\saml\Assertion;
-use SAML2\XML\saml\EncryptedAssertion;
-use SAML2\Assertion\Exception\InvalidAssertionException;
+use SimpleSAML\SAML2\Assertion\Exception\InvalidAssertionException;
+use SimpleSAML\SAML2\Assertion\Transformer\TransformerInterface;
+use SimpleSAML\SAML2\Assertion\Validation\AssertionValidator;
+use SimpleSAML\SAML2\Assertion\Validation\SubjectConfirmationValidator;
+use SimpleSAML\SAML2\Configuration\IdentityProvider;
+use SimpleSAML\SAML2\Signature\Validator;
+use SimpleSAML\SAML2\Utilities\ArrayCollection;
+use SimpleSAML\SAML2\XML\saml\Assertion;
+use SimpleSAML\SAML2\XML\saml\EncryptedAssertion;
 use stdClass;
 
 /**
- * @covers \SAML2\Assertion\Processor
+ * @covers \SimpleSAML\SAML2\Assertion\Processor
  * @package simplesamlphp/saml2
  * @runTestsInSeparateProcesses
  */
 final class ProcessorTest extends MockeryTestCase
 {
     /**
-     * @var Processor
+     * @var \SimpleSAML\SAML2\Assertion\Processor
      */
-    private $processor;
+    private Processor $processor;
 
     /**
      * @var m\MockInterface&Decrypter
      */
-    private $decrypter;
+    private MockInterface $decrypter;
+
 
     protected function setUp(): void
     {
@@ -59,10 +61,10 @@ final class ProcessorTest extends MockeryTestCase
     /**
      * @test
      */
-    public function processor_correctly_encrypts_assertions(): void
+    public function processorCorrectlyEncryptsAssertions(): void
     {
-        $encryptedAssertion = \Mockery::mock(EncryptedAssertion::class);
-        $assertion = \Mockery::mock(Assertion::class);
+        $encryptedAssertion = m::mock(EncryptedAssertion::class);
+        $assertion = m::mock(Assertion::class);
 
         $testData = [
             [$assertion],
@@ -88,7 +90,7 @@ final class ProcessorTest extends MockeryTestCase
     /**
      * @test
      */
-    public function unsuported_assertions_are_rejected(): void
+    public function unsuportedAssertionsAreRejected(): void
     {
         $this->expectException(InvalidAssertionException::class);
         $this->expectExceptionMessage('The assertion must be of type: EncryptedAssertion or Assertion');

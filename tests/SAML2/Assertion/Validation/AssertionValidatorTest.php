@@ -2,65 +2,55 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Assertion\Exception\InvalidAssertionException;
-use SAML2\Assertion\ProcessorBuilder;
-use SAML2\Configuration\Destination;
-use SAML2\Configuration\IdentityProvider;
-use SAML2\Configuration\ServiceProvider;
-use SAML2\DOMDocumentFactory;
-use SAML2\Signature\Validator;
-use SAML2\XML\samlp\Response;
-use SAML2\XML\samlp\Status;
-use SAML2\XML\samlp\StatusCode;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use SimpleSAML\SAML2\Assertion\Exception\InvalidAssertionException;
+use SimpleSAML\SAML2\Assertion\Processor;
+use SimpleSAML\SAML2\Assertion\ProcessorBuilder;
+use SimpleSAML\SAML2\Configuration\Destination;
+use SimpleSAML\SAML2\Configuration\IdentityProvider;
+use SimpleSAML\SAML2\Configuration\ServiceProvider;
+use SimpleSAML\SAML2\Signature\Validator;
+use SimpleSAML\SAML2\XML\samlp\Response;
+use SimpleSAML\SAML2\XML\samlp\Status;
+use SimpleSAML\SAML2\XML\samlp\StatusCode;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Tests for the Assertion validators
  *
- * @covers \SAML2\Assertion\Validation\AssertionValidator
+ * @covers \SimpleSAML\SAML2\Assertion\Validation\AssertionValidator
  * @package simplesamlphp/saml2
  */
 final class AssertionValidatorTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
-    /**
-     * @var \SAML2\Assertion\Processor
-     */
-    protected $assertionProcessor;
+    /** @var \SimpleSAML\SAML2\Assertion\Processor */
+    protected Processor $assertionProcessor;
 
-    /**
-     * @var \SAML2\Configuration\IdentityProvider
-     */
-    protected $identityProviderConfiguration;
+    /** @var \SimpleSAML\SAML2\Configuration\IdentityProvider */
+    protected IdentityProvider $identityProviderConfiguration;
 
-    /**
-     * @var \SAML2\Configuration\ServiceProvider
-     */
-    protected $serviceProviderConfiguration;
+    /** @var \SimpleSAML\SAML2\Configuration\ServiceProvider */
+    protected ServiceProvider $serviceProviderConfiguration;
 
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
+    /** @var \Psr\Log\LoggerInterface */
     protected $logger;
 
-    /**
-     * @var \SAML2\Response\Validation\Validator
-     */
-    protected $validator;
+    /** @var \SimpleSAML\SAML2\Response\Validation\Validator */
+    protected Validator $validator;
 
-    /**
-     * @var \SAML2\Configuration\Destination
-     */
-    protected $destination;
+    /** @var \SimpleSAML\SAML2\Configuration\Destination */
+    protected Destination $destination;
 
-    /**
-     * @var \SAML2\xml\samlp\Response
-     */
-    protected $response;
+    /** @var \SimpleSAML\SAML2\xml\samlp\Response */
+    protected Response $response;
 
     /**
      * @return void
@@ -72,7 +62,7 @@ final class AssertionValidatorTest extends TestCase
         $audience = $spentity;
         $destination = 'https://example.org/authentication/sp/consume-assertion';
 
-        $this->logger = new \Psr\Log\NullLogger();
+        $this->logger = new NullLogger();
         $this->validator = new Validator($this->logger);
         $this->destination = new Destination($destination);
         $this->response = new Response(new Status(new StatusCode()));
@@ -138,7 +128,9 @@ XML
         $assertion->setValidAudiences(['https://example.edu/not-the-sp-entity-id']);
 
         $this->expectException(InvalidAssertionException::class);
-        $this->expectExceptionMessage('The configured Service Provider [urn:mace:feide.no:services:no.feide.moodle] is not a valid audience for the assertion. Audiences: [https://example.edu/not-the-sp-entity-id]"');
+        $this->expectExceptionMessage(
+            'The configured Service Provider [urn:mace:feide.no:services:no.feide.moodle] is not a valid audience for the assertion. Audiences: [https://example.edu/not-the-sp-entity-id]"'
+        );
         $result = $this->assertionProcessor->validateAssertion($assertion);
     }
 }

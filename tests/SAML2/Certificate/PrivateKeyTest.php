@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Certificate;
+namespace SimpleSAML\SAML2\Certificate;
 
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use SAML2\Certificate\PrivateKey;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\SAML2\Certificate\PrivateKey;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
 
 /**
- * @covers \SAML2\Certificate\PrivateKey
+ * @covers \SimpleSAML\SAML2\Certificate\PrivateKey
  * @package simplesamlphp/saml2
  */
 final class PrivateKeyTest extends MockeryTestCase
@@ -19,7 +19,7 @@ final class PrivateKeyTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function test_create_from_key(): void
+    public function testCreateFromKey(): void
     {
         $key = PEMCertificatesMock::getPlainPrivateKey();
 

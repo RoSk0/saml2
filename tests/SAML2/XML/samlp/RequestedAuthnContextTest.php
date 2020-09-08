@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\saml\AuthnContextClassRef;
-use SAML2\XML\saml\AuthnContextDeclRef;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\saml\AuthnContextClassRef;
+use SimpleSAML\SAML2\XML\saml\AuthnContextDeclRef;
+use SimpleSAML\XML\DOMDocumentFactory;
 
 /**
  * Class \SAML2\XML\samlp\RequestedAuthnContextTest
  *
- * @covers \SAML2\XML\samlp\RequestedAuthnContext
+ * @covers \SimpleSAML\SAML2\XML\samlp\RequestedAuthnContext
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  * @package simplesamlphp/saml2
  */
 final class RequestedAuthnContextTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -28,14 +30,8 @@ final class RequestedAuthnContextTest extends TestCase
      */
     public function setUp(): void
     {
-        $nssamlp = RequestedAuthnContext::NS;
-        $nssaml = AuthnContextDeclRef::NS;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<samlp:RequestedAuthnContext xmlns:samlp="{$nssamlp}" Comparison="exact">
-  <saml:AuthnContextDeclRef xmlns:saml="{$nssaml}">/relative/path/to/document.xml</saml:AuthnContextDeclRef>
-</samlp:RequestedAuthnContext>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_RequestedAuthnContext.xml'
         );
     }
 

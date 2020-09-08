@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML;
+namespace SimpleSAML\SAML2\XML;
 
 use DOMElement;
-use RobRichards\XMLSecLibs\XMLSecEnc;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Utils;
-use SAML2\XML\xenc\EncryptedData;
-use SAML2\XML\xenc\EncryptedKey;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\SAML2\XML\xenc\EncryptedData;
+use SimpleSAML\SAML2\XML\xenc\EncryptedKey;
+use SimpleSAML\XML\AbstractXMLElement;
+use SimpleSAML\XMLSecurity\XMLSecEnc;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Trait aggregating functionality for encrypted elements.
@@ -23,24 +24,24 @@ trait EncryptedElementTrait
     /**
      * The current encrypted ID.
      *
-     * @var \SAML2\XML\xenc\EncryptedData
+     * @var \SimpleSAML\SAML2\XML\xenc\EncryptedData
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    protected $encryptedData;
+    protected EncryptedData $encryptedData;
 
     /**
      * A list of encrypted keys.
      *
-     * @var \SAML2\XML\xenc\EncryptedKey[]
+     * @var \SimpleSAML\SAML2\XML\xenc\EncryptedKey[]
      */
-    protected $encryptedKeys = [];
+    protected array $encryptedKeys = [];
 
 
     /**
      * Constructor for encrypted elements.
      *
-     * @param \SAML2\XML\xenc\EncryptedData $encryptedData The EncryptedData object.
-     * @param \SAML2\XML\xenc\EncryptedKey[] $encryptedKeys An array of zero or more EncryptedKey objects.
+     * @param \SimpleSAML\SAML2\XML\xenc\EncryptedData $encryptedData The EncryptedData object.
+     * @param \SimpleSAML\SAML2\XML\xenc\EncryptedKey[] $encryptedKeys An array of zero or more EncryptedKey objects.
      */
     public function __construct(EncryptedData $encryptedData, array $encryptedKeys)
     {
@@ -49,16 +50,10 @@ trait EncryptedElementTrait
     }
 
 
-    abstract public function instantiateParentElement(DOMElement $parent = null): DOMElement;
-
-
-    abstract public function getQualifiedName(): string;
-
-
     /**
      * Get the EncryptedData object.
      *
-     * @return \SAML2\XML\xenc\EncryptedData
+     * @return \SimpleSAML\SAML2\XML\xenc\EncryptedData
      */
     public function getEncryptedData(): EncryptedData
     {
@@ -67,7 +62,7 @@ trait EncryptedElementTrait
 
 
     /**
-     * @param \SAML2\XML\xenc\EncryptedData $encryptedData
+     * @param \SimpleSAML\SAML2\XML\xenc\EncryptedData $encryptedData
      */
     protected function setEncryptedData(EncryptedData $encryptedData): void
     {
@@ -78,7 +73,7 @@ trait EncryptedElementTrait
     /**
      * Get the array of EncryptedKey objects
      *
-     * @return \SAML2\XML\xenc\EncryptedKey[]
+     * @return \SimpleSAML\SAML2\XML\xenc\EncryptedKey[]
      */
     public function getEncryptedKeys(): array
     {
@@ -87,7 +82,7 @@ trait EncryptedElementTrait
 
 
     /**
-     * @param \SAML2\XML\xenc\EncryptedKey[] $encryptedKeys
+     * @param \SimpleSAML\SAML2\XML\xenc\EncryptedKey[] $encryptedKeys
      */
     protected function setEncryptedKeys(array $encryptedKeys): void
     {
@@ -104,10 +99,10 @@ trait EncryptedElementTrait
     /**
      * Create an encrypted element from a given unencrypted element and a key.
      *
-     * @param \SAML2\XML\AbstractXMLElement $element
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $key
+     * @param \SimpleSAML\XML\AbstractXMLElement $element
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $key
      *
-     * @return \SAML2\XML\EncryptedElementInterface
+     * @return \SimpleSAML\SAML2\XML\EncryptedElementInterface
      * @throws \Exception
      */
     public static function fromUnencryptedElement(
@@ -127,6 +122,9 @@ trait EncryptedElementTrait
             case XMLSecurityKey::AES128_CBC:
             case XMLSecurityKey::AES192_CBC:
             case XMLSecurityKey::AES256_CBC:
+            case XMLSecurityKey::AES128_GCM:
+            case XMLSecurityKey::AES192_GCM:
+            case XMLSecurityKey::AES256_GCM:
                 $symmetricKey = $key;
                 break;
 
@@ -135,6 +133,7 @@ trait EncryptedElementTrait
             case XMLSecurityKey::RSA_SHA256:
             case XMLSecurityKey::RSA_SHA384:
             case XMLSecurityKey::RSA_SHA512:
+            case XMLSecurityKey::RSA_OAEP:
             case XMLSecurityKey::RSA_OAEP_MGF1P:
                 $symmetricKey = new XMLSecurityKey(XMLSecurityKey::AES128_CBC);
                 $symmetricKey->generateSessionKey();
@@ -148,7 +147,7 @@ trait EncryptedElementTrait
         }
 
         $dom = $enc->encryptNode($symmetricKey);
-        /** @var \SAML2\XML\xenc\EncryptedData $encData */
+        /** @var \SimpleSAML\SAML2\XML\xenc\EncryptedData $encData */
         $encData = EncryptedData::fromXML($dom);
         return new static($encData, []);
     }
@@ -156,9 +155,9 @@ trait EncryptedElementTrait
 
     /**
      * @inheritDoc
-     * @return \SAML2\XML\EncryptedElementInterface
+     * @return \SimpleSAML\SAML2\XML\EncryptedElementInterface
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -190,4 +189,10 @@ trait EncryptedElementTrait
 
         return $e;
     }
+
+
+    abstract public function instantiateParentElement(DOMElement $parent = null): DOMElement;
+
+
+    abstract public function getQualifiedName(): string;
 }

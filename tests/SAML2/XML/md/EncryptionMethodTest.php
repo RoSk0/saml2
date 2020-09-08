@@ -2,25 +2,29 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\XML\Chunk;
-use SAML2\Exception\MissingAttributeException;
 use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\Chunk;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Tests for the md:EncryptionMethod element.
  *
- * @covers \SAML2\XML\md\EncryptionMethod
+ * @covers \SimpleSAML\SAML2\XML\md\AbstractMdElement
+ * @covers \SimpleSAML\SAML2\XML\xenc\AbstractEncryptionMethod
+ * @covers \SimpleSAML\SAML2\XML\md\EncryptionMethod
  * @package simplesamlphp/saml2
  */
 final class EncryptionMethodTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -28,16 +32,8 @@ final class EncryptionMethodTest extends TestCase
      */
     protected function setUp(): void
     {
-        $mdns = Constants::NS_MD;
-        $xencns = Constants::NS_XENC;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<md:EncryptionMethod xmlns:md="{$mdns}" Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p">
-  <xenc:KeySize xmlns:xenc="{$xencns}">10</xenc:KeySize>
-  <xenc:OAEPParams xmlns:xenc="{$xencns}">9lWu3Q==</xenc:OAEPParams>
-  <other:Element xmlns:other="urn:other">Value</other:Element>
-</md:EncryptionMethod>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/md_EncryptionMethod.xml'
         );
     }
 
@@ -86,6 +82,31 @@ XML
             $document->saveXML($document->documentElement),
             strval($em)
         );
+    }
+
+
+    public function testMarshallingElementOrdering(): void
+    {
+        $alg = 'http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p';
+        $chunkXml = DOMDocumentFactory::fromString('<other:Element xmlns:other="urn:other">Value</other:Element>');
+        $chunk = Chunk::fromXML($chunkXml->documentElement);
+
+        $em = new EncryptionMethod($alg, 10, '9lWu3Q==', [$chunk]);
+
+        // Marshall it to a \DOMElement
+        $emElement = $em->toXML();
+
+        // Test for a KeySize
+        $keySizeElements = XMLUtils::xpQuery($emElement, './xenc:KeySize');
+        $this->assertCount(1, $keySizeElements);
+        $this->assertEquals('10', $keySizeElements[0]->textContent);
+
+        // Test ordering of EncryptionMethod contents
+        $emElements = XMLUtils::xpQuery($emElement, './xenc:KeySize/following-sibling::*');
+
+        $this->assertCount(2, $emElements);
+        $this->assertEquals('xenc:OAEPParams', $emElements[0]->tagName);
+        $this->assertEquals('other:Element', $emElements[1]->tagName);
     }
 
 

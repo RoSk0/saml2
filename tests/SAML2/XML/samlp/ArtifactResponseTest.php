@@ -2,24 +2,28 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\XML\saml\Issuer;
-use SAML2\XML\samlp\Status;
-use SAML2\XML\samlp\StatusCode;
-use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\saml\Issuer;
+use SimpleSAML\SAML2\XML\samlp\Status;
+use SimpleSAML\SAML2\XML\samlp\StatusCode;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
- * @covers \SAML2\XML\samlp\ArtifactResponse
+ * @covers \SimpleSAML\SAML2\XML\samlp\ArtifactResponse
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractStatusResponse
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractMessage
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  * @package simplesamlphp/saml2
  */
 final class ArtifactResponseTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -27,32 +31,8 @@ final class ArtifactResponseTest extends TestCase
      */
     public function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<samlp:ArtifactResponse
-    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-    ID="_d84a49e5958803dedcff4c984c2b0d95"
-    Version="2.0"
-    IssueInstant="2004-12-05T09:21:59Z"
-    InResponseTo="_cce4ee769ed970b501d680f697989d14">
-  <saml:Issuer>https://sp.example.com/SAML2</saml:Issuer>
-  <samlp:Status>
-    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
-  </samlp:Status>
-  <samlp:AuthnRequest
-      ID="_306f8ec5b618f361c70b6ffb1480eade"
-      Version="2.0"
-      IssueInstant="2004-12-05T09:21:59Z"
-      Destination="https://idp.example.org/SAML2/SSO/Artifact"
-      AssertionConsumerServiceURL="https://sp.example.com/SAML2/SSO/Artifact"
-      ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact">
-    <saml:Issuer>urn:example:other</saml:Issuer>
-    <samlp:NameIDPolicy
-        Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
-        AllowCreate="false"/>
-  </samlp:AuthnRequest>
-</samlp:ArtifactResponse>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_ArtifactResponse.xml'
         );
     }
 
@@ -64,7 +44,7 @@ XML
     {
         $issuer2 = new Issuer('urn:example:other');
         $id = '_306f8ec5b618f361c70b6ffb1480eade';
-        $issueInstant = Utils::xsDateTimeToTimestamp('2004-12-05T09:21:59Z');
+        $issueInstant = XMLUtils::xsDateTimeToTimestamp('2004-12-05T09:21:59Z');
         $destination = 'https://idp.example.org/SAML2/SSO/Artifact';
         $protocolBinding = Constants::BINDING_HTTP_ARTIFACT;
         $assertionConsumerServiceURL = 'https://sp.example.com/SAML2/SSO/Artifact';
@@ -103,11 +83,11 @@ XML
 
         $artifactResponseElement = $artifactResponse->toXML();
 
-        $artifactIssuer = Utils::xpQuery($artifactResponseElement, './saml_assertion:Issuer');
+        $artifactIssuer = XMLUtils::xpQuery($artifactResponseElement, './saml_assertion:Issuer');
         $this->assertCount(1, $artifactIssuer);
         $this->assertEquals($issuer1->getValue(), $artifactIssuer[0]->textContent);
 
-        $authnelement = Utils::xpQuery($artifactResponseElement, './saml_protocol:AuthnRequest/saml_assertion:Issuer');
+        $authnelement = XMLUtils::xpQuery($artifactResponseElement, './saml_protocol:AuthnRequest/saml_assertion:Issuer');
         $this->assertCount(1, $authnelement);
         $this->assertEquals($issuer2->getValue(), $authnelement[0]->textContent);
 

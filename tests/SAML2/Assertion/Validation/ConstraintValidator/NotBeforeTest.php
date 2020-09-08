@@ -2,34 +2,31 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Assertion\Validation\ConstraintValidator;
+namespace SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator;
 
 use Mockery;
-use SAML2\Assertion\Validation\ConstraintValidator\NotBefore;
-use SAML2\Assertion\Validation\Result;
-use SAML2\ControlledTimeTest;
-use SAML2\XML\saml\Assertion;
+use Mockery\MockInterface;
+use SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\NotBefore;
+use SimpleSAML\SAML2\Assertion\Validation\Result;
+use SimpleSAML\SAML2\ControlledTimeTest;
+use SimpleSAML\SAML2\XML\saml\Assertion;
 
 /**
  * Because we're mocking a static call, we have to run it in separate processes so as to no contaminate the other
  * tests.
  *
- * @covers \SAML2\Assertion\Validation\ConstraintValidator\NotBefore
+ * @covers \SimpleSAML\SAML2\Assertion\Validation\ConstraintValidator\NotBefore
  * @package simplesamlphp/saml2
  *
  * @runTestsInSeparateProcesses
  */
 final class NotBeforeTest extends ControlledTimeTest
 {
-    /**
-     * @var \Mockery\MockInterface
-     */
-    private $assertion;
+    /** @var \Mockery\MockInterface */
+    private MockInterface $assertion;
 
-    /**
-     * @var int
-     */
-    protected $currentTime = 1;
+    /** @var int */
+    protected int $currentTime = 1;
 
 
     /**
@@ -47,7 +44,7 @@ final class NotBeforeTest extends ControlledTimeTest
      * @test
      * @return void
      */
-    public function timestamp_in_the_future_beyond_graceperiod_is_not_valid(): void
+    public function timestampInTheFutureBeyondGraceperiodIsNotValid(): void
     {
         $this->assertion->shouldReceive('getNotBefore')->andReturn($this->currentTime + 61);
 
@@ -66,7 +63,7 @@ final class NotBeforeTest extends ControlledTimeTest
      * @test
      * @return void
      */
-    public function time_within_graceperiod_is_valid(): void
+    public function timeWithinGraceperiodIsValid(): void
     {
         $this->assertion->shouldReceive('getNotBefore')->andReturn($this->currentTime + 60);
 
@@ -84,7 +81,7 @@ final class NotBeforeTest extends ControlledTimeTest
      * @test
      * @return void
      */
-    public function current_time_is_valid(): void
+    public function currentTimeIsValid(): void
     {
         $this->assertion->shouldReceive('getNotBefore')->andReturn($this->currentTime);
 

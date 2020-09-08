@@ -2,46 +2,46 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
 use DOMElement;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Exception\TooManyElementsException;
-use SAML2\Utils;
-use SAML2\XML\saml\AuthnContextClassRef;
-use SAML2\XML\saml\AuthnContextDecl;
-use SAML2\XML\saml\AuthnContextDeclRef;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\saml\AuthnContextClassRef;
+use SimpleSAML\SAML2\XML\saml\AuthnContextDecl;
+use SimpleSAML\SAML2\XML\saml\AuthnContextDeclRef;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Exception\TooManyElementsException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class representing SAML2 AuthnContext
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
- * @package simplesamlphp
+ * @package simplesamlphp/saml2
  */
 final class AuthnContext extends AbstractSamlElement
 {
-    /** @var \SAML2\XML\saml\AuthnContextClassRef|null */
-    protected $authnContextClassRef = null;
+    /** @var \SimpleSAML\SAML2\XML\saml\AuthnContextClassRef|null */
+    protected ?AuthnContextClassRef $authnContextClassRef = null;
 
-    /** @var \SAML2\XML\saml\AuthnContextDeclRef|null */
-    protected $authnContextDeclRef = null;
+    /** @var \SimpleSAML\SAML2\XML\saml\AuthnContextDeclRef|null */
+    protected ?AuthnContextDeclRef $authnContextDeclRef = null;
 
-    /** @var \SAML2\XML\saml\AuthnContextDecl|null */
-    protected $authnContextDecl = null;
+    /** @var \SimpleSAML\SAML2\XML\saml\AuthnContextDecl|null */
+    protected ?AuthnContextDecl $authnContextDecl = null;
 
     /** @var string[] */
-    protected $authenticatingAuthorities = [];
+    protected array $authenticatingAuthorities = [];
 
 
     /**
      * Initialize an AuthnContext.
      *
-     * @param \SAML2\XML\saml\AuthnContextClassRef|null $authnContextClassRef
-     * @param \SAML2\XML\saml\AuthnContextDecl|null $authnContextDecl
-     * @param \SAML2\XML\saml\AuthnContextDeclRef|null $authnContextDeclRef
+     * @param \SimpleSAML\SAML2\XML\saml\AuthnContextClassRef|null $authnContextClassRef
+     * @param \SimpleSAML\SAML2\XML\saml\AuthnContextDecl|null $authnContextDecl
+     * @param \SimpleSAML\SAML2\XML\saml\AuthnContextDeclRef|null $authnContextDeclRef
      * @param string[] $authenticatingAuthorities
      * @throws \SimpleSAML\Assert\AssertionFailedException
      */
@@ -74,7 +74,7 @@ final class AuthnContext extends AbstractSamlElement
     /**
      * Collect the value of the authnContextClassRef-property
      *
-     * @return \SAML2\XML\saml\AuthnContextClassRef|null
+     * @return \SimpleSAML\SAML2\XML\saml\AuthnContextClassRef|null
      */
     public function getAuthnContextClassRef(): ?AuthnContextClassRef
     {
@@ -85,7 +85,7 @@ final class AuthnContext extends AbstractSamlElement
     /**
      * Set the value of the authnContextClassRef-property
      *
-     * @param \SAML2\XML\saml\AuthnContextClassRef|null $authnContextClassRef
+     * @param \SimpleSAML\SAML2\XML\saml\AuthnContextClassRef|null $authnContextClassRef
      * @return void
      */
     private function setAuthnContextClassRef(?AuthnContextClassRef $authnContextClassRef): void
@@ -97,7 +97,7 @@ final class AuthnContext extends AbstractSamlElement
     /**
      * Collect the value of the authnContextDeclRef-property
      *
-     * @return \SAML2\XML\saml\AuthnContextDeclRef|null
+     * @return \SimpleSAML\SAML2\XML\saml\AuthnContextDeclRef|null
      */
     public function getAuthnContextDeclRef(): ?AuthnContextDeclRef
     {
@@ -108,7 +108,7 @@ final class AuthnContext extends AbstractSamlElement
     /**
      * Set the value of the authnContextDeclRef-property
      *
-     * @param \SAML2\XML\saml\AuthnContextDeclRef|null $authnContextDeclRef
+     * @param \SimpleSAML\SAML2\XML\saml\AuthnContextDeclRef|null $authnContextDeclRef
      * @return void
      */
     private function setAuthnContextDeclRef(?AuthnContextDeclRef $authnContextDeclRef): void
@@ -120,7 +120,7 @@ final class AuthnContext extends AbstractSamlElement
     /**
      * Collect the value of the authnContextDecl-property
      *
-     * @return \SAML2\XML\saml\AuthnContextDecl|null
+     * @return \SimpleSAML\SAML2\XML\saml\AuthnContextDecl|null
      */
     public function getAuthnContextDecl(): ?AuthnContextDecl
     {
@@ -131,7 +131,7 @@ final class AuthnContext extends AbstractSamlElement
     /**
      * Set the value of the authnContextDecl-property
      *
-     * @param \SAML2\XML\saml\AuthnContextDecl|null $authnContextDecl
+     * @param \SimpleSAML\SAML2\XML\saml\AuthnContextDecl|null $authnContextDecl
      * @return void
      */
     private function setAuthnContextDecl(?AuthnContextDecl $authnContextDecl): void
@@ -170,9 +170,9 @@ final class AuthnContext extends AbstractSamlElement
      * Convert XML into a AuthnContext
      *
      * @param \DOMElement $xml The XML element we should load
-     * @return \SAML2\XML\saml\AuthnContext
+     * @return \SimpleSAML\SAML2\XML\saml\AuthnContext
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -203,7 +203,7 @@ final class AuthnContext extends AbstractSamlElement
             TooManyElementsException::class
         );
 
-        $authorities = Utils::extractStrings($xml, AbstractSamlElement::NS, 'AuthenticatingAuthority');
+        $authorities = XMLUtils::extractStrings($xml, AbstractSamlElement::NS, 'AuthenticatingAuthority');
 
         return new self(
             array_pop($authnContextClassRef),
@@ -236,7 +236,7 @@ final class AuthnContext extends AbstractSamlElement
             $this->authnContextDeclRef->toXML($e);
         }
 
-        Utils::addStrings($e, AbstractSamlElement::NS, 'saml:AuthenticatingAuthority', false, $this->authenticatingAuthorities);
+        XMLUtils::addStrings($e, AbstractSamlElement::NS, 'saml:AuthenticatingAuthority', false, $this->authenticatingAuthorities);
 
         return $e;
     }

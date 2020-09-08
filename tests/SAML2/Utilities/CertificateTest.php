@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Utilities;
+namespace SimpleSAML\SAML2\Utilities;
 
 use PHPUnit\Framework\TestCase;
-use SimpleSAML\TestUtils\PEMCertificatesMock;
+use SimpleSAML\XMLSecurity\TestUtils\PEMCertificatesMock;
 
 /**
- * @covers \SAML2\Utilities\Certificate
+ * @covers \SimpleSAML\SAML2\Utilities\Certificate
  * @package simplesamlphp/saml2
  */
 final class CertificateTest extends TestCase
@@ -20,9 +20,13 @@ final class CertificateTest extends TestCase
      */
     public function testValidStructure(): void
     {
-        $result = Certificate::hasValidStructure(PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY));
+        $result = Certificate::hasValidStructure(
+            PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::PUBLIC_KEY)
+        );
         $this->assertTrue($result);
-        $result = Certificate::hasValidStructure(PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::BROKEN_PUBLIC_KEY));
+        $result = Certificate::hasValidStructure(
+            PEMCertificatesMock::getPlainPublicKey(PEMCertificatesMock::BROKEN_PUBLIC_KEY)
+        );
         $this->assertFalse($result);
     }
 

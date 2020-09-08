@@ -2,33 +2,31 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\XML\EncryptedElementInterface;
-use SAML2\XML\EncryptedElementTrait;
-use SAML2\Utils;
-use SAML2\XML\AbstractXMLElement;
+use SimpleSAML\SAML2\XML\EncryptedElementInterface;
+use SimpleSAML\SAML2\XML\EncryptedElementTrait;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\XML\AbstractXMLElement;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Class handling encrypted assertions.
  *
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 class EncryptedAssertion extends AbstractSamlElement implements EncryptedElementInterface
 {
     use EncryptedElementTrait;
 
-    /**
-     * @var bool
-     */
-    protected $wasSignedAtConstruction = false;
+    /** @var bool */
+    protected bool $wasSignedAtConstruction = false;
 
 
     /**
      * @inheritDoc
      *
-     * @return \SAML2\XML\saml\Assertion
+     * @return \SimpleSAML\SAML2\XML\saml\Assertion
      * @throws \Exception
      *
      * @psalm-suppress MismatchingDocblockReturnType

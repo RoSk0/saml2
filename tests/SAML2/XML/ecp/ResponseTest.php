@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\ecp;
+namespace SimpleSAML\SAML2\XML\ecp;
 
 use DOMDocument;
 use DOMElement;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use SAML2\Constants;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SAML2\XML\ecp\Response;
-use SimpleSAML\Assert\AssertionFailedException;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\XML\ecp\Response;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
 
 /**
- * @covers \SAML2\XML\ecp\Response
+ * @covers \SimpleSAML\SAML2\XML\ecp\AbstractEcpElement
+ * @covers \SimpleSAML\SAML2\XML\ecp\Response
  * @package simplesamlphp/saml2
  */
 final class ResponseTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -29,11 +29,8 @@ final class ResponseTest extends TestCase
      */
     public function setUp(): void
     {
-        $ns = Response::NS;
-        $ns_soap = Constants::NS_SOAP;
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<ecp:Response xmlns:ecp="{$ns}" xmlns:SOAP-ENV="{$ns_soap}" SOAP-ENV:mustUnderstand="1" SOAP-ENV:actor="http://schemas.xmlsoap.org/soap/actor/next" AssertionConsumerServiceURL="https://example.com/ACS"/>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/ecp_Response.xml'
         );
     }
 
@@ -89,6 +86,8 @@ XML
         $response = Response::fromXML($this->document->documentElement);
 
         $this->assertEquals('https://example.com/ACS', $response->getAssertionConsumerServiceURL());
+
+        $this->assertEquals($this->document->saveXML($this->document->documentElement), strval($response));
     }
 
 
@@ -100,11 +99,13 @@ XML
         $document = $this->document->documentElement;
         $document->removeAttributeNS(Constants::NS_SOAP, 'mustUnderstand');
 
-        $this->expectException(AssertionFailedException::class);
+        $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing SOAP-ENV:mustUnderstand attribute in <ecp:Response>.');
 
         Response::fromXML($document);
     }
+
+
     /**
      * @return void
      */
@@ -113,7 +114,7 @@ XML
         $document = $this->document->documentElement;
         $document->removeAttributeNS(Constants::NS_SOAP, 'actor');
 
-        $this->expectException(AssertionFailedException::class);
+        $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing SOAP-ENV:actor attribute in <ecp:Response>.');
 
         Response::fromXML($document);

@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
 use DOMElement;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Exception\TooManyElementsException;
-use SAML2\Utils;
-use SAML2\XML\ds\Signature;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\XML\ds\Signature;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Exception\TooManyElementsException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class representing SAML 2 EntitiesDescriptor element.
  *
- * @package SimpleSAMLphp
+ * @package simplesamlphp/saml2
  */
 final class EntitiesDescriptor extends AbstractMetadataDocument
 {
@@ -23,25 +23,25 @@ final class EntitiesDescriptor extends AbstractMetadataDocument
      *
      * @var string|null
      */
-    protected $Name = null;
+    protected ?string $Name = null;
 
-    /** @var \SAML2\XML\md\EntityDescriptor[] */
-    protected $entityDescriptors = [];
+    /** @var \SimpleSAML\SAML2\XML\md\EntityDescriptor[] */
+    protected array $entityDescriptors = [];
 
-    /** @var \SAML2\XML\md\EntitiesDescriptor[] */
-    protected $entitiesDescriptors = [];
+    /** @var \SimpleSAML\SAML2\XML\md\EntitiesDescriptor[] */
+    protected array $entitiesDescriptors = [];
 
 
     /**
      * EntitiesDescriptor constructor.
      *
-     * @param \SAML2\XML\md\EntityDescriptor[] $entityDescriptors
-     * @param \SAML2\XML\md\EntitiesDescriptor[] $entitiesDescriptors
+     * @param \SimpleSAML\SAML2\XML\md\EntityDescriptor[] $entityDescriptors
+     * @param \SimpleSAML\SAML2\XML\md\EntitiesDescriptor[] $entitiesDescriptors
      * @param string|null $name
      * @param string|null $ID
      * @param int|null $validUntil
      * @param string|null $cacheDuration
-     * @param \SAML2\XML\md\Extensions|null $extensions
+     * @param \SimpleSAML\SAML2\XML\md\Extensions|null $extensions
      */
     public function __construct(
         array $entityDescriptors = [],
@@ -69,10 +69,10 @@ final class EntitiesDescriptor extends AbstractMetadataDocument
      * Initialize an EntitiesDescriptor from an existing XML document.
      *
      * @param \DOMElement $xml The XML element we should load.
-     * @return \SAML2\XML\md\EntitiesDescriptor
+     * @return \SimpleSAML\SAML2\XML\md\EntitiesDescriptor
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
-     * @throws \SAML2\Exception\TooManyElementsException if too many child-elements of a type are specified
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\TooManyElementsException if too many child-elements of a type are specified
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -94,7 +94,7 @@ final class EntitiesDescriptor extends AbstractMetadataDocument
             EntitiesDescriptor::getChildrenOfClass($xml),
             self::getAttribute($xml, 'Name', null),
             self::getAttribute($xml, 'ID', null),
-            $validUntil !== null ? Utils::xsDateTimeToTimestamp($validUntil) : null,
+            $validUntil !== null ? XMLUtils::xsDateTimeToTimestamp($validUntil) : null,
             self::getAttribute($xml, 'cacheDuration', null),
             !empty($extensions) ? $extensions[0] : null
         );
@@ -108,7 +108,7 @@ final class EntitiesDescriptor extends AbstractMetadataDocument
     /**
      * Get the EntitiesDescriptor children objects
      *
-     * @return \SAML2\XML\md\EntitiesDescriptor[]
+     * @return \SimpleSAML\SAML2\XML\md\EntitiesDescriptor[]
      */
     public function getEntitiesDescriptors(): array
     {
@@ -119,7 +119,7 @@ final class EntitiesDescriptor extends AbstractMetadataDocument
     /**
      * Set the EntitiesDescriptor children objects
      *
-     * @param \SAML2\XML\md\EntitiesDescriptor[] $entitiesDescriptors
+     * @param \SimpleSAML\SAML2\XML\md\EntitiesDescriptor[] $entitiesDescriptors
      */
     protected function setEntitiesDescriptors(array $entitiesDescriptors): void
     {
@@ -131,7 +131,7 @@ final class EntitiesDescriptor extends AbstractMetadataDocument
     /**
      * Get the EntityDescriptor children objects
      *
-     * @return \SAML2\XML\md\EntityDescriptor[]
+     * @return \SimpleSAML\SAML2\XML\md\EntityDescriptor[]
      */
     public function getEntityDescriptors(): array
     {
@@ -143,7 +143,7 @@ final class EntitiesDescriptor extends AbstractMetadataDocument
     /**
      * Set the EntityDescriptor children objects
      *
-     * @param \SAML2\XML\md\EntityDescriptor[] $entityDescriptors
+     * @param \SimpleSAML\SAML2\XML\md\EntityDescriptor[] $entityDescriptors
      */
     protected function setEntityDescriptors(array $entityDescriptors): void
     {

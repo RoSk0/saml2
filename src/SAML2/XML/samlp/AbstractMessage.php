@@ -2,25 +2,28 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use DOMElement;
 use Exception;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use SAML2\Constants;
-use SAML2\Utilities\Temporal;
-use SAML2\Utils;
-use SAML2\XML\ExtendableElementTrait;
-use SAML2\XML\saml\Issuer;
-use SAML2\XML\SignedElementInterface;
-use SAML2\XML\SignedElementTrait;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\SAML2\Utilities\Temporal;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\SAML2\XML\ExtendableElementTrait;
+use SimpleSAML\SAML2\XML\saml\Issuer;
+use SimpleSAML\SAML2\XML\SignedElementInterface;
+use SimpleSAML\SAML2\XML\SignedElementTrait;
+use SimpleSAML\XMLSecurity\XMLSecurityKey;
 
 /**
  * Base class for all SAML 2 messages.
  *
  * Implements what is common between the samlp:RequestAbstractType and
  * samlp:StatusResponseType element types.
+ *
+ * @package simplesamlphp/saml2
  */
 abstract class AbstractMessage extends AbstractSamlpElement implements SignedElementInterface
 {
@@ -34,49 +37,49 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
      *
      * @var string
      */
-    protected $id;
+    protected string $id;
 
     /**
      * The version of this message.
      *
      * @var string
      */
-    protected $version = '2.0';
+    protected string $version = '2.0';
 
     /**
      * The issue timestamp of this message, as an UNIX timestamp.
      *
      * @var int
      */
-    protected $issueInstant;
+    protected int $issueInstant;
 
     /**
      * The destination URL of this message if it is known.
      *
      * @var string|null
      */
-    protected $destination = null;
+    protected ?string $destination = null;
 
     /**
      * The destination URL of this message if it is known.
      *
      * @var string|null
      */
-    protected $consent;
+    protected ?string $consent;
 
     /**
      * The entity id of the issuer of this message, or null if unknown.
      *
-     * @var \SAML2\XML\saml\Issuer|null
+     * @var \SimpleSAML\SAML2\XML\saml\Issuer|null
      */
-    protected $issuer = null;
+    protected ?Issuer $issuer = null;
 
     /**
      * The RelayState associated with this message.
      *
      * @var string|null
      */
-    protected $relayState = null;
+    protected ?string $relayState = null;
 
     /**
      * The \DOMDocument we are currently building.
@@ -84,37 +87,30 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
      * This variable is used while generating XML from this message. It holds the
      * \DOMDocument of the XML we are generating.
      *
-     * @var \DOMDocument
+     * @var \DOMDocument|null
      */
-    protected $document;
+    protected ?DOMDocument $document = null;
 
-    /**
-     * @var bool
-     */
-    protected $messageContainedSignatureUponConstruction = false;
+    /** @var bool */
+    protected bool $messageContainedSignatureUponConstruction = false;
 
     /**
      * Available methods for validating this message.
      *
      * @var array
      */
-    private $validators = [];
-
-    /**
-     * @var null|string
-     */
-    private $signatureMethod = null;
+    private array $validators = [];
 
 
     /**
      * Initialize a message.
      *
-     * @param \SAML2\XML\saml\Issuer|null $issuer
+     * @param \SimpleSAML\SAML2\XML\saml\Issuer|null $issuer
      * @param string|null $id
      * @param int|null $issueInstant
      * @param string|null $destination
      * @param string|null $consent
-     * @param \SAML2\XML\samlp\Extensions $extensions
+     * @param \SimpleSAML\SAML2\XML\samlp\Extensions $extensions
      * @param string|null $relayState
      *
      * @throws \Exception
@@ -165,7 +161,7 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
      * signature we can validate. An exception is thrown if the signature
      * validation fails.
      *
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $key The key we should check against
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $key The key we should check against
      * @throws \Exception
      * @return bool true on success, false when we don't have a signature
      */
@@ -186,7 +182,7 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
                 /* We were able to validate the message with this validator. */
 
                 return true;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $exceptions[] = $e;
             }
         }
@@ -288,7 +284,7 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
      * Get the given consent for this message.
      * Most likely (though not required) a value of urn:oasis:names:tc:SAML:2.0:consent.
      *
-     * @see \SAML2\Constants
+     * @see \SimpleSAML\SAML2\Constants
      * @return string|null Consent
      */
     public function getConsent(): ?string
@@ -301,7 +297,7 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
      * Set the given consent for this message.
      * Most likely (though not required) a value of urn:oasis:names:tc:SAML:2.0:consent.
      *
-     * @see \SAML2\Constants
+     * @see \SimpleSAML\SAML2\Constants
      * @param string|null $consent
      * @return void
      */
@@ -314,7 +310,7 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
     /**
      * Retrieve the issuer if this message.
      *
-     * @return \SAML2\XML\saml\Issuer|null The issuer of this message, or NULL if no issuer is given
+     * @return \SimpleSAML\SAML2\XML\saml\Issuer|null The issuer of this message, or NULL if no issuer is given
      */
     public function getIssuer(): ?Issuer
     {
@@ -325,7 +321,7 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
     /**
      * Set the issuer of this message.
      *
-     * @param \SAML2\XML\saml\Issuer|null $issuer The new issuer of this message
+     * @param \SimpleSAML\SAML2\XML\saml\Issuer|null $issuer The new issuer of this message
      * @return void
      */
     private function setIssuer(Issuer $issuer = null): void
@@ -372,7 +368,7 @@ abstract class AbstractMessage extends AbstractSamlpElement implements SignedEle
      * Wrapper method over SignedElementTrait to use as a validator for enveloped XML signatures.
      *
      * @param array $_
-     * @param \RobRichards\XMLSecLibs\XMLSecurityKey $key The key to use to verify the enveloped signature.
+     * @param \SimpleSAML\XMLSecurity\XMLSecurityKey $key The key to use to verify the enveloped signature.
      *
      * @throws \Exception If there's no enveloped signature, or it fails to validate.
      */

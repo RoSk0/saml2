@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Response\Validation\ConstraintValidator;
+namespace SimpleSAML\SAML2\Response\Validation\ConstraintValidator;
 
 use Mockery;
+use Mockery\MockInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use SAML2\Configuration\Destination;
-use SAML2\Response\Validation\Result;
-use SAML2\Response\Validation\ConstraintValidator\DestinationMatches;
+use SimpleSAML\SAML2\Configuration\Destination;
+use SimpleSAML\SAML2\Response\Validation\Result;
+use SimpleSAML\SAML2\Response\Validation\ConstraintValidator\DestinationMatches;
+use SimpleSAML\SAML2\XML\samlp\Response;
 
 /**
- * @covers \SAML2\Response\Validation\ConstraintValidator\DestinationMatches
+ * @covers \SimpleSAML\SAML2\Response\Validation\ConstraintValidator\DestinationMatches
  * @package simplesamlphp/saml2
  */
 final class DestinationMatchesTest extends MockeryTestCase
 {
-    /**
-     * @var \Mockery\MockInterface
-     */
-    private $response;
+    /** @var \Mockery\MockInterface */
+    private MockInterface $response;
 
 
     /**
@@ -27,7 +27,7 @@ final class DestinationMatchesTest extends MockeryTestCase
      */
     public function setUp(): void
     {
-        $this->response = Mockery::mock('SAML2\XML\samlp\Response');
+        $this->response = Mockery::mock(Response::class);
     }
 
 
@@ -36,7 +36,7 @@ final class DestinationMatchesTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function a_response_is_valid_when_the_destinations_match(): void
+    public function aResponseIsValidWhenTheDestinationsMatch(): void
     {
         $expectedDestination = new Destination('VALID DESTINATION');
         $this->response->shouldReceive('getDestination')->once()->andReturn('VALID DESTINATION');
@@ -54,7 +54,7 @@ final class DestinationMatchesTest extends MockeryTestCase
      * @test
      * @return void
      */
-    public function a_response_is_not_valid_when_the_destinations_are_not_equal(): void
+    public function aResponseIsNotValidWhenTheDestinationsAreNotEqual(): void
     {
         $this->response->shouldReceive('getDestination')->once()->andReturn('FOO');
         $validator = new DestinationMatches(

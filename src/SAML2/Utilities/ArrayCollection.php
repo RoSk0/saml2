@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace SAML2\Utilities;
+namespace SimpleSAML\SAML2\Utilities;
 
 use ArrayIterator;
 use Closure;
-use SAML2\Exception\RuntimeException;
+use SimpleSAML\SAML2\Exception\RuntimeException;
 
 /**
  * Simple Array implementation of Collection.
@@ -16,7 +16,7 @@ class ArrayCollection implements Collection
     /**
      * @var array
      */
-    protected $elements;
+    protected array $elements;
 
 
     /**
@@ -97,7 +97,7 @@ class ArrayCollection implements Collection
     {
         if ($this->count() !== 1) {
             throw new RuntimeException(sprintf(
-                __CLASS__ . '::' . __METHOD__ . ' requires that the collection has exactly one element, '
+                __METHOD__ . ' requires that the collection has exactly one element, '
                 . '"%d" elements found',
                 $this->count()
             ));

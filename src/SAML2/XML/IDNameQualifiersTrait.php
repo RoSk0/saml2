@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML;
+namespace SimpleSAML\SAML2\XML;
 
 /**
  * Trait grouping common functionality for elements implementing BaseIDAbstractType and NameIDType.
@@ -20,7 +20,7 @@ trait IDNameQualifiersTrait
      *
      * @var string|null
      */
-    protected $NameQualifier = null;
+    protected ?string $NameQualifier = null;
 
     /**
      * Further qualifies an identifier with the name of a service provider or affiliation of providers.
@@ -30,7 +30,7 @@ trait IDNameQualifiersTrait
      *
      * @var string|null
      */
-    protected $SPNameQualifier = null;
+    protected ?string $SPNameQualifier = null;
 
 
     /**

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\md;
+namespace SimpleSAML\SAML2\XML\md;
 
-use SAML2\Constants;
-use SAML2\XML\AbstractXMLElement;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\AbstractXMLElement;
 
 /**
  * Abstract class to be implemented by all the classes in this namespace
@@ -20,4 +20,26 @@ abstract class AbstractMdElement extends AbstractXMLElement
 
     /** @var string */
     public const NS_PREFIX = 'md';
+
+
+    /**
+     * Get the namespace for the element.
+     *
+     * @return string
+     */
+    public static function getNamespaceURI(): string
+    {
+        return static::NS;
+    }
+
+
+    /**
+     * Get the namespace-prefix for the element.
+     *
+     * @return string
+     */
+    public static function getNamespacePrefix(): string
+    {
+        return static::NS_PREFIX;
+    }
 }

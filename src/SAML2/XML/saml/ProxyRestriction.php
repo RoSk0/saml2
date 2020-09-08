@@ -1,13 +1,17 @@
 <?php
 
-namespace SAML2\XML\saml;
+namespace SimpleSAML\SAML2\XML\saml;
 
 use DOMElement;
-use SAML2\Constants;
-use SAML2\Exception\InvalidDOMElementException;
-use SAML2\Utils;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Constants;
+use SimpleSAML\XML\Exception\InvalidDOMElementException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
+/**
+ * @author Tim van Dijen, <tvdijen@gmail.com>
+ * @package simplesamlphp/saml2
+ */
 final class ProxyRestriction extends AbstractConditionType
 {
     protected const XSI_TYPE = 'ProxyRestriction';
@@ -15,12 +19,12 @@ final class ProxyRestriction extends AbstractConditionType
     /**
      * @param string[]
      */
-    protected $audience = [];
+    protected array $audience = [];
 
     /**
      * @param int|null
      */
-    protected $count;
+    protected ?int $count;
 
 
     /**
@@ -91,7 +95,7 @@ final class ProxyRestriction extends AbstractConditionType
      * @param \DOMElement $xml
      * @return self
      *
-     * @throws \SAML2\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
+     * @throws \SimpleSAML\XML\Exception\InvalidDOMElementException if the qualified name of the supplied element is wrong
      */
     public static function fromXML(DOMElement $xml): object
     {
@@ -99,7 +103,7 @@ final class ProxyRestriction extends AbstractConditionType
         Assert::same($xml->namespaceURI, ProxyRestriction::NS, InvalidDOMElementException::class);
 
         $count = self::getIntegerAttribute($xml, 'Count', null);
-        $audience = Utils::extractStrings($xml, AbstractSamlElement::NS, 'Audience');
+        $audience = XMLUtils::extractStrings($xml, AbstractSamlElement::NS, 'Audience');
 
         return new self($audience, $count);
     }
@@ -119,7 +123,7 @@ final class ProxyRestriction extends AbstractConditionType
             $e->setAttribute('Count', $this->count);
         }
 
-        Utils::addStrings($e, AbstractSamlElement::NS, 'saml:Audience', false, $this->audience);
+        XMLUtils::addStrings($e, AbstractSamlElement::NS, 'saml:Audience', false, $this->audience);
 
         return $e;
     }

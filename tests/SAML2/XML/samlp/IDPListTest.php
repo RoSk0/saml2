@@ -2,19 +2,21 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\samlp;
+namespace SimpleSAML\SAML2\XML\samlp;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingElementException;
-use SAML2\Utils;
-use SAML2\XML\samlp\IDPEntry;
-use SAML2\XML\samlp\IDPList;
+use SimpleSAML\SAML2\XML\samlp\IDPEntry;
+use SimpleSAML\SAML2\XML\samlp\IDPList;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingElementException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\samlp\IDPListTest
  *
- * @covers \SAML2\XML\samlp\IDPList
+ * @covers \SimpleSAML\SAML2\XML\samlp\IDPList
+ * @covers \SimpleSAML\SAML2\XML\samlp\AbstractSamlpElement
  *
  * @author Tim van Dijen, <tvdijen@gmail.com>
  * @package simplesamlphp/saml2
@@ -22,7 +24,7 @@ use SAML2\XML\samlp\IDPList;
 final class IDPListTest extends TestCase
 {
     /** @var \DOMDocument */
-    private $document;
+    private DOMDocument $document;
 
 
     /**
@@ -30,15 +32,8 @@ final class IDPListTest extends TestCase
      */
     protected function setUp(): void
     {
-        $ns = IDPList::NS;
-
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<samlp:IDPList xmlns:samlp="{$ns}">
-  <samlp:IDPEntry ProviderID="urn:some:requester1" Name="testName1" Loc="testLoc1"/>
-  <samlp:IDPEntry ProviderID="urn:some:requester2" Name="testName2" Loc="testLoc2"/>
-  <samlp:GetComplete>https://some/location</samlp:GetComplete>
-</samlp:IDPList>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/samlp_IDPList.xml'
         );
     }
 
@@ -83,11 +78,11 @@ XML
         $listElement = $list->toXML();
 
         // Test for an IDPEntry
-        $listElements = Utils::xpQuery($listElement, './saml_protocol:IDPEntry');
+        $listElements = XMLUtils::xpQuery($listElement, './saml_protocol:IDPEntry');
         $this->assertCount(2, $listElements);
 
         // Test ordering of IDPList contents
-        $listElements = Utils::xpQuery($listElement, './saml_protocol:IDPEntry/following-sibling::*');
+        $listElements = XMLUtils::xpQuery($listElement, './saml_protocol:IDPEntry/following-sibling::*');
         $this->assertCount(2, $listElements);
         $this->assertEquals('samlp:IDPEntry', $listElements[0]->tagName);
         $this->assertEquals('samlp:GetComplete', $listElements[1]->tagName);

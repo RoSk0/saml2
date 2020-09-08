@@ -2,23 +2,25 @@
 
 declare(strict_types=1);
 
-namespace SAML2\XML\mdrpi;
+namespace SimpleSAML\SAML2\XML\mdrpi;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use SAML2\DOMDocumentFactory;
-use SAML2\Exception\MissingAttributeException;
-use SAML2\Utils;
+use SimpleSAML\XML\DOMDocumentFactory;
+use SimpleSAML\XML\Exception\MissingAttributeException;
+use SimpleSAML\XML\Utils as XMLUtils;
 
 /**
  * Class \SAML2\XML\mdrpi\RegistrationInfoTest
  *
- * @covers \SAML2\XML\mdrpi\RegistrationInfo
+ * @covers \SimpleSAML\SAML2\XML\mdrpi\RegistrationInfo
+ * @covers \SimpleSAML\SAML2\XML\mdrpi\AbstractMdrpiElement
  * @package simplesamlphp/saml2
  */
 final class RegistrationInfoTest extends TestCase
 {
     /** @var \DOMDocument */
-    protected $document;
+    protected DOMDocument $document;
 
 
     /**
@@ -26,14 +28,8 @@ final class RegistrationInfoTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->document = DOMDocumentFactory::fromString(<<<XML
-<mdrpi:RegistrationInfo xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi"
-                        registrationAuthority="urn:example:example.org"
-                        registrationInstant="2006-05-29T11:34:27Z">
-  <mdrpi:RegistrationPolicy xml:lang="en">http://www.example.org/aai/metadata/en_registration.html</mdrpi:RegistrationPolicy>
-  <mdrpi:RegistrationPolicy xml:lang="de">http://www.example.org/aai/metadata/de_registration.html</mdrpi:RegistrationPolicy>
-</mdrpi:RegistrationInfo>
-XML
+        $this->document = DOMDocumentFactory::fromFile(
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/resources/xml/mdrpi_RegistrationInfo.xml'
         );
     }
 
@@ -56,7 +52,7 @@ XML
         $xml = $registrationInfo->toXML($document->documentElement);
 
         /** @var \DOMElement[] $registrationInfoElements */
-        $registrationInfoElements = Utils::xpQuery(
+        $registrationInfoElements = XMLUtils::xpQuery(
             $xml,
             '/root/*[local-name()=\'RegistrationInfo\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:rpi\']'
         );
@@ -70,7 +66,7 @@ XML
         $this->assertEquals('2009-02-13T23:31:30Z', $registrationInfoElement->getAttribute("registrationInstant"));
 
         /** @var \DOMElement[] $usagePolicyElements */
-        $usagePolicyElements = Utils::xpQuery(
+        $usagePolicyElements = XMLUtils::xpQuery(
             $registrationInfoElement,
             './*[local-name()=\'RegistrationPolicy\' and namespace-uri()=\'urn:oasis:names:tc:SAML:metadata:rpi\']'
         );
