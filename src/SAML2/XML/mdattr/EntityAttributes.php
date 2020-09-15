@@ -6,10 +6,15 @@ namespace SimpleSAML\SAML2\XML\mdattr;
 
 use DOMElement;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\SAML2\Exception\ProtocolViolationException;
+use SimpleSAML\SAML2\Utils;
+use SimpleSAML\SAML2\XML\saml\Assertion;
 use SimpleSAML\SAML2\XML\saml\Attribute;
+use SimpleSAML\SAML2\XML\saml\AttributeStatement;
 use SimpleSAML\XML\Chunk;
 use SimpleSAML\XML\Exception\InvalidDOMElementException;
 use SimpleSAML\XML\Utils as XMLUtils;
+
 
 /**
  * Class for handling the EntityAttributes metadata extension.
@@ -100,9 +105,7 @@ final class EntityAttributes extends AbstractMdattrElement
      */
     public function addChild($child): void
     {
-        Assert::isInstanceOfAny($child, [Assertion::class, Attribute::class]);
-
-        $this->children[] = $child;
+        $this->setChildren(array_merge($this->children, [$child]));
     }
 
 
@@ -126,7 +129,7 @@ final class EntityAttributes extends AbstractMdattrElement
             if ($node->localName === 'Attribute') {
                 $children[] = Attribute::fromXML($node);
             } elseif ($node->localName === 'Assertion') {
-                $children[] = new Assertion($node);
+                $children[] = Assertion::fromXML($node);
             } else {
                 throw new \InvalidArgumentException('Illegal content in mdattr:EntityAttributes message.');
             }

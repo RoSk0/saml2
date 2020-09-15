@@ -21,6 +21,7 @@ use SimpleSAML\XML\Utils as XMLUtils;
  * @covers \SimpleSAML\SAML2\XML\mdattr\AbstractMdattrElement
  * @package simplesamlphp/saml2
  */
+
 final class EntityAttributesTest extends TestCase
 {
     /** @var \DOMDocument */
@@ -77,11 +78,12 @@ final class EntityAttributesTest extends TestCase
      */
     public function testUnmarshalling(): void
     {
-        $entityAttributes = EntityAttributes::fromXML($this->document->firstChild);
+        $entityAttributes = EntityAttributes::fromXML($this->document->documentElement);
         $this->assertCount(4, $entityAttributes->getChildren());
 
         $this->assertInstanceOf(Attribute::class, $entityAttributes->getChildren()[0]);
         $this->assertInstanceOf(Attribute::class, $entityAttributes->getChildren()[1]);
+
         $this->assertInstanceOf(Chunk::class, $entityAttributes->getChildren()[2]);
         $this->assertInstanceOf(Attribute::class, $entityAttributes->getChildren()[3]);
 
@@ -99,14 +101,13 @@ final class EntityAttributesTest extends TestCase
 
 
     /**
-     * Test serialization and unserialization of EntityAttributes elements.
+     * Test serialization / unserialization
      */
     public function testSerialization(): void
     {
-        $ea = EntityAttributes::fromXML($this->document->documentElement);
         $this->assertEquals(
             $this->document->saveXML($this->document->documentElement),
-            strval(unserialize(serialize($ea)))
+            strval(unserialize(serialize(EntityAttributes::fromXML($this->document->documentElement))))
         );
     }
 
