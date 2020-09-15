@@ -29,7 +29,6 @@ final class EntityAttributesTest extends TestCase
 
 
     /**
-     * @return void
      */
     public function setUp(): void
     {
@@ -40,7 +39,6 @@ final class EntityAttributesTest extends TestCase
 
 
     /**
-     * @return void
      */
     public function testMarshalling(): void
     {
@@ -74,7 +72,6 @@ final class EntityAttributesTest extends TestCase
 
 
     /**
-     * @return void
      */
     public function testUnmarshalling(): void
     {
