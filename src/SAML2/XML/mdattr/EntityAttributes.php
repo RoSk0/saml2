@@ -71,7 +71,12 @@ final class EntityAttributes extends AbstractMdattrElement
         });
 
         foreach ($assertions as $assertion) {
-            $statements = $assertion->getStatements();
+            $statements = array_merge(
+                $assertion->getAttributeStatements(),
+                $assertion->getAuthnStatements(),
+                $assertion->getStatements()
+            );
+
             Assert::allIsInstanceOf(
                 $statements,
                 AttributeStatement::class,
@@ -79,8 +84,8 @@ final class EntityAttributes extends AbstractMdattrElement
                 ProtocolViolationException::class
             );
             Assert::count(
-                1,
                 $statements,
+                1,
                 'One (and only one) <saml:AttributeStatement> MUST be included in a <saml:Assertion> inside a <mdattr:EntityAttribute>',
                 ProtocolViolationException::class
             );
