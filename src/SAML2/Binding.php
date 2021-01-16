@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimpleSAML\SAML2;
 
 use Exception;
+use Psr\Http\Message\ServerRequestInterface
 use SimpleSAML\SAML2\XML\samlp\AbstractMessage;
 
 /**
@@ -61,16 +62,18 @@ abstract class Binding
      *
      * An exception will be thrown if it is unable to guess the binding.
      *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @throws \Exception
      * @return \SimpleSAML\SAML2\Binding The binding.
      */
-    public static function getCurrentBinding(): Binding
+    public static function getCurrentBinding(ServerRequestInterface $request): Binding
     {
-        switch ($_SERVER['REQUEST_METHOD']) {
+        switch ($request->getMethod()) {
             case 'GET':
-                if (array_key_exists('SAMLRequest', $_GET) || array_key_exists('SAMLResponse', $_GET)) {
+                $query = $request->getQueryParams();
+                if (array_key_exists('SAMLRequest', $query) || array_key_exists('SAMLResponse', $query)) {
                     return new HTTPRedirect();
-                } elseif (array_key_exists('SAMLart', $_GET)) {
+                } elseif (array_key_exists('SAMLart', $query)) {
                     return new HTTPArtifact();
                 }
                 break;
@@ -96,8 +99,8 @@ abstract class Binding
         $logger = Utils::getContainer()->getLogger();
         $logger->warning('Unable to find the SAML 2 binding used for this request.');
         $logger->warning('Request method: ' . var_export($_SERVER['REQUEST_METHOD'], true));
-        if (!empty($_GET)) {
-            $logger->warning("GET parameters: '" . implode("', '", array_map('addslashes', array_keys($_GET))) . "'");
+        if (!empty($query)) {
+            $logger->warning("GET parameters: '" . implode("', '", array_map('addslashes', array_keys($query))) . "'");
         }
         if (!empty($_POST)) {
             $logger->warning("POST parameters: '" . implode("', '", array_map('addslashes', array_keys($_POST))) . "'");
