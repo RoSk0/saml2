@@ -79,6 +79,7 @@ abstract class Binding
                 break;
 
             case 'POST':
+                $query = $request->getParsedBody();
                 if (isset($_SERVER['CONTENT_TYPE'])) {
                     $contentType = $_SERVER['CONTENT_TYPE'];
                     $contentType = explode(';', $contentType);
@@ -86,9 +87,10 @@ abstract class Binding
                 } else {
                     $contentType = null;
                 }
-                if (array_key_exists('SAMLRequest', $_POST) || array_key_exists('SAMLResponse', $_POST)) {
+
+                if (array_key_exists('SAMLRequest', $query) || array_key_exists('SAMLResponse', $query)) {
                     return new HTTPPost();
-                } elseif (array_key_exists('SAMLart', $_POST)) {
+                } elseif (array_key_exists('SAMLart', $query)) {
                     return new HTTPArtifact();
                 } elseif ($contentType === 'text/xml' || $contentType === 'application/soap+xml') {
                     return new SOAP();
