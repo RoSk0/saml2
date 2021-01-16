@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SimpleSAML\SAML2;
 
 use Exception;
-use Psr\Http\Message\ServerRequestInterface
+use Psr\Http\Message\ServerRequestInterface;
 use SimpleSAML\SAML2\XML\samlp\AbstractMessage;
 
 /**
@@ -68,7 +68,8 @@ abstract class Binding
      */
     public static function getCurrentBinding(ServerRequestInterface $request): Binding
     {
-        switch ($request->getMethod()) {
+        $method = $request->getMethod();
+        switch ($method) {
             case 'GET':
                 $query = $request->getQueryParams();
                 if (array_key_exists('SAMLRequest', $query) || array_key_exists('SAMLResponse', $query)) {
@@ -80,8 +81,9 @@ abstract class Binding
 
             case 'POST':
                 $query = $request->getParsedBody();
-                if (isset($_SERVER['CONTENT_TYPE'])) {
-                    $contentType = $_SERVER['CONTENT_TYPE'];
+                $server = $request->getServerParam();
+                if (isset($server['CONTENT_TYPE'])) {
+                    $contentType = $server['CONTENT_TYPE'];
                     $contentType = explode(';', $contentType);
                     $contentType = $contentType[0]; /* Remove charset. */
                 } else {
@@ -100,15 +102,12 @@ abstract class Binding
 
         $logger = Utils::getContainer()->getLogger();
         $logger->warning('Unable to find the SAML 2 binding used for this request.');
-        $logger->warning('Request method: ' . var_export($_SERVER['REQUEST_METHOD'], true));
+        $logger->warning('Request method: ' . var_export($server['REQUEST_METHOD'], true));
         if (!empty($query)) {
-            $logger->warning("GET parameters: '" . implode("', '", array_map('addslashes', array_keys($query))) . "'");
+            $logger->warning($method . " parameters: '" . implode("', '", array_map('addslashes', array_keys($query))) . "'");
         }
-        if (!empty($_POST)) {
-            $logger->warning("POST parameters: '" . implode("', '", array_map('addslashes', array_keys($_POST))) . "'");
-        }
-        if (isset($_SERVER['CONTENT_TYPE'])) {
-            $logger->warning('Content-Type: ' . var_export($_SERVER['CONTENT_TYPE'], true));
+        if (isset($server['CONTENT_TYPE'])) {
+            $logger->warning('Content-Type: ' . var_export($server['CONTENT_TYPE'], true));
         }
 
         throw new Exception('Unable to find the SAML 2 binding used for this request.');
