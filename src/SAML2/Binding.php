@@ -68,7 +68,7 @@ abstract class Binding
      */
     public static function getCurrentBinding(ServerRequestInterface $request): Binding
     {
-        $server = $request->getServerParam();
+        $headers = $request->getHeaders();
         $method = $request->getMethod();
 
         switch ($method) {
@@ -82,8 +82,9 @@ abstract class Binding
                 break;
 
             case 'POST':
-                if (isset($server['CONTENT_TYPE'])) {
-                    $contentType = $server['CONTENT_TYPE'];
+                if (isset($headers['CONTENT_TYPE'])) {
+                    // TO-DO: Deal with multiple CONTENT_TYPE headers
+                    $contentType = $headers['CONTENT_TYPE'][0];
                     $contentType = explode(';', $contentType);
                     $contentType = $contentType[0]; /* Remove charset. */
                 } else {
@@ -103,12 +104,12 @@ abstract class Binding
 
         $logger = Utils::getContainer()->getLogger();
         $logger->warning('Unable to find the SAML 2 binding used for this request.');
-        $logger->warning('Request method: ' . var_export($server['REQUEST_METHOD'], true));
+        $logger->warning('Request method: ' . var_export($method, true));
         if (!empty($query)) {
             $logger->warning($method . " parameters: '" . implode("', '", array_map('addslashes', array_keys($query))) . "'");
         }
-        if (isset($server['CONTENT_TYPE'])) {
-            $logger->warning('Content-Type: ' . var_export($server['CONTENT_TYPE'], true));
+        if (isset($headers['CONTENT_TYPE'])) {
+            $logger->warning('Content-Type: ' . var_export($headers['CONTENT_TYPE'], true));
         }
 
         throw new Exception('Unable to find the SAML 2 binding used for this request.');
