@@ -16,6 +16,9 @@ use SimpleSAML\SAML2\SOAP;
 
 /**
  * @covers \SimpleSAML\SAML2\Binding
+ * @covers \SimpleSAML\SAML2\HTTPArtifact
+ * @covers \SimpleSAML\SAML2\HTTPPost
+ * @covers \SimpleSAML\SAML2\HTTPRedirect
  * @package simplesamlphp\saml2
  */
 final class BindingTest extends TestCase
